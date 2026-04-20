@@ -3,7 +3,7 @@
 \docType{data}
 \name{post_Igushik_byr63_15}
 \alias{post_Igushik_byr63_15}
-\title{Igushik River MCMC Output (Brood Years 1963–2017)}
+\title{Igushik River MCMC Output (Brood Years 1963-2017)}
 \format{
 A data frame with one row per MCMC draw and columns:
 \describe{
@@ -16,18 +16,18 @@ A data frame with one row per MCMC draw and columns:
 }
 }
 \source{
-Igushik River stock–recruit model (brood years 1963–2015).
+Igushik River stock-recruit model (brood years 1963-2015).
 }
 \usage{
 post_Igushik_byr63_15
 }
 \description{
-Similar to \code{post_Igushik_byr63_05} but using an extended brood‑year series
+Similar to \code{post_Igushik_byr63_05} but using an extended brood-year series
 through 2017. These posterior samples allow evaluation of escapement goals
 using the full contemporary brood table.
 }
 \details{
-Posterior samples are used to generate stock–recruit curves, calculate SMSY,
+Posterior samples are used to generate stock-recruit curves, calculate SMSY,
 and derive Optimal Yield Profiles (OYP).
 This dataset is nearly identical to \code{post_Igushik_byr63_05} but based on
 an expanded brood year range. Used to demonstrate updating a dataset to

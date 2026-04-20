@@ -10,12 +10,12 @@ A data frame with one row per year and the following variables:
 \item{yr}{Calendar year of observation.}
 \item{S}{Spawning escapement (numeric).}
 \item{N}{Total return (numeric).}
-\item{A3}{Count or proportion of age‑3 returning fish.}
-\item{A4}{Count or proportion of age‑4 returning fish.}
-\item{A5}{Count or proportion of age‑5 returning fish.}
-\item{A6}{Count or proportion of age‑6 returning fish.}
-\item{A7}{Count or proportion of age‑7 returning fish.}
-\item{A8}{Count or proportion of age‑8 returning fish.}
+\item{A3}{Count or proportion of age-3 returning fish.}
+\item{A4}{Count or proportion of age-4 returning fish.}
+\item{A5}{Count or proportion of age-5 returning fish.}
+\item{A6}{Count or proportion of age-6 returning fish.}
+\item{A7}{Count or proportion of age-7 returning fish.}
+\item{A8}{Count or proportion of age-8 returning fish.}
 }
 }
 \source{
@@ -27,9 +27,9 @@ data_Igushik
 }
 \description{
 A data frame containing annual escapement (\code{S}), total run (\code{N}), and age
-composition columns (\code{A3}–\code{A8}) for the Igushik River. These observations are
+composition columns (\code{A3}-\code{A8}) for the Igushik River. These observations are
 typically used to generate brood tables, estimate recruitment, and prepare
-inputs for stock–recruit analyses.
+inputs for stock-recruit analyses.
 }
 \details{
 Age composition fields may represent either expanded counts or proportions,
