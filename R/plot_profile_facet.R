@@ -17,6 +17,8 @@
 #' row with the year labeled as "new". Use ub = NA for lower bound SEGs.
 #' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
 #' @param limit Upper bound of spawners for plot. Default (NULL) will use 2.25 times S.msy.
+#' @param labelK TRUE / FALSE value for whether plot should display x axis values
+#' using a K for thousands (e.g., 350,000 would be 350K). Defaults to FALSE.
 #'
 #' @seealso [plot_profile()]
 #'
@@ -24,7 +26,7 @@
 #'
 #' @import dplyr tibble tidyr ggplot2 stringr
 #' @importFrom magrittr %>%
-#' @importFrom scales comma
+#' @importFrom scales comma label_number
 #'
 #' @examples
 #'
@@ -43,7 +45,8 @@
 plot_profile_facet <- function(profile_data,
                           goal_data,
                           title,
-                          limit = NULL){
+                          limit = NULL,
+                          labelK = FALSE){
   S.msy50 <- max(sapply(profile_data, function(x) median(x[["S.msy"]])))
   n_OYP <- sapply(profile_data, function(x) sum(grepl("OYP\\d+", names(x))))
   name_alternate <- names(profile_data[[2]])[!(names(profile_data[[2]]) %in% c("s", "OYP90", "SY", "S.msy"))]
@@ -104,29 +107,31 @@ plot_profile_facet <- function(profile_data,
     do.call(rbind, .) %>%
     dplyr::group_by(s) %>%
     dplyr::filter(s <= xmax) %>%
-    tidyr::gather("key", "prob", -s, -S.msy, -SY, - profile, factor_key = TRUE) %>%
+    #tidyr::gather("key", "prob", -s, -S.msy, -SY, - profile, factor_key = TRUE) %>%
+    pivot_longer(cols = -c(s, S.msy, SY, profile),names_to  = "key",values_to = "prob") %>%
+    #names_transform = list(key = forcats::fct_inorder) # insert in case things break in future
     dplyr::mutate(max_pct = gsub("[A-Z]+([0-9]+)", "\\1", key)) %>%
     ggplot2::ggplot(ggplot2::aes(x = s, y = prob, linetype = max_pct)) +
     ggplot2::geom_line() +
     ggplot2::geom_segment(aes(x = x, xend = xend, y = y), data = ref_lines, linewidth = 0.25) +
     ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf),
                        data = goal_data,
-                       inherit.aes = FALSE, fill = "grey", alpha = 0.2) +
+                       inherit.aes = FALSE, fill = "gray", alpha = 0.2) +
     ggplot2::facet_grid(. ~ profile) +
-    ggplot2::scale_x_continuous(limits = c(0, xmax), labels = scales::comma) +
+    #ggplot2::scale_x_continuous(limits = c(0, xmax), labels = scales::comma) +
     ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.2), limits = c(0, 1)) +
     ggplot2::scale_linetype_manual(values = if(max(n_OYP) == 2){c("dashed", "solid")}else("solid"))+
-    ggplot2::theme_bw(base_size = 16) +
-    ggplot2::ggtitle(title) +
     labs(
       title = title,
       x = "Escapement",
       y = "Probability",
       caption = cap) +
-    theme(text = element_text(family = "sans"),
-          plot.caption = element_text(
-            hjust = 0,
-            size = 10),
-          plot.caption.position = "plot",
-          legend.position = "none")
+    theme_eg() +
+    {if(labelK==TRUE){
+      ggplot2::scale_x_continuous(limits = c(0, xmax),
+                                  labels = scales::label_number(scale = 1 / 1e3, big.mark = ",", suffix = "K"))
+    }
+      else{
+        ggplot2::scale_x_continuous(limits = c(0, xmax), labels = scales::comma)
+      }}
 }

@@ -1,7 +1,7 @@
 Package: EGprocess
 Type: Package
 Title: What the Package Does (Title Case)
-Version: 0.1.8
+Version: 0.1.10
 Authors@R: c(
     person(
       "Adam", "Reimer",

@@ -111,17 +111,10 @@ plot_profile <- function(profile_data,
     ggplot2::scale_x_continuous(limits = c(0, xmax), labels = scales::comma) +
     ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.2), limits = c(0, 1)) +
     ggplot2::scale_linetype_manual(values = if(n_OYP == 2){c("dashed", "solid")}else("solid"))+
-    ggplot2::theme_bw(base_size = 16) +
-    ggplot2::ggtitle(title) +
     labs(
       title = title,
       x = "Escapement",
       y = "Probability",
       caption = cap) +
-    theme(text = element_text(family = "sans"),
-          plot.caption = element_text(
-            hjust = 0,
-            size = 10),
-          plot.caption.position = "plot",
-          legend.position = "none")
+    theme_eg()
 }

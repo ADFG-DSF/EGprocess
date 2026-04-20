@@ -4,7 +4,13 @@
 \alias{plot_profile_facet}
 \title{Comparative OYP Plot}
 \usage{
-plot_profile_facet(profile_data, goal_data, title, limit = NULL)
+plot_profile_facet(
+  profile_data,
+  goal_data,
+  title,
+  limit = NULL,
+  labelK = FALSE
+)
 }
 \arguments{
 \item{profile_data}{A list of 2 OYPs that you wish to plot. The name of each
@@ -21,6 +27,9 @@ row with the year labeled as "new". Use ub = NA for lower bound SEGs.}
 \item{title}{A character vector with the plot title. Suggest "X River, Y Salmon".}
 
 \item{limit}{Upper bound of spawners for plot. Default (NULL) will use 2.25 times S.msy.}
+
+\item{labelK}{TRUE / FALSE value for whether plot should display x axis values
+using a K for thousands (e.g., 350,000 would be 350K). Defaults to FALSE.}
 }
 \value{
 A figure
