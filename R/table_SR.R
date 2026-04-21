@@ -13,7 +13,7 @@
 #'
 #' @examples
 #'
-#' params_Igushik <- table_SR(post_Igushik_byr63_15, multiplier = 1e-5)
+#' params_Igushik <- table_SR(profile_data = post_Igushik_byr63_15, multiplier = 1e-5)
 #'
 #' @export
 
@@ -91,16 +91,13 @@ table_SR <- function(posterior_data,
                   ) %>%
     dplyr::arrange(param) %>%
     flextable::flextable(col_keys = c("param", "description", "print")) %>%
-    flextable::set_header_labels(
-      values = list(
-        param = "Symbol",
-        description = "Description",
-        print = "Median (95% CI)")
-      ) %>%
-    flextable::add_header_row(
-      values = c("Parameter", "Estimate"),
-      colwidths = c(2, 1),
-      top = TRUE) %>%
+    flextable::set_header_labels(values = list(
+                                 param = "Symbol",
+                                 description = "Description",
+                                 print = "Median (95% CI)")) %>%
+    flextable::add_header_row(values = c("Parameter", "Estimate"),
+                              colwidths = c(2, 1),
+                              top = TRUE) %>%
     flextable::compose(i = ~ param == "Seq",
                        j = "param",
                        value = flextable::as_paragraph("S", flextable::as_sub("EQ")),
