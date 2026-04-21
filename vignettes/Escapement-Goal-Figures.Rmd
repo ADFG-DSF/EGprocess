@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, message = FALSE, warning = FALSE}
+```{r, message = FALSE, warning = FALSE, include = FALSE}
 library(EGprocess)
 library(tidyverse)
 ```
@@ -91,12 +91,12 @@ Recall that the previous escapement goal update that resulted in a new escapemen
 head(post_Igushik_byr63_05)
 ```
 
-In the State of Alaska most salmon stocks have existing escapement goals and those escapement goals bounds represent the result of extensive negotiations that account for not only th information about how to maximize sustained yield that was provided by the analysis but also concerns about stock status that are poorly reflected in the analysis and concerns from stakeholders and management staff about how to most effectively persecute the fishery. For these reasons, it is often most helpful to consider how the updated escapement goal analysis changes our interpretation of the existing goal rather than using the updated analysis to develop an new escapement goal finding naively. `EGprocess` can help make this comparison if both sets of posterior data are provided to the functions as a list with the posteriors named and provided in chronological order.
+In Alaska, most salmon stocks have existing escapement goals and those escapement goals bounds represent the result of extensive negotiations that account for not only th information about how to maximize sustained yield that was provided by the analysis but also concerns about stock status that are poorly reflected in the analysis and concerns from stakeholders and management staff about how to most effectively persecute the fishery. For these reasons, it is often most helpful to consider how the updated escapement goal analysis changes our interpretation of the existing goal rather than using the updated analysis to develop an new escapement goal finding naively. `EGprocess` can help make this comparison if both sets of posterior data are provided to the functions as a list with the posteriors named and provided in chronological order.
 
 ```{r}
 post_Igushik_list <- 
-  list('byr: 1963-2005' = post_Igushik_byr63_05,
-       'byr: 1963-2015' = post_Igushik_byr63_15
+  list('Brood years: 1963-2005' = post_Igushik_byr63_05,
+       'Brood years: 1963-2015' = post_Igushik_byr63_15
   )
 ```
 
@@ -110,7 +110,7 @@ profile_Igushik_byr63_15 <-
   get_profile(posterior_data = post_Igushik_byr63_15,
               multiplier = 1e-5)
 
-#When posteriors are combined into a list
+#For multiple posteriors, use a list (and lapply() to the elements)
 profile_Igushik_list <- 
   lapply(post_Igushik_list, 
          FUN = get_profile, 
