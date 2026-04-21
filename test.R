@@ -1,3 +1,5 @@
+library(EGprocess)
+library(tidyverse)
 p_Igushik <- make_age(data_Igushik, 3, 8)
 brood_Igushik <- make_brood(data_Igushik, p_Igushik)
 goal_Igushik <-
@@ -8,10 +10,19 @@ goal_Igushik <-
   )
 goal_Igushik_new <-
   data.frame(
-    yr = c(1984, 2001, 2015, 2026),
+    yr = c(1984, 2001, 2015, "new"),
     lb = c(150000, 150000, 150000, 200000),
     ub = c(250000, 300000, 400000, 500000)
   )
+
+# Create list of profiles
+post_list <-
+  list(
+    'byr: 1963-2005' = post_Igushik_byr63_05,
+    'byr: 1963-2017' = post_Igushik_byr63_15
+  )
+profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
+profile_list80 <- lapply(post_list, get_profile, multiplier = 1e-5, MSY_pct = 80)
 
 # test plot_s w and wo a new goal finding
 plot_escapement(brood_Igushik,
@@ -30,8 +41,18 @@ plot_SR(post_Igushik_byr63_15,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
+plot_SR(post_list,
+        brood_Igushik,
+        goal_dat = goal_Igushik,
+        "Igushik River Sockeye Salmon",
+        multiplier = 1e-5)
 #new finding
 plot_SR(post_Igushik_byr63_15,
+        brood_Igushik,
+        goal_dat = goal_Igushik_new,
+        "Igushik River Sockeye Salmon",
+        multiplier = 1e-5)
+plot_SR(post_list,
         brood_Igushik,
         goal_dat = goal_Igushik_new,
         "Igushik River Sockeye Salmon",
@@ -39,18 +60,15 @@ plot_SR(post_Igushik_byr63_15,
 #first finding
 plot_SR(post_Igushik_byr63_15,
         brood_Igushik,
-        goal_dat = goal_Igushik_new[goal_Igushik_new$yr == 2026, ],
+        goal_dat = goal_Igushik_new[goal_Igushik_new$yr == "new", ],
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
-
-# Create profiles for plot_ey and plot_profil testing
-post_list <-
-  list(
-    'byr: 1963-2005' = post_Igushik_byr63_05,
-    'byr: 1963-2017' = post_Igushik_byr63_15
-  )
-profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
-profile_list80 <- lapply(post_list, get_profile, multiplier = 1e-5, MSY_pct = 80)
+#would be better if this threw an error
+plot_SR(post_list,
+        brood_Igushik,
+        goal_dat = goal_Igushik_new[goal_Igushik_new$yr == "new", ],
+        "Igushik River Sockeye Salmon",
+        multiplier = 1e-5)
 
 #test plot_ey
 # No goal change

@@ -36,16 +36,23 @@ plot_SR <- function(posterior_data,
                     goal_data,
                     title,
                     multiplier){
-  param_50 <-
-    data.frame(beta = posterior_data[["beta"]] * multiplier,
-               lnalpha = posterior_data[["lnalpha"]],
-               phi = posterior_data[["phi"]],
-               sigma = posterior_data[["sigma"]]) %>%
-    dplyr::summarise(beta = median(beta),
-              lnalpha = median(lnalpha),
-              phi = median(phi),
-              sigma = median(sigma),
-              Smsy = lnalpha / beta * (0.5 - 0.07 * lnalpha))
+
+
+  get_param50 <- function(post){
+    data.frame(beta = post[["beta"]] * multiplier,
+               lnalpha = post[["lnalpha"]],
+               phi = ifelse(names(post) %in% "phi", post[["phi"]], 0),
+               sigma = post[["sigma"]]) %>%
+      dplyr::summarise(beta = median(beta),
+                       lnalpha = median(lnalpha),
+                       phi = median(phi),
+                       sigma = median(sigma),
+                       Smsy = lnalpha / beta * (0.5 - 0.07 * lnalpha))
+  }
+
+  if(length(posterior_data) == 2){param50_update <- get_param50(posterior_data[[2]])}
+  else{param50_update <- get_param50(posterior_data)}
+  if(length(posterior_data) == 2){param50_last <- get_param50(posterior_data[[1]])}
 
   # Identify brood years added since the last goal change.
   # Likely fragile. Need Hamachan to output some of this stuff.
@@ -63,27 +70,33 @@ plot_SR <- function(posterior_data,
   cap_width = 85
   cap <-
     case_when(
-      sum(brood_data$update == "existing") == 0 ~ str_wrap("Note: The dashed line represents
-      the 1:1 line; points above this line represent spawning events that produced a
-      harvestable surplus. The vertical line shows Smsy. The current escapement
-      goal range is shaded gray.", width = cap_width),
-      sum(brood_data$update == "updated") > 0 ~ str_wrap("Note: Filled circles
+      length(posterior_data) == 2 ~ str_wrap("Note: Filled circles
       indicated observations added to the dataset since the escapement goal last
-      changed. The dashed line represents the 1:1 line; points above this line
-      represent spawning events that produced a harvestable surplus. The vertical
+      changed. Dashed lines indicate the estimated spawner-recruit relationship and Smsy
+      at the time of the last change while solid lines represent the updated estimates.
+      The dotted line represents the 1:1 line. The current escapement goal range is
+      shaded gray.", width = cap_width),
+      length(posterior_data) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(
+        "Note: The dotted line represents the 1:1 line. The vertical line shows Smsy.
+      The current escapement goal range is shaded gray.", width = cap_width),
+      length(posterior_data) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(
+        "Note: Filled circles indicated observations added to the dataset since the
+      escapement goal last changed. The dotted line represents the 1:1 line. The vertical
       line shows Smsy. The current escapement goal range is shaded gray.", width = cap_width)
     )
 
-  ggplot2::ggplot(brood_data, ggplot2::aes(x = S, y = R)) +
+  plot <-
+    ggplot2::ggplot(brood_data, ggplot2::aes(x = S, y = R)) +
     ggplot2::geom_point(aes(shape = update), size = 2) +
-    ggplot2::stat_function(fun=function(x){x * exp(param_50$lnalpha - param_50$beta * x)},
-                           linewidth = 1.5,
+    ggplot2::stat_function(fun=function(x){x * exp(param50_update$lnalpha - param50_update$beta * x)},
+                           linewidth = 1,
+                           linetype = "solid",
                            xlim = c(0, upper_x)) +
     ggplot2::scale_x_continuous(minor_breaks = NULL, labels = scales::comma) +
     ggplot2::scale_y_continuous(minor_breaks = NULL, labels = scales::comma) +
     ggplot2::coord_cartesian(xlim = c(0, upper_x), ylim = c(0, upper_y)) +
-    ggplot2::geom_abline(slope = 1, linewidth = 1, linetype = 2) +
-    ggplot2::geom_vline(xintercept = param_50$Smsy) +
+    ggplot2::geom_abline(slope = 1, linewidth = 0.5, linetype = "dotted") +
+    ggplot2::geom_vline(xintercept = param50_update$Smsy, linetype = "solid", linewidth = 0.5) +
     ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf),
                        data = goal_data[dim(goal_data)[1], ],
                        inherit.aes = FALSE, fill = "gray", alpha = 0.2) +
@@ -95,5 +108,14 @@ plot_SR <- function(posterior_data,
       y = "Recruitment",
       caption = cap) +
     theme_eg()
-}
 
+  if(length(posterior_data) == 2){
+    plot +
+      ggplot2::stat_function(fun=function(x){x * exp(param50_last$lnalpha - param50_last$beta * x)},
+                             linetype = "dashed",
+                             linewidth = 0.5,
+                             xlim = c(0, upper_x)) +
+      ggplot2::geom_vline(xintercept = param50_last$Smsy, linewidth = 0.5, linetype = "dashed")
+  }
+  else(plot)
+}
