@@ -102,7 +102,7 @@ post_Igushik_list <-
 
 ### profile_data
 
-Some `EGprocess` functions utilize the function argument `profile_data` which is a derivative of the `posterior data` files described above and are required to build optimal yield profiles (OYP) and expected yield plots. A helper function is provided to create `profile_data` from `posterior_data`. 
+Some `EGprocess` functions utilize the function argument `profile_data` which is a derivative of the `posterior data` files described above and are required to build optimal yield profiles. A helper function is provided to create `profile_data` from `posterior_data`. 
 
 ```{r}
 # For a single posterior
@@ -158,7 +158,7 @@ ggsave(filename = "../man/figures/Igushik_ey.png", #Replace with a path relevant
 ggsave(filename = "../man/figures/Igushik_profile.png", #Replace with a path relevant to you.
        plot = output_Igushik[[4]],
        width = 6,
-       height = 4,
+       height = 6,
        dpi = 300)
 ```
 
@@ -244,7 +244,7 @@ ggsave(filename = "../man/figures/imaginary_spawner_recruit.png", #Replace with 
 ggsave(filename = "../man/figures/imaginary_profile.png", #Replace with a path relevant to you.
        plot = output_imaginary[[4]],
        width = 6,
-       height = 4,
+       height = 6,
        dpi = 300)
 ```
 
@@ -422,7 +422,7 @@ Igushik_profile_80 <-
 ggsave(filename = "../man/figures/Igushik_profile_80.png", #Replace with a path relevant to you.
        plot = Igushik_profile_80,
        width = 6,
-       height = 4,
+       height = 6,
        dpi = 300)
 ```
 

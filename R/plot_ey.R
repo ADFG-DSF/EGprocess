@@ -2,7 +2,8 @@
 #' @description
 #' Produces an expected yield plot with an overlay of the SR curve and the goal range.
 #'
-#' @param profile_data Output of the get_profile function.
+#' @param posterior_data A dataframe containing lnalpha, beta, phi, and sigma.
+#' Can handle point estimates (input as a single row) or mcmc samples (input as multiple rows)
 #' @param brood_data A dataframe containing year (yr), Spawners (S), and Recruits (R)
 #' to be included in the plot. The data frame should include years without empirical
 #' observations of S and R.
@@ -12,6 +13,7 @@
 #' a new escapement goal finding the new finding should be included as the last
 #' row with the year labeled as "new". Use ub = NA for lower bound SEGs.
 #' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
+#' @param multiplier The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.
 #'
 #' @return A figure
 #'
@@ -21,29 +23,32 @@
 #'
 #' @examples
 #'
-#' p_Igushik <- make_age(data_Igushik, min_age = 3, max_age = 8)
-#' brood_Igushik <- make_brood(data = data_Igushik, p = p_Igushik)
-#'
-#' profile_Igushik <- get_profile(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
-#'
-#' plot_ey(profile_data = profile_Igushik, brood_data = brood_Igushik,
-#' goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon")
+#' plot_ey(posterior_data = post_Igushik_byr63_15, brood_data = brood_Igushik,
+#' goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
 #'
 #' @export
 
-plot_ey <- function(profile_data,
+plot_ey <- function(posterior_data,
                     brood_data,
                     goal_data,
-                    title){
-  plot_dat <-
-    profile_data %>%
-    dplyr::select(s, dplyr::starts_with("SY")) %>%
-    dplyr::group_by(s) %>%
-    dplyr::summarise(median.SY = median(SY, na.rm = TRUE),
-                     p25.SY = quantile(SY, probs = 0.25, na.rm = TRUE),
-                     p75.SY = quantile(SY, probs = 0.75, na.rm = TRUE)
-    ) %>%
-    tidyr::gather(Productivity, SY, median.SY)
+                    title,
+                    multiplier = 1){
+
+  get_param50 <- function(post){
+    data.frame(beta = post[["beta"]] * multiplier,
+               lnalpha = post[["lnalpha"]],
+               phi = ifelse(names(post) %in% "phi", post[["phi"]], 0),
+               sigma = post[["sigma"]]) %>%
+      dplyr::summarise(beta = median(beta),
+                       lnalpha = median(lnalpha),
+                       phi = median(phi),
+                       sigma = median(sigma),
+                       Smsy = lnalpha / beta * (0.5 - 0.07 * lnalpha))
+  }
+
+  if(length(posterior_data) == 2){param50_update <- get_param50(posterior_data[[2]])}
+  else{param50_update <- get_param50(posterior_data)}
+  if(length(posterior_data) == 2){param50_last <- get_param50(posterior_data[[1]])}
 
   goal_range <- as.numeric(goal_data[dim(goal_data)[1], c(2, 3)])
 
@@ -65,21 +70,32 @@ plot_ey <- function(profile_data,
   cap_width = 85
   cap <-
     case_when(
-      sum(brood_data$update == "existing") == 0 ~
-        stringr::str_wrap("Note: The current escapement goal range is shaded gray.", width = cap_width),
-      sum(brood_data$update == "updated") > 0 ~
-        stringr::str_wrap("Note: Filled circles indicated observations added to
-                          the dataset since the escapement goal was last modified.
-                          The current escapement goal range is shaded gray.", width = cap_width)
+      length(posterior_data) == 2 ~ str_wrap("Note: Filled circles
+      indicated observations added to the dataset since the escapement goal last
+      changed. Dashed lines indicate sustained yield and the escapement that maximizes sustained
+      yieldat the time of the last change while solid lines represent the updated estimates.
+      The current escapement goal range is shaded gray.", width = cap_width),
+      length(posterior_data) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(
+        "Note: The vertical line shows the escapement that maximizes sustained yield. The current
+        escapement goal range is shaded gray.", width = cap_width),
+      length(posterior_data) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(
+        "Note: Filled circles indicated observations added to the dataset since the escapement goal
+        last changed. The vertical line shows the escapement that maximizes sustained yield. The
+        current escapement goal range is shaded gray.", width = cap_width)
     )
 
-  ggplot2::ggplot(brood_data, aes(x = S, y = Y)) +
+  plot <-
+    ggplot2::ggplot(brood_data, aes(x = S, y = Y)) +
     geom_point(aes(shape = update), size = 2) +
-    ggplot2::geom_line(ggplot2::aes(x = s, y = SY, color = Productivity), data = plot_dat) +
-    ggplot2::geom_ribbon(ggplot2::aes(x = s, ymin = p25.SY, ymax = p75.SY), data = plot_dat, inherit.aes = FALSE, alpha = 0.1) +
+    ggplot2::stat_function(fun=function(x){(x * exp(param50_update$lnalpha - param50_update$beta * x) - x)},
+                           linewidth = 1,
+                           linetype = "solid",
+                           xlim = c(0, xmax)) +
     ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf),
                        data = goal_data[dim(goal_data)[1], ],
                        inherit.aes = FALSE, fill = "gray", alpha = 0.2) +
+    ggplot2::geom_hline(yintercept = 0, linewidth = 0.5, linetype = "dotted") +
+    ggplot2::geom_vline(xintercept = param50_update$Smsy, linetype = "solid", linewidth = 0.5) +
     ggplot2::scale_x_continuous(labels = scales::comma) +
     ggplot2::scale_y_continuous(labels = scales::comma) +
     ggplot2::coord_cartesian(xlim = c(0, xmax), ylim = c(ymin, ymax)) +
@@ -91,4 +107,15 @@ plot_ey <- function(profile_data,
       y = "Yield",
       caption = cap) +
     theme_eg()
+
+
+  if(length(posterior_data) == 2){
+    plot +
+      ggplot2::stat_function(fun=function(x){(x * exp(param50_last$lnalpha - param50_last$beta * x) - x)},
+                             linetype = "dashed",
+                             linewidth = 0.5,
+                             xlim = c(0, xmax)) +
+      ggplot2::geom_vline(xintercept = param50_last$Smsy, linewidth = 0.5, linetype = "dashed")
+  }
+  else(plot)
 }

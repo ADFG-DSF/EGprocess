@@ -71,18 +71,18 @@ plot_SR <- function(posterior_data,
   cap <-
     case_when(
       length(posterior_data) == 2 ~ str_wrap("Note: Filled circles
-      indicated observations added to the dataset since the escapement goal last
-      changed. Dashed lines indicate the estimated spawner-recruit relationship and Smsy
-      at the time of the last change while solid lines represent the updated estimates.
+      indicated observations added to the dataset since the escapement goal last changed. Dashed
+      lines indicate the estimated spawner-recruit relationship and the escapement that maximizes
+      sustained yield at the time of the last change while solid lines represent the updated estimates.
       The dotted line represents the 1:1 line. The current escapement goal range is
       shaded gray.", width = cap_width),
       length(posterior_data) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(
-        "Note: The dotted line represents the 1:1 line. The vertical line shows Smsy.
-      The current escapement goal range is shaded gray.", width = cap_width),
+        "Note: The dotted line represents the 1:1 line. The vertical line shows the escapement that
+        maximizes sustained yield. The current escapement goal range is shaded gray.", width = cap_width),
       length(posterior_data) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(
-        "Note: Filled circles indicated observations added to the dataset since the
-      escapement goal last changed. The dotted line represents the 1:1 line. The vertical
-      line shows Smsy. The current escapement goal range is shaded gray.", width = cap_width)
+        "Note: Filled circles indicated observations added to the dataset since the escapement goal last
+        changed. The dotted line represents the 1:1 line. The vertical line shows the escapement that
+        maximizes sustained yield. The current escapement goal range is shaded gray.", width = cap_width)
     )
 
   plot <-

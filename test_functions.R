@@ -20,8 +20,8 @@ goal_Igushik_new <-
 # Create list of profiles
 post_list <-
   list(
-    'byr: 1963-2005' = post_Igushik_byr63_05,
-    'byr: 1963-2017' = post_Igushik_byr63_15
+    'Brood years: 1963-2005' = post_Igushik_byr63_05,
+    'Brood years: 1963-2017' = post_Igushik_byr63_15
   )
 profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
 profile_list80 <- lapply(post_list, get_profile, multiplier = 1e-5, MSY_pct = 80)
@@ -77,21 +77,34 @@ table_SR(post_list[[2]], 1e-5)
 
 #test plot_ey
 # No goal change
-plot_ey(profile_list[[2]],
+plot_ey(post_list[[2]],
+        brood_Igushik,
+        goal_dat = goal_Igushik,
+        "Igushik River Sockeye Salmon",
+        multiplier = 1e-5)
+plot_ey(post_list,
+        brood_Igushik,
+        goal_dat = goal_Igushik,
+        "Igushik River Sockeye Salmon",
+        multiplier = 1e-5)
+#accepts vector of SR parameters
+plot_ey(list(c(lnalpha = 1.5, beta = 1e-6, sigma = 0.5), c(lnalpha = 1.5, beta = 1.5e-6, sigma = 0.5)),
         brood_Igushik,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon"
 )
 #new finding
-plot_ey(profile_list[[2]],
+plot_ey(post_list,
         brood_Igushik,
         goal_dat = goal_Igushik_new,
-        "Igushik River Sockeye Salmon")
+        "Igushik River Sockeye Salmon",
+        multiplier = 1e-5)
 #first finding
-plot_ey(profile_list[[2]],
+plot_ey(post_list[[2]],
         brood_Igushik,
-        goal_dat = goal_Igushik_new[goal_Igushik_new$yr == 2026, ],
-        "Igushik River Sockeye Salmon")
+        goal_dat = goal_Igushik_new[goal_Igushik_new$yr == "new", ],
+        "Igushik River Sockeye Salmon",
+        multiplier = 1e-5)
 
 #test plot_profile
 # no goal change
@@ -112,10 +125,10 @@ plot_profile(profile_list80[[2]],
 )
 # first finding
 plot_profile(profile_list[[2]],
-             goal_Igushik_new[goal_Igushik_new$yr == 2026, ],
+             goal_Igushik_new[goal_Igushik_new$yr == "new", ],
              "Igushik River Sockeye Salmon")
 plot_profile(profile_list80[[2]],
-             goal_Igushik_new[goal_Igushik_new$yr == 2026, ],
+             goal_Igushik_new[goal_Igushik_new$yr == "new", ],
              "Igushik River Sockeye Salmon")
 
 #test plot_profile2
