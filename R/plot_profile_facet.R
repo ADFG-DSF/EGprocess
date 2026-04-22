@@ -43,10 +43,10 @@
 #' @export
 
 plot_profile_facet <- function(profile_data,
-                          goal_data,
-                          title,
-                          limit = NULL,
-                          labelK = FALSE){
+                               goal_data,
+                               title,
+                               limit = NULL,
+                               labelK = FALSE){
   S.msy50 <- max(sapply(profile_data, function(x) median(x[["S.msy"]])))
   n_OYP <- sapply(profile_data, function(x) sum(grepl("OYP\\d+", names(x))))
   name_alternate <- names(profile_data[[2]])[!(names(profile_data[[2]]) %in% c("s", "OYP90", "SY", "S.msy"))]
@@ -72,14 +72,20 @@ plot_profile_facet <- function(profile_data,
                escaped. The probability of achieving 90% of MSY is the standard
                criteria used to describe an escapement goal range.", width = cap_width),
       max(n_OYP) == 2 ~ stringr::str_wrap(paste0(
-               "Note: Optimal Yield Profiles (OYP) show the probability (under average
+        "Note: Optimal Yield Profiles (OYP) show the probability (under average
                productivity) of achieving ",
-               pct_alternate,
-               "% (dashed line) and 90% (solid line) of maximum sustained yield (MSY)
+        pct_alternate,
+        "% (dashed line) and 90% (solid line) of maximum sustained yield (MSY)
                relative to the number of salmon escaped. The probability of achieving
                90% of MSY is the standard criteria used to describe an escapement goal
                range."), width = cap_width)
     )
+
+  wrap_labels <- function(labels) {
+    lapply(labels, function(x) paste(gsub("(.*:)( .*)", "\\1", x),
+                                     "\n",
+                                     gsub("(.*:)( .*)", "\\2", x)))
+  }
 
   ref_lines0 <-
     data.frame(profile = names(profile_data), lb = goal_data$lb, ub = goal_data$ub) %>%
@@ -92,8 +98,8 @@ plot_profile_facet <- function(profile_data,
   else{
     varname <- paste0("y", pct_alternate)
     ref_lines0 <-
-         ref_lines0 %>%
-         mutate(!!varname := profile_data[[profile]][[name_alternate]][which.min(abs(profile_data[[profile]]$s - xend))])
+      ref_lines0 %>%
+      mutate(!!varname := profile_data[[profile]][[name_alternate]][which.min(abs(profile_data[[profile]]$s - xend))])
   }
 
   ref_lines <-
@@ -117,7 +123,7 @@ plot_profile_facet <- function(profile_data,
     ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf),
                        data = goal_data,
                        inherit.aes = FALSE, fill = "gray", alpha = 0.2) +
-    ggplot2::facet_grid(. ~ profile) +
+    ggplot2::facet_grid(profile ~ ., labeller = labeller(.rows = wrap_labels)) +
     #ggplot2::scale_x_continuous(limits = c(0, xmax), labels = scales::comma) +
     ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.2), limits = c(0, 1)) +
     ggplot2::scale_linetype_manual(values = if(max(n_OYP) == 2){c("dashed", "solid")}else("solid"))+
@@ -127,6 +133,8 @@ plot_profile_facet <- function(profile_data,
       y = "Probability",
       caption = cap) +
     theme_eg() +
+    theme(strip.text.x = element_text(hjust = 0.5),
+          strip.text.y = element_text(angle = 0, hjust = 0.5)) +
     {if(labelK==TRUE){
       ggplot2::scale_x_continuous(limits = c(0, xmax),
                                   labels = scales::label_number(scale = 1 / 1e3, big.mark = ",", suffix = "K"))
@@ -135,3 +143,4 @@ plot_profile_facet <- function(profile_data,
         ggplot2::scale_x_continuous(limits = c(0, xmax), labels = scales::comma)
       }}
 }
+
