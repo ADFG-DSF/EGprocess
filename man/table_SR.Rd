@@ -16,7 +16,7 @@ Can handle point estimates (input as a single row) or mcmc samples (input as mul
 A table
 }
 \description{
-Produces a table SR paramters with confidence intervals.
+Produces a table of SR parameters with confidence intervals.
 }
 \examples{
 

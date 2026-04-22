@@ -1,6 +1,6 @@
 #' @title Spawner-Recruit Parameter Table
 #' @description
-#' Produces a table SR paramters with confidence intervals.
+#' Produces a table of SR parameters with confidence intervals.
 #'
 #' @param posterior_data A dataframe containing lnalpha, beta, phi, and sigma.
 #' Can handle point estimates (input as a single row) or mcmc samples (input as multiple rows)

@@ -1,6 +1,6 @@
 #' @title Expected Yield Plot
 #' @description
-#' Produces a SR plot with an overlay of Smsy and the goal range.
+#' Produces an expected yield plot with an overlay of the SR curve and the goal range.
 #'
 #' @param profile_data Output of the get_profile function.
 #' @param brood_data A dataframe containing year (yr), Spawners (S), and Recruits (R)

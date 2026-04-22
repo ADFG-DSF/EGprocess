@@ -25,7 +25,7 @@ row with the year labeled as "new". Use ub = NA for lower bound SEGs.}
 A figure
 }
 \description{
-Produces a SR plot with an overlay of Smsy and the goal range.
+Produces an expected yield plot with an overlay of the SR curve and the goal range.
 }
 \examples{
 
