@@ -1,0 +1,158 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# EGprocess
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The R package EGprocess facilitates simple and standard creation of escapement goal data reporting. 
+
+## Package Installation
+
+You can install the development version of EGprocess from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("adamreimer/EGprocess")
+```
+
+## Overview
+EGprocess provides a standardized set of R functions to be used by ADF&G staff during 
+the escapement goal review process. This package is designed to help staff from 
+both fisheries divisions and all regions produce consistent, high-quality figures 
+and tables to be used as part of the  Board of Fisheries (BOF) meetings.
+Salmon escapement goals in Alaska are reviewed every three years, aligned with 
+the BOF’s regulatory meeting cycle. EGprocess supports this work by creating 
+standardized outputs for spawner-recruit analyses, posterior summaries, 
+expected yield curves, optimal yield profiles (OYP), and comparisons among 
+updated and historical escapement goal findings.
+EGprocess can be used directly in R, or as a downstream companion to the 
+Pacific Salmon SR Escapement Goal Analysis Shiny Application ("Hamachan Shiny App"), 
+which produces the input data structures used by the package.
+
+### Why Standardize Figures?
+Standardizing figure structure, captions, and themes reduces the cognitive load 
+on reviewers, allowing them to focus on interpretation instead of formatting 
+differences across regions or divisions. EGprocess ensures:
+ - Consistent plot titles (Stock Name + Species Name).
+ - Standardized layout, theming, and color schema.
+ - Concise, reproducible figure notes that act as built-in legends.
+ - Reproducible workflows for future users and archiving. 
+
+Standardization does not prevent customization. Staff can treat EGprocess outputs 
+as templates, modifying elements as needed for unique stock-specific situations. 
+In more complex cases, users can build new plots from scratch using the tools provided by EGprocess.
+
+### Package Structure / Workflow
+EGprocess starts with MCMC output data created either by the Hamachan Shiny App, 
+or during personalized spawner-recruit analyses using rJAGS. Specifically, 
+the data must contain nodes of lnalpha, beta, phi, and sigma.  
+There are repeated elements within EGprocess for ease of use. Common data inputs include:  
+ - *brood_data*: Brood table created by function `make_brood()`  
+ - *goal_data*: Current and historical escapement goals  
+ - *posterior_data*: MCMC samples for ln(alpha), beta, sigma, and related parameters  
+ - *profile_data*: Data output from function `get_profile()`   
+
+
+### Flexible MSY Targets
+While the typical escapement goal benchmark is 90% of MSY, it may be necessary 
+to demonstrate other MSY levels. For example, the included dataset for 
+Igushik River sockeye salmon shows a a near-zero probability of achieving 
+90% MSY at the lower bound of its existing goal and historical management 
+reasoning for a suboptimal but stable yield.  
+In cases like this, EGprocess supports side-by-side evaluation of optimal and 
+suboptimal yields. Users can specify a suboptimal target directly in the 
+`get_profile()` function and generate profile plots that evaluate escapement goals
+relative to both targets.
+
+### Updating Escapement Goals 
+Most frequently, researchers are tasked with updating an existing escapement goal
+with additional returns. In such cases, it is helpful to compare data since the 
+previous assessment to the updated dataset. EGprocess facilitates simple comparison 
+between such datasets so that researchers can assess the validity of the goal in 
+light of additional data. The plotting function `plot_profile_facet()` shows
+the Optimal Yield Profile from both datasets.  
+
+
+## Function Overview
+
+### get_profile()
+Function `get_profile()` generates optimal yield profiles (OYP) and 
+expected yield curves from posterior MCMC samples.
+```{r} 
+library(EGprocess)
+data("post_Igushik_byr63_15")
+get_profile(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
+``` 
+
+
+### make_age()
+Function `make_age()` creates age-composition proportions (A3, A4, etc) from 
+run data for use in brood‑table construction.
+```{r}
+make_age(age_data = data_Igushik, min_age = 3, max_age = 8) 
+```
+
+### make_brood()
+Function `make_brood()` builds the brood table by combining escapement, 
+recruitment, and age-composition information.
+```{r}
+p_Igushik <- make_age(data_Igushik, min_age = 3, max_age = 8)
+make_brood(data = data_Igushik, p = p_Igushik)
+```
+
+### plot_profile()
+Function `plot_profile()` generates a standardized Optimal Yield Profile (OYP) 
+plot from a single profile dataset.
+```{r}
+Igushik_profile <- get_profile(post_Igushik_byr63_15, multiplier = 1e-5)
+plot_profile(profile_data = Igushik_profile, goal_data = goal_Igushik, 
+title = "Igushik River Sockeye Salmon")
+```
+
+### 
+Function `plot_profile_facet()` produces faceted OYP plots for comparing 
+multiple posterior datasets (e.g., updated vs. historical). 
+```{r}
+post_list <- list(
+     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
+     'Brood Years: 1963-2015' = post_Igushik_byr63_15)
+profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
+
+plot_profile_facet(profile_data = profile_list, goal_data = goal_Igushik,
+title = "Igushik River Sockeye Salmon")
+```
+### 
+Function 
+```{r}
+
+```
+### 
+Function 
+```{r}
+
+```
+### 
+Function 
+```{r}
+
+```
+
+
+
+## Included Datasets
+
+
