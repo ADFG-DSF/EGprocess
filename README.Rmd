@@ -126,7 +126,7 @@ Function `plot_escapement()` creates a plot of the historical escapements,
 overlaid with the escapement goal history. 
 ```{r plot_escapement_example, out.width="75%"}
 plot_escapement(brood_data = brood_demo, goal_data = goal_Igushik, 
-                title = "Igushik River Sockeye Salmon")
+                title = "Escapement: Igushik River Sockeye Salmon")
 ```
 
 
@@ -136,7 +136,7 @@ plot from a single profile dataset.
 ```{r plot_profile_example, out.width="75%"}
 Igushik_profile <- get_profile(post_Igushik_byr63_15, multiplier = 1e-5)
 plot_profile(profile_data = Igushik_profile, goal_data = goal_Igushik, 
-             title = "Igushik River Sockeye Salmon")
+             title = "OYP: Igushik River Sockeye Salmon")
 ```
 
 
@@ -150,7 +150,7 @@ post_list <- list(
 profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
 
 plot_profile_facet(profile_data = profile_list, goal_data = goal_Igushik, 
-                   title = "Igushik River Sockeye Salmon", labelK = TRUE)
+                   title = "OYP: Igushik River Sockeye Salmon", labelK = TRUE)
 ```
 
 
@@ -159,7 +159,7 @@ Function `plot_ey()` produces an expected yield plot with an overlay of the SR
 curve and the goal range.
 ```{r plot_ey_example, out.width="75%"}
 plot_ey(profile_data = Igushik_profile, brood_data = brood_demo,
-        goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon")
+        goal_data = goal_Igushik, title = "EY: Igushik River Sockeye Salmon")
 ```
 
 
@@ -167,14 +167,14 @@ plot_ey(profile_data = Igushik_profile, brood_data = brood_demo,
 Function `plot_SR()` produces an SR plot with an overlay of S~MSY~ and the goal range.
 ```{r plot_SR_example, out.width="75%"}
 plot_SR(posterior_data = post_Igushik_byr63_15, brood_data = brood_demo,
-        goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", 
+        goal_data = goal_Igushik, title = "SR: Igushik River Sockeye Salmon", 
         multiplier = 1e-5)
 ```
 
 
 ### theme_eg()
 Function `theme_eg()` is the default escapement goal ggplot theme. 
-```{r theme_eg_example, out.width="75%"}
+```{r theme_eg_example, out.width="50%"}
 library(ggplot2)
 ggplot(mtcars, aes(wt, mpg)) + 
   geom_point() + 
@@ -185,8 +185,7 @@ ggplot(mtcars, aes(wt, mpg)) +
 ### table_SR()
 Function `table_SR()` creates a table of SR parameters with confidence intervals.
 ```{r table_SR_example, out.width="75%"}
-# NOT WORKING
-#table_SR(profile_data = post_Igushik_byr63_15, multiplier = 1e-5)
+table_SR(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
 ```
 
 

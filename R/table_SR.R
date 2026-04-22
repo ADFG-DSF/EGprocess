@@ -13,7 +13,7 @@
 #'
 #' @examples
 #'
-#' params_Igushik <- table_SR(profile_data = post_Igushik_byr63_15, multiplier = 1e-5)
+#' params_Igushik <- table_SR(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
 #'
 #' @export
 

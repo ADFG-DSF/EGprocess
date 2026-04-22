@@ -4,10 +4,11 @@
 \alias{plot_ey}
 \title{Expected Yield Plot}
 \usage{
-plot_ey(profile_data, brood_data, goal_data, title)
+plot_ey(posterior_data, brood_data, goal_data, title, multiplier = 1)
 }
 \arguments{
-\item{profile_data}{Output of the get_profile function.}
+\item{posterior_data}{A dataframe containing lnalpha, beta, phi, and sigma.
+Can handle point estimates (input as a single row) or mcmc samples (input as multiple rows)}
 
 \item{brood_data}{A dataframe containing year (yr), Spawners (S), and Recruits (R)
 to be included in the plot. The data frame should include years without empirical
@@ -20,6 +21,8 @@ a new escapement goal finding the new finding should be included as the last
 row with the year labeled as "new". Use ub = NA for lower bound SEGs.}
 
 \item{title}{A character vector with the plot title. Suggest "X River, Y Salmon".}
+
+\item{multiplier}{The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.}
 }
 \value{
 A figure
@@ -29,12 +32,7 @@ Produces an expected yield plot with an overlay of the SR curve and the goal ran
 }
 \examples{
 
-p_Igushik <- make_age(data_Igushik, min_age = 3, max_age = 8)
-brood_Igushik <- make_brood(data = data_Igushik, p = p_Igushik)
-
-profile_Igushik <- get_profile(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
-
-plot_ey(profile_data = profile_Igushik, brood_data = brood_Igushik,
-goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon")
+plot_ey(posterior_data = post_Igushik_byr63_15, brood_data = brood_Igushik,
+goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
 
 }

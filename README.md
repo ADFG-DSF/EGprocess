@@ -158,7 +158,7 @@ escapements, overlaid with the escapement goal history.
 
 ``` r
 plot_escapement(brood_data = brood_demo, goal_data = goal_Igushik, 
-                title = "Igushik River Sockeye Salmon")
+                title = "Escapement: Igushik River Sockeye Salmon")
 ```
 
 <img src="man/figures/README-plot_escapement_example-1.png" width="75%" />
@@ -171,7 +171,7 @@ Function `plot_profile()` generates a standardized Optimal Yield Profile
 ``` r
 Igushik_profile <- get_profile(post_Igushik_byr63_15, multiplier = 1e-5)
 plot_profile(profile_data = Igushik_profile, goal_data = goal_Igushik, 
-             title = "Igushik River Sockeye Salmon")
+             title = "OYP: Igushik River Sockeye Salmon")
 ```
 
 <img src="man/figures/README-plot_profile_example-1.png" width="75%" />
@@ -188,7 +188,7 @@ post_list <- list(
 profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
 
 plot_profile_facet(profile_data = profile_list, goal_data = goal_Igushik, 
-                   title = "Igushik River Sockeye Salmon", labelK = TRUE)
+                   title = "OYP: Igushik River Sockeye Salmon", labelK = TRUE)
 ```
 
 <img src="man/figures/README-plot_profile_facet_example-1.png" width="75%" />
@@ -200,7 +200,7 @@ the SR curve and the goal range.
 
 ``` r
 plot_ey(profile_data = Igushik_profile, brood_data = brood_demo,
-        goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon")
+        goal_data = goal_Igushik, title = "EY: Igushik River Sockeye Salmon")
 ```
 
 <img src="man/figures/README-plot_ey_example-1.png" width="75%" />
@@ -212,7 +212,7 @@ S<sub>MSY</sub> and the goal range.
 
 ``` r
 plot_SR(posterior_data = post_Igushik_byr63_15, brood_data = brood_demo,
-        goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", 
+        goal_data = goal_Igushik, title = "SR: Igushik River Sockeye Salmon", 
         multiplier = 1e-5)
 ```
 
@@ -229,7 +229,7 @@ ggplot(mtcars, aes(wt, mpg)) +
   theme_eg()
 ```
 
-<img src="man/figures/README-theme_eg_example-1.png" width="75%" />
+<img src="man/figures/README-theme_eg_example-1.png" width="50%" />
 
 ### table_SR()
 
@@ -237,9 +237,10 @@ Function `table_SR()` creates a table of SR parameters with confidence
 intervals.
 
 ``` r
-# NOT WORKING
-#table_SR(profile_data = post_Igushik_byr63_15, multiplier = 1e-5)
+table_SR(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
 ```
+
+<img src="man/figures/README-table_SR_example-1.png" width="75%" />
 
 ### output_SR()
 
