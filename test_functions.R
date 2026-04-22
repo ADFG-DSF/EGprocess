@@ -1,3 +1,5 @@
+#Script to run functions under various common scenarios.
+
 library(EGprocess)
 library(tidyverse)
 p_Igushik <- make_age(data_Igushik, 3, 8)
@@ -70,6 +72,9 @@ plot_SR(post_list,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 
+table_SR(post_Igushik_byr63_15, 1e-5)
+table_SR(post_list[[2]], 1e-5)
+
 #test plot_ey
 # No goal change
 plot_ey(profile_list[[2]],
@@ -141,7 +146,7 @@ plot_profile_facet(profile_list80,
 
 # Test EGoutput
 # 90% of MSY
-output_SR(post_list, brood_Igushik, goal_Igushik, "Igushik River Sockeye Salmon", multiplier = 1e-5)
+output_SR(post_list, brood_Igushik, goal_Igushik_new, "Igushik River Sockeye Salmon", multiplier = 1e-5)
 output_SR(post_list[[2]], brood_Igushik, goal_Igushik, "Igushik River Sockeye Salmon", multiplier = 1e-5)
 
 # 80% & 90% of MSY
