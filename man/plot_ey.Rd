@@ -14,11 +14,12 @@ Can handle point estimates (input as a single row) or mcmc samples (input as mul
 to be included in the plot. The data frame should include years without empirical
 observations of S and R.}
 
-\item{goal_data}{A dataframe containing calendar year (yr), the escapement
-goal lower bound (lb) and, the escapement goal upper bound (ub). Only needs
-to include years where the goal changed. If the updated analysis resulted in
-a new escapement goal finding the new finding should be included as the last
-row with the year labeled as "new". Use ub = NA for lower bound SEGs.}
+\item{goal_data}{A dataframe containing calendar year (yr), the escapement goal
+lower bound (lb) and, the escapement goal upper bound (ub). Only needs to
+include years where the goal changed. If the updated analysis resulted in a
+new escapement goal finding the new finding should be included in the table
+with the year set to the year the new escapement goal finding will take effect.
+Use ub = NA for lower bound SEGs.}
 
 \item{title}{A character vector with the plot title. Suggest "X River, Y Salmon".}
 
@@ -31,6 +32,8 @@ A figure
 Produces an expected yield plot with an overlay of the SR curve and the goal range.
 }
 \examples{
+
+brood_Igushik <- get_brood(data = data_Igushik)
 
 plot_ey(posterior_data = post_Igushik_byr63_15, brood_data = brood_Igushik,
 goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)

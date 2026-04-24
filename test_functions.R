@@ -2,7 +2,7 @@
 
 library(EGprocess)
 library(tidyverse)
-brood_Igushik <- make_brood(data_Igushik)
+brood_Igushik <- get_brood(data_Igushik)
 goal_Igushik <-
   data.frame(
     yr = c(1984, 2001, 2015),
@@ -143,39 +143,39 @@ plot_ey(post_list,
         multiplier = 1e-5)
 
 # no goal change
-plot_profile_facet(profile_list[2],
+plot_profile(profile_list[2],
                    goal_Igushik,
                    "Igushik River Sockeye Salmon")
-plot_profile_facet(profile_list80[2],
+plot_profile(profile_list80[2],
                    goal_Igushik,
                    "Igushik River Sockeye Salmon")
 # new finding
-plot_profile_facet(profile_list[2],
+plot_profile(profile_list[2],
                    goal_Igushik_new,
                    "Igushik River Sockeye Salmon"
 )
 
-plot_profile_facet(profile_list80[2],
+plot_profile(profile_list80[2],
                    goal_Igushik_new,
                    "Igushik River Sockeye Salmon"
 )
 
 #test plot_profile2
 # no goal change
-plot_profile_facet(profile_list,
+plot_profile(profile_list,
              goal_Igushik,
              "Igushik River Sockeye Salmon")
-plot_profile_facet(profile_list80,
+plot_profile(profile_list80,
              goal_Igushik,
              "Igushik River Sockeye Salmon")
 # new finding
-plot_profile_facet(profile_list,
+plot_profile(profile_list,
              goal_Igushik_new,
              "Igushik River Sockeye Salmon",
              new_finding = TRUE
 )
 
-plot_profile_facet(profile_list80,
+plot_profile(profile_list80,
              goal_Igushik_new,
              "Igushik River Sockeye Salmon",
              new_finding = TRUE

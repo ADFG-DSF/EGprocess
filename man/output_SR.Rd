@@ -9,6 +9,7 @@ output_SR(
   brood_data,
   goal_data,
   title,
+  new_finding = FALSE,
   MSY_pct = NA,
   multiplier = 1
 )
@@ -21,12 +22,18 @@ to be included in the plot. The data frame should include years without empirica
 observations of S and R.}
 
 \item{goal_data}{A dataframe containing calendar year (yr), the escapement goal
-lower bound (lb) and, the escapement goal upper bound (ub). Only needs to include
-years where the goal changed. If the updated analysis resulted in a new escapement
-goal finding the new finding should be included as the last row with the year
-labeled as "new". Use ub = NA for lower bound SEGs.}
+lower bound (lb) and, the escapement goal upper bound (ub). Only needs to
+include years where the goal changed. If the updated analysis resulted in a
+new escapement goal finding the new finding should be included in the table
+with the year set to the year the new escapement goal finding will take effect.
+Use ub = NA for lower bound SEGs.}
 
 \item{title}{A character vector with the plot title. Suggest "X River, Y Salmon".}
+
+\item{new_finding}{TRUE / FALSE. Indicates whether a new escapement goal finding
+resulted from the updated escapement goal analysis. If TRUE, the current escapement
+goal and the new escapement goal finding will be shown on profiles associated with
+the original and updated analyses, respectively.}
 
 \item{MSY_pct}{Either 70 or 80 corresponding to a 70\% or 80\% OYP, respectively.
 Defaults to NA. The 90\% OYP is included regardless.}
@@ -41,17 +48,15 @@ Produces a list containing standardized escapement goal process tables and figur
 }
 \examples{
 
-p_Igushik <- make_age(data_Igushik, min_age = 3, max_age = 8)
-brood_Igushik <- make_brood(data = data_Igushik, p = p_Igushik)
+brood_Igushik <- get_brood(data = data_Igushik)
 
 post_list <-
   list(
     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
     'Brood Years: 1963-2015' = post_Igushik_byr63_15
   )
-profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
 
-output_SR(posterior_data = post_Igushik_byr63_15, brood_data = brood_Igushik,
+output_SR(posterior_data = post_list, brood_data = brood_Igushik,
 goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
 
 }

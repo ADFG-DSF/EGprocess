@@ -4,7 +4,7 @@
 \alias{table_SR}
 \title{Spawner-Recruit Parameter Table}
 \usage{
-table_SR(posterior_data, multiplier = 1)
+table_SR(posterior_data, title, multiplier = 1)
 }
 \arguments{
 \item{posterior_data}{A dataframe containing lnalpha, beta, phi, and sigma.

@@ -2,28 +2,51 @@
 % Please edit documentation in R/plot_profile.R
 \name{plot_profile}
 \alias{plot_profile}
-\title{OYP Plot}
+\title{Optimal Yield Profile Plot(s)}
 \usage{
-plot_profile(profile_data, goal_data, title, limit = NULL)
+plot_profile(
+  profile_data,
+  goal_data,
+  title,
+  new_finding = FALSE,
+  limit = NULL,
+  labelK = FALSE
+)
 }
 \arguments{
-\item{profile_data}{Output of the get_profile function}
+\item{profile_data}{A list of the 1 or 2 OYP's to plot. The name of each list object
+will be used as the facet title and should follow the convention "Brood Year: xxxx - YYYY"
+for each item. If 2 OYPs are provided the function assumes the first item in the list
+is the OYP associated with the original escapement goal analysis and the second
+item in the list is the OYP associated with the updated escapement goal analysis.}
 
-\item{goal_data}{A dataframe containing calendar year (yr), the escapement
-goal lower bound (lb) and, the escapement goal upper bound (ub). Only needs
-to include years where the goal changed. If the updated analysis resulted in
-a new escapement goal finding the new finding should be included as the last
-row with the year labeled as "new". Use ub = NA for lower bound SEGs.}
+\item{goal_data}{A dataframe containing calendar year (yr), the escapement goal
+lower bound (lb) and, the escapement goal upper bound (ub). Only needs to
+include years where the goal changed. If the updated analysis resulted in a
+new escapement goal finding the new finding should be included in the table
+with the year set to the year the new escapement goal finding will take effect.
+Use ub = NA for lower bound SEGs.}
 
 \item{title}{A character vector with the plot title. Suggest "X River, Y Salmon".}
 
+\item{new_finding}{TRUE / FALSE. Indicates whether a new escapement goal finding
+resulted from the updated escapement goal analysis. If TRUE, the current escapement
+goal and the new escapement goal finding will be shown on profiles associated with
+the original and updated analyses, respectively.}
+
 \item{limit}{Upper bound of spawners for plot. Default (NULL) will use 2.25 times S.msy.}
+
+\item{labelK}{TRUE / FALSE value for whether plot should display x axis values
+using a K for thousands (e.g., 350,000 would be 350K). Defaults to FALSE.}
 }
 \value{
 A figure
 }
 \description{
-Produces a plot of the OYP with an overlay of the goal range.
+Produces OYP plot(s) for the stock. Depending on the profile_data provided the
+output will be either a single OYP from the updated analysis or two OYPs from
+the original and updated analyses. In either case the OYP(s) show can be
+overlain with a relevant escapement goal range.
 }
 \examples{
 
@@ -34,10 +57,7 @@ post_list <-
   )
 profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
 
-plot_profile(profile_data = profile_list[[2]], goal_data = goal_Igushik,
+plot_profile(profile_data = profile_list, goal_data = goal_Igushik,
 title = "Igushik River Sockeye Salmon")
 
-}
-\seealso{
-\code{\link[=plot_profile_facet]{plot_profile_facet()}}
 }

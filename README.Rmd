@@ -103,20 +103,20 @@ get_profile(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
 ``` 
 
 
-### make_age()
-Function `make_age()` creates age-composition proportions (A3, A4, etc) from 
-run data for use in brood‑table construction.
-```{r make_age_example}
-age_demo <- make_age(age_data = data_Igushik, min_age = 3, max_age = 8) 
+### get_age()
+Function `get_age()` combines or censures extreme ages from run data age-composition proportions (A3, A4, etc) from 
+run data. Has utility if extreme ages were combined or censored by the Shiny app during escapement goal analysis. The output can be used in brood‑table construction.
+```{r get_age_example}
+age_demo <- get_age(run_data = data_Igushik, min_age = 4, max_age = 6, combine = TRUE) 
 head(age_demo)
 ```
 
 
-### make_brood()
-Function `make_brood()` builds the brood table by combining escapement, 
+### get_brood()
+Function `get_brood()` builds the brood table by combining escapement, 
 recruitment, and age-composition information.
-```{r make_brood_example}
-brood_demo <- make_brood(data = data_Igushik, p = age_demo)
+```{r get_brood_example}
+brood_demo <- get_brood(run_data = data_Igushik)
 tail(brood_demo, n = 10)
 ```
 
@@ -134,23 +134,21 @@ plot_escapement(brood_data = brood_demo, goal_data = goal_Igushik,
 Function `plot_profile()` generates a standardized Optimal Yield Profile (OYP) 
 plot from a single profile dataset.
 ```{r plot_profile_example, out.width="75%"}
-Igushik_profile <- get_profile(post_Igushik_byr63_15, multiplier = 1e-5)
+Igushik_posterior <- list(
+     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
+     'Brood Years: 1963-2015' = post_Igushik_byr63_15)
+Igushik_profile <- lapply(Igushik_posterior, get_profile, multiplier = 1e-5)
 plot_profile(profile_data = Igushik_profile, goal_data = goal_Igushik, 
              title = "OYP: Igushik River Sockeye Salmon")
 ```
 
 
-### plot_profile_facet()
-Function `plot_profile_facet()` produces faceted OYP plots for comparing 
+### plot_profile()
+Function `plot_profile()` produces faceted OYP plots for comparing 
 multiple posterior datasets (e.g., updated vs. historical). 
 ```{r plot_profile_facet_example, out.width="75%"}
-post_list <- list(
-     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
-     'Brood Years: 1963-2015' = post_Igushik_byr63_15)
-profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
-
-plot_profile_facet(profile_data = profile_list, goal_data = goal_Igushik, 
-                   title = "OYP: Igushik River Sockeye Salmon", labelK = TRUE)
+plot_profile(profile_data = Igushik_profile, goal_data = goal_Igushik, 
+             title = "OYP: Igushik River Sockeye Salmon", labelK = TRUE)
 ```
 
 
@@ -158,15 +156,16 @@ plot_profile_facet(profile_data = profile_list, goal_data = goal_Igushik,
 Function `plot_ey()` produces an expected yield plot with an overlay of the SR 
 curve and the goal range.
 ```{r plot_ey_example, out.width="75%"}
-plot_ey(profile_data = Igushik_profile, brood_data = brood_demo,
-        goal_data = goal_Igushik, title = "EY: Igushik River Sockeye Salmon")
+plot_ey(posterior_data = Igushik_posterior, brood_data = brood_demo,
+        goal_data = goal_Igushik, title = "EY: Igushik River Sockeye Salmon", 
+        multiplier = 1e-5)
 ```
 
 
 ### plot_SR()
 Function `plot_SR()` produces an SR plot with an overlay of S~MSY~ and the goal range.
 ```{r plot_SR_example, out.width="75%"}
-plot_SR(posterior_data = post_Igushik_byr63_15, brood_data = brood_demo,
+plot_SR(posterior_data = Igushik_posterior, brood_data = brood_demo,
         goal_data = goal_Igushik, title = "SR: Igushik River Sockeye Salmon", 
         multiplier = 1e-5)
 ```
@@ -185,7 +184,8 @@ ggplot(mtcars, aes(wt, mpg)) +
 ### table_SR()
 Function `table_SR()` creates a table of SR parameters with confidence intervals.
 ```{r table_SR_example, out.width="75%"}
-table_SR(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
+table_SR(posterior_data = Igushik_posterior[2], title = "SR: Igushik River Sockeye Salmon",
+         multiplier = 1e-5)
 ```
 
 

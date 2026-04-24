@@ -11,14 +11,15 @@ get_profile(posterior_data, multiplier = 1, MSY_pct = NA)
 
 \item{multiplier}{The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.}
 
-\item{MSY_pct}{The 70\% or 80\% OYP can be specified; must be entered as either 70 or 80. Defaults to NA. The 90\% OYP is included regardless.}
+\item{MSY_pct}{The 70\% or 80\% OYP can be specified; must be entered as either 70 or 80.
+Defaults to NA. The 90\% OYP is included regardless.}
 }
 \value{
 A data.frame
 }
 \description{
 Creates a dataset for plotting OYP and EY plots.
-This function creates a dataframe that can be used by plot_profile() and plot_ey()
+This function creates a dataframe that can be used by plot_profile()
 }
 \examples{
 get_profile(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)

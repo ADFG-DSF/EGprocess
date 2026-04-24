@@ -4,7 +4,6 @@
 # EGprocess
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 The R package EGprocess facilitates simple and standard creation of
@@ -113,30 +112,33 @@ get_profile(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
 #> # ℹ 991 more rows
 ```
 
-### make_age()
+### get_age()
 
-Function `make_age()` creates age-composition proportions (A3, A4, etc)
-from run data for use in brood‑table construction.
+Function `get_age()` combines or censures extreme ages from run data
+age-composition proportions (A3, A4, etc) from run data. Has utility if
+extreme ages were combined or censored by the Shiny app during
+escapement goal analysis. The output can be used in brood‑table
+construction.
 
 ``` r
-age_demo <- make_age(age_data = data_Igushik, min_age = 3, max_age = 8) 
+age_demo <- get_age(run_data = data_Igushik, min_age = 4, max_age = 6, combine = TRUE) 
 head(age_demo)
-#>              A3         A4        A5         A6 A7 A8
-#> X1 0.0000000000 0.55576417 0.3766676 0.06756826  0  0
-#> X2 0.0000000000 0.21937253 0.7100296 0.07059784  0  0
-#> X3 0.0000000000 0.09571612 0.8498052 0.05447866  0  0
-#> X4 0.0000000000 0.05698889 0.8474545 0.09555660  0  0
-#> X5 0.0002546232 0.47735793 0.4993162 0.02307129  0  0
-#> X6 0.0010286048 0.43029740 0.5496121 0.01906187  0  0
+#>      yr      S      N         A4        A5         A6
+#> X1 1963  92184 136351 0.55576417 0.3766676 0.06756826
+#> X2 1964 128532 191054 0.21937253 0.7100296 0.07059784
+#> X3 1965 180840 297253 0.09571612 0.8498052 0.05447866
+#> X4 1966 206360 310078 0.05698889 0.8474545 0.09555660
+#> X5 1967 281772 412374 0.47761256 0.4993162 0.02307129
+#> X6 1968 194508 290686 0.43132601 0.5496121 0.01906187
 ```
 
-### make_brood()
+### get_brood()
 
-Function `make_brood()` builds the brood table by combining escapement,
+Function `get_brood()` builds the brood table by combining escapement,
 recruitment, and age-composition information.
 
 ``` r
-brood_demo <- make_brood(data = data_Igushik, p = age_demo)
+brood_demo <- get_brood(run_data = data_Igushik)
 tail(brood_demo, n = 10)
 #>      yr      S b.Age3  b.Age4  b.Age5 b.Age6 b.Age7 b.Age8       R
 #> 60 2014 340590   1766  734904 1120532      2      0      0 1857204
@@ -161,7 +163,7 @@ plot_escapement(brood_data = brood_demo, goal_data = goal_Igushik,
                 title = "Escapement: Igushik River Sockeye Salmon")
 ```
 
-<img src="man/figures/README-plot_escapement_example-1.png" width="75%" />
+<img src="man/figures/README-plot_escapement_example-1.png" alt="" width="75%" />
 
 ### plot_profile()
 
@@ -169,29 +171,27 @@ Function `plot_profile()` generates a standardized Optimal Yield Profile
 (OYP) plot from a single profile dataset.
 
 ``` r
-Igushik_profile <- get_profile(post_Igushik_byr63_15, multiplier = 1e-5)
+Igushik_posterior <- list(
+     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
+     'Brood Years: 1963-2015' = post_Igushik_byr63_15)
+Igushik_profile <- lapply(Igushik_posterior, get_profile, multiplier = 1e-5)
 plot_profile(profile_data = Igushik_profile, goal_data = goal_Igushik, 
              title = "OYP: Igushik River Sockeye Salmon")
 ```
 
-<img src="man/figures/README-plot_profile_example-1.png" width="75%" />
+<img src="man/figures/README-plot_profile_example-1.png" alt="" width="75%" />
 
-### plot_profile_facet()
+### plot_profile()
 
-Function `plot_profile_facet()` produces faceted OYP plots for comparing
+Function `plot_profile()` produces faceted OYP plots for comparing
 multiple posterior datasets (e.g., updated vs. historical).
 
 ``` r
-post_list <- list(
-     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
-     'Brood Years: 1963-2015' = post_Igushik_byr63_15)
-profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
-
-plot_profile_facet(profile_data = profile_list, goal_data = goal_Igushik, 
-                   title = "OYP: Igushik River Sockeye Salmon", labelK = TRUE)
+plot_profile(profile_data = Igushik_profile, goal_data = goal_Igushik, 
+             title = "OYP: Igushik River Sockeye Salmon", labelK = TRUE)
 ```
 
-<img src="man/figures/README-plot_profile_facet_example-1.png" width="75%" />
+<img src="man/figures/README-plot_profile_facet_example-1.png" alt="" width="75%" />
 
 ### plot_ey()
 
@@ -199,11 +199,12 @@ Function `plot_ey()` produces an expected yield plot with an overlay of
 the SR curve and the goal range.
 
 ``` r
-plot_ey(profile_data = Igushik_profile, brood_data = brood_demo,
-        goal_data = goal_Igushik, title = "EY: Igushik River Sockeye Salmon")
+plot_ey(posterior_data = Igushik_posterior, brood_data = brood_demo,
+        goal_data = goal_Igushik, title = "EY: Igushik River Sockeye Salmon", 
+        multiplier = 1e-5)
 ```
 
-<img src="man/figures/README-plot_ey_example-1.png" width="75%" />
+<img src="man/figures/README-plot_ey_example-1.png" alt="" width="75%" />
 
 ### plot_SR()
 
@@ -211,12 +212,12 @@ Function `plot_SR()` produces an SR plot with an overlay of
 S<sub>MSY</sub> and the goal range.
 
 ``` r
-plot_SR(posterior_data = post_Igushik_byr63_15, brood_data = brood_demo,
+plot_SR(posterior_data = Igushik_posterior, brood_data = brood_demo,
         goal_data = goal_Igushik, title = "SR: Igushik River Sockeye Salmon", 
         multiplier = 1e-5)
 ```
 
-<img src="man/figures/README-plot_SR_example-1.png" width="75%" />
+<img src="man/figures/README-plot_SR_example-1.png" alt="" width="75%" />
 
 ### theme_eg()
 
@@ -224,12 +225,13 @@ Function `theme_eg()` is the default escapement goal ggplot theme.
 
 ``` r
 library(ggplot2)
+#> Warning: package 'ggplot2' was built under R version 4.4.3
 ggplot(mtcars, aes(wt, mpg)) + 
   geom_point() + 
   theme_eg()
 ```
 
-<img src="man/figures/README-theme_eg_example-1.png" width="50%" />
+<img src="man/figures/README-theme_eg_example-1.png" alt="" width="50%" />
 
 ### table_SR()
 
@@ -237,10 +239,11 @@ Function `table_SR()` creates a table of SR parameters with confidence
 intervals.
 
 ``` r
-table_SR(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
+table_SR(posterior_data = Igushik_posterior[2], title = "SR: Igushik River Sockeye Salmon",
+         multiplier = 1e-5)
 ```
 
-<img src="man/figures/README-table_SR_example-1.png" width="75%" />
+<img src="man/figures/README-table_SR_example-1.png" alt="" width="75%" />
 
 ### output_SR()
 
