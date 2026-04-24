@@ -1,7 +1,7 @@
 #Script to run functions under various common scenarios.
 
 library(EGprocess)
-library(tidyverse)
+#library(tidyverse)
 brood_Igushik <- get_brood(data_Igushik)
 goal_Igushik <-
   data.frame(
@@ -19,13 +19,12 @@ goal_Igushik_new <-
 # Create list of profiles
 post_list <-
   list(
-    'Brood years: 1963-2005' = post_Igushik_byr63_05,
-    'Brood years: 1963-2017' = post_Igushik_byr63_15
+    "Brood years: 1963-2005" = post_Igushik_byr63_05,
+    "Brood years: 1963-2015" = post_Igushik_byr63_15
   )
-profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
-profile_list80 <- lapply(post_list, get_profile, multiplier = 1e-5, MSY_pct = 80)
-lapply(post_list[2], get_profile, multiplier = 1e-5)
-get_profile(post_list[[2]])
+profile_list <- get_profile(post_list, multiplier = 1e-5)
+profile_list80 <- get_profile(post_list, multiplier = 1e-5, MSY_pct = 80)
+
 
 # test plot_s w and wo a new goal finding
 plot_escapement(brood_Igushik,
@@ -67,11 +66,6 @@ plot_SR(list('Brood years: 1963-2005' = NULL,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon")
 #new finding
-plot_SR(post_list[2],
-        brood_Igushik,
-        goal_dat = goal_Igushik_new,
-        "Igushik River Sockeye Salmon",
-        multiplier = 1e-5)
 plot_SR(post_list,
         brood_Igushik,
         goal_dat = goal_Igushik_new,
@@ -81,12 +75,6 @@ plot_SR(post_list,
 plot_SR(post_list[2],
         brood_Igushik,
         goal_dat = goal_Igushik_new[dim(goal_Igushik_new)[1], ],
-        "Igushik River Sockeye Salmon",
-        multiplier = 1e-5)
-#would be better if this threw an error
-plot_SR(post_list,
-        brood_Igushik,
-        goal_dat = goal_Igushik_new,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 
@@ -119,11 +107,6 @@ plot_ey(list('Brood years: 1963-2005' = NULL,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon")
 #new finding
-plot_ey(post_list[2],
-        brood_Igushik,
-        goal_dat = goal_Igushik_new,
-        "Igushik River Sockeye Salmon",
-        multiplier = 1e-5)
 plot_ey(post_list,
         brood_Igushik,
         goal_dat = goal_Igushik_new,
@@ -133,12 +116,6 @@ plot_ey(post_list,
 plot_ey(post_list[2],
         brood_Igushik,
         goal_dat = goal_Igushik_new[dim(goal_Igushik_new)[1], ],
-        "Igushik River Sockeye Salmon",
-        multiplier = 1e-5)
-#would be better if this threw an error
-plot_ey(post_list,
-        brood_Igushik,
-        goal_dat = goal_Igushik_new,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 

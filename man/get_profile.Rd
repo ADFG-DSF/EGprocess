@@ -4,10 +4,13 @@
 \alias{get_profile}
 \title{SR Profile Data Creation}
 \usage{
-get_profile(posterior_data, multiplier = 1, MSY_pct = NA)
+get_profile(posterior_list, multiplier = 1, MSY_pct = NA)
 }
 \arguments{
-\item{posterior_data}{An mcmc object with nodes lnalpha, beta, phi, and sigma.}
+\item{posterior_list}{A named list. Each element of the list contains simulations from the posterior
+distributions of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). Names
+of each element describe the brood years included in the model that generated the posteriors
+and follows the convention "Brood year: xxxx-yyyy".}
 
 \item{multiplier}{The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.}
 

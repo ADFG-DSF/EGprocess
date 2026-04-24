@@ -28,7 +28,7 @@ produce consistent, high-quality figures and tables to be used as part
 of the Board of Fisheries (BOF) meetings. Salmon escapement goals in
 Alaska are reviewed every three years, aligned with the BOF’s regulatory
 meeting cycle. EGprocess supports this work by creating standardized
-outputs for spawner-recruit analyses, posterior summaries, expected
+outputs for spawner-recruit (SR) analyses, posterior summaries, expected
 yield curves, optimal yield profiles (OYP), and comparisons among
 updated and historical escapement goal findings. EGprocess can be used
 directly in R, or as a downstream companion to the Pacific Salmon SR
@@ -84,43 +84,42 @@ escapement goal with additional returns. In such cases, it is helpful to
 compare data since the previous assessment to the updated dataset.
 EGprocess facilitates simple comparison between such datasets so that
 researchers can assess the validity of the goal in light of additional
-data. The plotting function `plot_profile_facet()` shows the Optimal
-Yield Profile from both datasets.
+data.
 
 ## Function Overview
 
 ### get_profile()
 
-Function `get_profile()` generates optimal yield profiles (OYP) and
-expected yield curves from posterior MCMC samples.
+Function `get_profile()` generates optimal yield profiles (OYP) from
+posterior MCMC samples. Posterior MCM samples should be packaged in a
+named list before using the function.
 
 ``` r
-get_profile(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
-#> # A tibble: 1,001 × 4
-#>         s OYP90     SY   S.msy
-#>     <dbl> <dbl>  <dbl>   <dbl>
-#>  1     0      0     0  381647.
-#>  2  2290.     0  7137. 381647.
-#>  3  4580.     0 14211. 381647.
-#>  4  6870.     0 21209. 381647.
-#>  5  9160.     0 28150. 381647.
-#>  6 11449.     0 35021. 381647.
-#>  7 13739.     0 41814. 381647.
-#>  8 16029.     0 48566. 381647.
-#>  9 18319.     0 55244. 381647.
-#> 10 20609.     0 61901. 381647.
-#> # ℹ 991 more rows
+Igushik_posterior <- list(
+     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
+     'Brood Years: 1963-2015' = post_Igushik_byr63_15)
+Igushik_profile <- get_profile(Igushik_posterior, multiplier = 1e-5)
 ```
 
 ### get_age()
 
 Function `get_age()` combines or censures extreme ages from run data
-age-composition proportions (A3, A4, etc) from run data. Has utility if
-extreme ages were combined or censored by the Shiny app during
-escapement goal analysis. The output can be used in brood‑table
-construction.
+age-composition proportions. This function has utility if extreme ages
+were combined or censored by the Shiny app during escapement goal
+analysis and can be ignored if age composition proportions were not
+modified during escapement goal analysis. The function recreates the
+`run_data` input provided after modifying the age composition by
+censoring or combining extreme ages.
 
 ``` r
+head(data_Igushik)
+#>     yr      S      N  A3     A4     A5    A6 A7 A8
+#> 1 1963  92184 136351   0  75779  51359  9213  0  0
+#> 2 1964 128532 191054   0  41912 135654 13488  0  0
+#> 3 1965 180840 297253   0  28452 252608 16194  0  0
+#> 4 1966 206360 310078   0  17671 262777 29630  0  0
+#> 5 1967 281772 412374 105 196850 205905  9514  0  0
+#> 6 1968 194508 290686 299 125081 159764  5541  0  0
 age_demo <- get_age(run_data = data_Igushik, min_age = 4, max_age = 6, combine = TRUE) 
 head(age_demo)
 #>      yr      S      N         A4        A5         A6
@@ -138,8 +137,8 @@ Function `get_brood()` builds the brood table by combining escapement,
 recruitment, and age-composition information.
 
 ``` r
-brood_demo <- get_brood(run_data = data_Igushik)
-tail(brood_demo, n = 10)
+brood_Igushik <- get_brood(run_data = data_Igushik)
+tail(brood_Igushik, n = 10)
 #>      yr      S b.Age3  b.Age4  b.Age5 b.Age6 b.Age7 b.Age8       R
 #> 60 2014 340590   1766  734904 1120532      2      0      0 1857204
 #> 61 2015 651172      0  233250  655310  65390      0      0  953950
@@ -159,48 +158,31 @@ Function `plot_escapement()` creates a plot of the historical
 escapements, overlaid with the escapement goal history.
 
 ``` r
-plot_escapement(brood_data = brood_demo, goal_data = goal_Igushik, 
-                title = "Escapement: Igushik River Sockeye Salmon")
+plot_escapement(brood_data = brood_Igushik, goal_data = goal_Igushik, 
+                title = "Igushik River Sockeye Salmon")
 ```
 
 <img src="man/figures/README-plot_escapement_example-1.png" alt="" width="75%" />
 
 ### plot_profile()
 
-Function `plot_profile()` generates a standardized Optimal Yield Profile
-(OYP) plot from a single profile dataset.
+Function `plot_profile()` generates a standardized OYP plot.
 
 ``` r
-Igushik_posterior <- list(
-     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
-     'Brood Years: 1963-2015' = post_Igushik_byr63_15)
-Igushik_profile <- lapply(Igushik_posterior, get_profile, multiplier = 1e-5)
 plot_profile(profile_data = Igushik_profile, goal_data = goal_Igushik, 
-             title = "OYP: Igushik River Sockeye Salmon")
+             title = "Igushik River Sockeye Salmon")
 ```
 
 <img src="man/figures/README-plot_profile_example-1.png" alt="" width="75%" />
 
-### plot_profile()
-
-Function `plot_profile()` produces faceted OYP plots for comparing
-multiple posterior datasets (e.g., updated vs. historical).
-
-``` r
-plot_profile(profile_data = Igushik_profile, goal_data = goal_Igushik, 
-             title = "OYP: Igushik River Sockeye Salmon", labelK = TRUE)
-```
-
-<img src="man/figures/README-plot_profile_facet_example-1.png" alt="" width="75%" />
-
 ### plot_ey()
 
-Function `plot_ey()` produces an expected yield plot with an overlay of
-the SR curve and the goal range.
+Function `plot_ey()` produces a plot of realized yields and median
+expected yield, both overlain with the goal range.
 
 ``` r
-plot_ey(posterior_data = Igushik_posterior, brood_data = brood_demo,
-        goal_data = goal_Igushik, title = "EY: Igushik River Sockeye Salmon", 
+plot_ey(posterior_list = Igushik_posterior, brood_data = brood_Igushik,
+        goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", 
         multiplier = 1e-5)
 ```
 
@@ -208,16 +190,28 @@ plot_ey(posterior_data = Igushik_posterior, brood_data = brood_demo,
 
 ### plot_SR()
 
-Function `plot_SR()` produces an SR plot with an overlay of
-S<sub>MSY</sub> and the goal range.
+Function `plot_SR()` produces plot of realized recruitment and the
+median spawner-recruit relationship, both overlain with the goal range.
 
 ``` r
-plot_SR(posterior_data = Igushik_posterior, brood_data = brood_demo,
-        goal_data = goal_Igushik, title = "SR: Igushik River Sockeye Salmon", 
+plot_SR(posterior_list = Igushik_posterior, brood_data = brood_Igushik,
+        goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", 
         multiplier = 1e-5)
 ```
 
 <img src="man/figures/README-plot_SR_example-1.png" alt="" width="75%" />
+
+### table_SR()
+
+Function `table_SR()` creates a table of SR parameters with confidence
+intervals.
+
+``` r
+table_SR(posterior_data = Igushik_posterior[2], title = "Igushik River Sockeye Salmon",
+         multiplier = 1e-5)
+```
+
+<img src="man/figures/README-table_SR_example-1.png" alt="" width="75%" />
 
 ### theme_eg()
 
@@ -233,28 +227,23 @@ ggplot(mtcars, aes(wt, mpg)) +
 
 <img src="man/figures/README-theme_eg_example-1.png" alt="" width="50%" />
 
-### table_SR()
-
-Function `table_SR()` creates a table of SR parameters with confidence
-intervals.
-
-``` r
-table_SR(posterior_data = Igushik_posterior[2], title = "SR: Igushik River Sockeye Salmon",
-         multiplier = 1e-5)
-```
-
-<img src="man/figures/README-table_SR_example-1.png" alt="" width="75%" />
-
 ### output_SR()
 
 Function `output_SR()` is the final function in the workflow. It creates
 a list containing all the escapement goal figures and tables. Output is
 not shown here because it contains all previous examples.
 
+``` r
+output_SR(posterior_list = Igushik_posterior, brood_data = brood_Igushik, 
+          goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", 
+          multiplier = 1e-5)
+```
+
 ## Included Datasets
 
 To help users and produce useful examples, EGprocess includes 4 example
-datasets from Igushik River sockeye salmon escapement goal analyses.  
+datasets from the Igushik River sockeye salmon escapement goal
+analyses.  
 Dataset `goal_Igushik` provides the historical escapement goal bounds
 used across management periods, while dataset`data_Igushik` contains
 annual escapement, total run, and age‑composition information used to

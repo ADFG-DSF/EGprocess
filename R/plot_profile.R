@@ -33,14 +33,14 @@
 #'
 #' @examples
 #'
-#' post_list <-
+#' post_Igushik <-
 #'   list(
 #'     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
 #'     'Brood Years: 1963-2015' = post_Igushik_byr63_15
 #'   )
-#' profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
+#' profile_Igushik <- get_profile(post_Igushik, multiplier = 1e-5)
 #'
-#' plot_profile(profile_data = profile_list, goal_data = goal_Igushik,
+#' plot_profile(profile_data = profile_Igushik, goal_data = goal_Igushik,
 #' title = "Igushik River Sockeye Salmon")
 #'
 #' @export
@@ -131,7 +131,7 @@ plot_profile <- function(profile_data,
     ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.2), limits = c(0, 1)) +
     ggplot2::scale_linetype_manual(values = if(max(n_OYP) == 2){c("dashed", "solid")}else("solid"))+
     labs(
-      title = title,
+      title = paste0("OYP: ", title),
       x = "Escapement",
       y = "Probability",
       caption = cap) +

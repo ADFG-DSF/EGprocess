@@ -54,7 +54,7 @@ plot_escapement <- function(brood_data,
     ggplot2::geom_line(aes(y = S_bound, linetype = bound), data = goal) +
     ggplot2::scale_y_continuous(labels = scales::comma) +
     ggplot2::scale_fill_manual(values = c("gray75", "black")) +
-    ggplot2::labs(title = title,
+    ggplot2::labs(title = paste0("Escapement: ", title),
       x = "Year",
       y = "Escapement",
       caption = cap) +

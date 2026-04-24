@@ -2,8 +2,10 @@
 #' @description
 #' Produces a table of SR parameters with confidence intervals.
 #'
-#' @param posterior_data A dataframe containing lnalpha, beta, phi, and sigma.
-#' Can handle point estimates (input as a single row) or mcmc samples (input as multiple rows)
+#' @param posterior_list A named list. The list contains simulations from the posterior distributions
+#' of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). The name
+#' describes the brood years included in the model that generated the posteriors and follows the
+#' convention "Brood year: xxxx-yyyy".
 #' @param multiplier The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.
 #'
 #' @return A table
@@ -13,7 +15,13 @@
 #'
 #' @examples
 #'
-#' params_Igushik <- table_SR(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
+#' post_Igushik <-
+#'   list(
+#'     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
+#'     'Brood Years: 1963-2015' = post_Igushik_byr63_15
+#'   )
+#'
+#' params_Igushik <- table_SR(posterior_data = post_Igushik[2], multiplier = 1e-5)
 #'
 #' @export
 
@@ -99,7 +107,7 @@ table_SR <- function(posterior_data,
     flextable::add_header_row(values = names(posterior_data),
                               colwidths = 3,
                               top = TRUE) %>%
-    flextable::add_header_row(values = title,
+    flextable::add_header_row(values = paste0("Parameters: ", title),
                               colwidths = 3,
                               top = TRUE) %>%
     flextable::border(i = 1:2, j = NULL, border = officer::fp_border(color = "white"), part = "header") %>%

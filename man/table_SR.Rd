@@ -7,10 +7,12 @@
 table_SR(posterior_data, title, multiplier = 1)
 }
 \arguments{
-\item{posterior_data}{A dataframe containing lnalpha, beta, phi, and sigma.
-Can handle point estimates (input as a single row) or mcmc samples (input as multiple rows)}
-
 \item{multiplier}{The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.}
+
+\item{posterior_list}{A named list. The list contains simulations from the posterior distributions
+of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). The name
+describes the brood years included in the model that generated the posteriors and follows the
+convention "Brood year: xxxx-yyyy".}
 }
 \value{
 A table

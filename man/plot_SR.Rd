@@ -4,11 +4,14 @@
 \alias{plot_SR}
 \title{Spawner-Recruit Plot}
 \usage{
-plot_SR(posterior_data, brood_data, goal_data, title, multiplier = 1)
+plot_SR(posterior_list, brood_data, goal_data, title, multiplier = 1)
 }
 \arguments{
-\item{posterior_data}{A dataframe containing lnalpha, beta, phi, and sigma.
-Can handle point estimates (input as a single row) or mcmc samples (input as multiple rows)}
+\item{posterior_list}{A named list. Each element of the list contains simulations from the posterior
+distributions of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). Names
+of each element describe the brood years included in the model that generated the posteriors
+and follows the convention "Brood year: xxxx-yyyy". In this function the posterior simulations
+can be replaced with point estimates derived from the posterior (input as a single row).}
 
 \item{brood_data}{A dataframe containing year (yr), Spawners (S), and Recruits (R)
 to be included in the plot. The data frame should include years without empirical
@@ -35,7 +38,7 @@ Produces a SR plot with an overlay of Smsy and the goal range.
 
 brood_Igushik <- get_brood(data = data_Igushik)
 
-plot_SR(posterior_data = post_Igushik_byr63_15, brood_data = brood_Igushik,
+plot_SR(posterior_list = post_Igushik_byr63_15, brood_data = brood_Igushik,
 goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
 
 }

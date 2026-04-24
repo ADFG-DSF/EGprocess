@@ -5,7 +5,7 @@
 \title{Escapement goal process output wrapper}
 \usage{
 output_SR(
-  posterior_data,
+  posterior_list,
   brood_data,
   goal_data,
   title,
@@ -15,7 +15,10 @@ output_SR(
 )
 }
 \arguments{
-\item{posterior_data}{An mcmc object with nodes lnalpha, beta, phi, and sigma.}
+\item{posterior_list}{A named list. Each element of the list contains simulations from the posterior
+distributions of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). Names
+of each element describe the brood years included in the model that generated the posteriors
+and follows the convention "Brood year: xxxx-yyyy".}
 
 \item{brood_data}{A dataframe containing year (yr), Spawners (S), and Recruits (R)
 to be included in the plot. The data frame should include years without empirical
@@ -56,7 +59,7 @@ post_list <-
     'Brood Years: 1963-2015' = post_Igushik_byr63_15
   )
 
-output_SR(posterior_data = post_list, brood_data = brood_Igushik,
+output_SR(posterior_list = post_list, brood_data = brood_Igushik,
 goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
 
 }

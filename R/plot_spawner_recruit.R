@@ -2,8 +2,11 @@
 #' @description
 #' Produces a SR plot with an overlay of Smsy and the goal range.
 #'
-#' @param posterior_data A dataframe containing lnalpha, beta, phi, and sigma.
-#' Can handle point estimates (input as a single row) or mcmc samples (input as multiple rows)
+#' @param posterior_list A named list. Each element of the list contains simulations from the posterior
+#' distributions of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). Names
+#' of each element describe the brood years included in the model that generated the posteriors
+#' and follows the convention "Brood year: xxxx-yyyy". In this function the posterior simulations
+#' can be replaced with point estimates derived from the posterior (input as a single row).
 #' @param brood_data A dataframe containing year (yr), Spawners (S), and Recruits (R)
 #' to be included in the plot. The data frame should include years without empirical
 #' observations of S and R.
@@ -26,12 +29,18 @@
 #'
 #' brood_Igushik <- get_brood(data = data_Igushik)
 #'
-#' plot_SR(posterior_data = post_Igushik_byr63_15, brood_data = brood_Igushik,
+#' post_Igushik <-
+#'   list(
+#'     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
+#'     'Brood Years: 1963-2015' = post_Igushik_byr63_15
+#'   )
+#'
+#' plot_SR(posterior_list = post_Igushik, brood_data = brood_Igushik,
 #' goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
 #'
 #' @export
 
-plot_SR <- function(posterior_data,
+plot_SR <- function(posterior_list,
                     brood_data,
                     goal_data,
                     title,
@@ -50,12 +59,12 @@ plot_SR <- function(posterior_data,
                        Smsy = lnalpha / beta * (0.5 - 0.07 * lnalpha))
   }
 
-  if(length(posterior_data) == 2){param50_update <- get_param50(posterior_data[[2]])}
-  else{param50_update <- get_param50(posterior_data[[1]])}
-  if(length(posterior_data) == 2 & !is.null(posterior_data[[1]])){param50_last <- get_param50(posterior_data[[1]])}
+  if(length(posterior_list) == 2){param50_update <- get_param50(posterior_list[[2]])}
+  else{param50_update <- get_param50(posterior_list[[1]])}
+  if(length(posterior_list) == 2 & !is.null(posterior_list[[1]])){param50_last <- get_param50(posterior_list[[1]])}
 
   byr_updated <-
-    if(length(posterior_data) == 2){as.numeric(gsub(".*: \\d+-(\\d+)", "\\1", names(posterior_data)[1]))}else{0}
+    if(length(posterior_list) == 2){as.numeric(gsub(".*: \\d+-(\\d+)", "\\1", names(posterior_list)[1]))}else{0}
   brood_data <-
     brood_data %>%
     mutate(update = ifelse(yr > byr_updated, "updated", "existing")) %>%
@@ -68,16 +77,16 @@ plot_SR <- function(posterior_data,
   cap_width = 85
   cap <-
     case_when(
-      length(posterior_data) == 2 ~ str_wrap("Note: Filled circles
+      length(posterior_list) == 2 ~ str_wrap("Note: Filled circles
       indicated observations added to the dataset since the escapement goal last changed. Dashed
       lines indicate the estimated spawner-recruit relationship and the escapement that maximizes
       sustained yield at the time of the last change while solid lines represent the updated estimates.
       The dotted line represents the 1:1 line. The current escapement goal range is
       shaded gray.", width = cap_width),
-      length(posterior_data) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(
+      length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(
         "Note: The dotted line represents the 1:1 line. The vertical line shows the escapement that
         maximizes sustained yield. The current escapement goal range is shaded gray.", width = cap_width),
-      length(posterior_data) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(
+      length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(
         "Note: Filled circles indicated observations added to the dataset since the escapement goal last
         changed. The dotted line represents the 1:1 line. The vertical line shows the escapement that
         maximizes sustained yield. The current escapement goal range is shaded gray.", width = cap_width)
@@ -100,14 +109,14 @@ plot_SR <- function(posterior_data,
                        inherit.aes = FALSE, fill = "gray", alpha = 0.2) +
     ggplot2::scale_shape_manual(values = c("updated" = 16, "existing" = 1)) +
     ggplot2::labs(
-      title = title,
+      title = paste0("SR: ", title),
       subtitle = paste0("Brood Years:", min(brood_data$yr), " - ", max(brood_data$yr)),
       x = "Escapement",
       y = "Recruitment",
       caption = cap) +
     theme_eg()
 
-  if(length(posterior_data) == 2 & !is.null(posterior_data[[1]])){
+  if(length(posterior_list) == 2 & !is.null(posterior_list[[1]])){
     plot +
       ggplot2::stat_function(fun=function(x){x * exp(param50_last$lnalpha - param50_last$beta * x)},
                              linetype = "dashed",

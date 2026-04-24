@@ -2,7 +2,10 @@
 #'
 #' @description Produces a list containing standardized escapement goal process tables and figures.
 #'
-#' @param posterior_data An mcmc object with nodes lnalpha, beta, phi, and sigma.
+#' @param posterior_list A named list. Each element of the list contains simulations from the posterior
+#' distributions of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). Names
+#' of each element describe the brood years included in the model that generated the posteriors
+#' and follows the convention "Brood year: xxxx-yyyy".
 #' @param brood_data A dataframe containing year (yr), Spawners (S), and Recruits (R)
 #' to be included in the plot. The data frame should include years without empirical
 #' observations of S and R.
@@ -31,24 +34,25 @@
 #'
 #' brood_Igushik <- get_brood(data = data_Igushik)
 #'
-#' post_list <-
+#' post_Igushik <-
 #'   list(
 #'     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
 #'     'Brood Years: 1963-2015' = post_Igushik_byr63_15
 #'   )
 #'
-#' output_SR(posterior_data = post_list, brood_data = brood_Igushik,
+#' output_SR(posterior_list = post_Igushik, brood_data = brood_Igushik,
 #' goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
 #'
 #' @export
-output_SR <- function(posterior_data, brood_data, goal_data, title, new_finding = FALSE, MSY_pct = NA, multiplier = 1){
-    profile_data <- lapply(posterior_data, get_profile, MSY_pct = MSY_pct, multiplier = multiplier)
+output_SR <- function(posterior_list, brood_data, goal_data, title, new_finding = FALSE, MSY_pct = NA, multiplier = 1){
+    profile_data <- get_profile(posterior_list, MSY_pct = MSY_pct, multiplier = multiplier)
 
     list(
-      "Historical S" = plot_escapement(brood_data, goal_data, title),
-      "Spawner-Recruit" = plot_SR(posterior_data, brood_data, goal_data, title, multiplier = multiplier),
-      "Expected Yield" = plot_ey(posterior_data, brood_data, goal_data, title, multiplier = multiplier),
-      "OYP" = plot_profile(profile_data, goal_data, title, new_finding = new_finding)
+      "escapement" = plot_escapement(brood_data, goal_data, title),
+      "SR_plot" = plot_SR(posterior_list, brood_data, goal_data, title, multiplier = multiplier),
+      "ey" = plot_ey(posterior_list, brood_data, goal_data, title, multiplier = multiplier),
+      "OYP" = plot_profile(profile_data, goal_data, title, new_finding = new_finding),
+      "SR_table" = table_SR(posterior_list[length(posterior_list)], title, multiplier)
     )
 }
 
