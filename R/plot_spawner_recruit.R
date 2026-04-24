@@ -24,7 +24,7 @@
 #'
 #' @examples
 #'
-#' brood_Igushik <- make_brood(data = data_Igushik)
+#' brood_Igushik <- get_brood(data = data_Igushik)
 #'
 #' plot_SR(posterior_data = post_Igushik_byr63_15, brood_data = brood_Igushik,
 #' goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)

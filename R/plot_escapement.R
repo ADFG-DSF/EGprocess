@@ -19,7 +19,7 @@
 #'
 #' @examples
 #'
-#' brood_Igushik <- make_brood(data = data_Igushik)
+#' brood_Igushik <- get_brood(data = data_Igushik)
 #'
 #' plot_escapement(brood_data = brood_Igushik, goal_data = goal_Igushik,
 #' title = "Igushik River Sockeye Salmon")

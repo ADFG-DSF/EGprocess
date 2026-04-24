@@ -29,7 +29,7 @@
 #'
 #' @examples
 #'
-#' brood_Igushik <- make_brood(data = data_Igushik, p = p_Igushik)
+#' brood_Igushik <- get_brood(data = data_Igushik)
 #'
 #' post_list <-
 #'   list(
@@ -48,7 +48,7 @@ output_SR <- function(posterior_data, brood_data, goal_data, title, new_finding 
       "Historical S" = plot_escapement(brood_data, goal_data, title),
       "Spawner-Recruit" = plot_SR(posterior_data, brood_data, goal_data, title, multiplier = multiplier),
       "Expected Yield" = plot_ey(posterior_data, brood_data, goal_data, title, multiplier = multiplier),
-      "OYP" = plot_profile_facet(profile_data, goal_data, title, new_finding = new_finding)
+      "OYP" = plot_profile(profile_data, goal_data, title, new_finding = new_finding)
     )
 }
 

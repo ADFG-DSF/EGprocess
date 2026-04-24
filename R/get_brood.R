@@ -10,10 +10,10 @@
 #' @returns data frame
 #'
 #' @examples
-#' make_brood(data = data_Igushik)
+#' get_brood(data = data_Igushik)
 #'
 #' @export
-make_brood <- function(run_data){
+get_brood <- function(run_data){
   # Extract name of age data (A2, A3, etc)
   A.age <- names(run_data)[substr(names(run_data), 1, 1) == 'A']
 

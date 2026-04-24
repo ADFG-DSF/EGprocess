@@ -15,10 +15,10 @@
 #'
 #' @examples
 #'
-#' data_Igushik_combinedages <- make_age(age_data = data_Igushik, min_age = 4, max_age = 7)
+#' data_Igushik_combinedages <- get_age(age_data = data_Igushik, min_age = 4, max_age = 7)
 #'
 #' @export
-make_age <- function(run_data, min_age = NA, max_age = NA, combine = TRUE){
+get_age <- function(run_data, min_age = NA, max_age = NA, combine = TRUE){
 
   noage <- names(run_data)[!(substr(names(run_data), 1, 1) %in% c('a', 'A'))]
   eage <- names(run_data)[substr(names(run_data), 1, 1) == 'a']
