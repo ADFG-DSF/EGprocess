@@ -7,13 +7,18 @@
 #' to be included in the plot. The data frame should include years without empirical
 #' observations of S and R.
 #' @param goal_data  A dataframe containing calendar year (yr), the escapement goal
-#' lower bound (lb) and, the escapement goal upper bound (ub). Only needs to include
-#' years where the goal changed. If the updated analysis resulted in a new escapement
-#' goal finding the new finding should be included as the last row with the year
-#' labeled as "new". Use ub = NA for lower bound SEGs.
+#' lower bound (lb) and, the escapement goal upper bound (ub). Only needs to
+#' include years where the goal changed. If the updated analysis resulted in a
+#' new escapement goal finding the new finding should be included in the table
+#' with the year set to the year the new escapement goal finding will take effect.
+#' Use ub = NA for lower bound SEGs.
+#' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
+#' @param new_finding TRUE / FALSE. Indicates whether a new escapement goal finding
+#' resulted from the updated escapement goal analysis. If TRUE, the current escapement
+#' goal and the new escapement goal finding will be shown on profiles associated with
+#' the original and updated analyses, respectively.
 #' @param MSY_pct Either 70 or 80 corresponding to a 70% or 80% OYP, respectively.
 #' Defaults to NA. The 90% OYP is included regardless.
-#' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
 #' @param multiplier The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.
 #'
 #' @return A figure
@@ -24,7 +29,6 @@
 #'
 #' @examples
 #'
-#' p_Igushik <- make_age(data_Igushik, min_age = 3, max_age = 8)
 #' brood_Igushik <- make_brood(data = data_Igushik, p = p_Igushik)
 #'
 #' post_list <-
@@ -32,35 +36,20 @@
 #'     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
 #'     'Brood Years: 1963-2015' = post_Igushik_byr63_15
 #'   )
-#' profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
 #'
-#' output_SR(posterior_data = post_Igushik_byr63_15, brood_data = brood_Igushik,
+#' output_SR(posterior_data = post_list, brood_data = brood_Igushik,
 #' goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
 #'
 #' @export
-output_SR <- function(posterior_data, brood_data, goal_data, title, MSY_pct = NA, multiplier = 1){
-  if(length(posterior_data) == 2){
+output_SR <- function(posterior_data, brood_data, goal_data, title, new_finding = FALSE, MSY_pct = NA, multiplier = 1){
     profile_data <- lapply(posterior_data, get_profile, MSY_pct = MSY_pct, multiplier = multiplier)
 
-    out <- list(
+    list(
       "Historical S" = plot_escapement(brood_data, goal_data, title),
       "Spawner-Recruit" = plot_SR(posterior_data, brood_data, goal_data, title, multiplier = multiplier),
       "Expected Yield" = plot_ey(posterior_data, brood_data, goal_data, title, multiplier = multiplier),
-      "OYP" = plot_profile_facet(profile_data, goal_data, title)
+      "OYP" = plot_profile_facet(profile_data, goal_data, title, new_finding = new_finding)
     )
-  }
-  else{
-    profile_data <- get_profile(posterior_data, MSY_pct = MSY_pct, multiplier = multiplier)
-
-    out <- list(
-      "Historical S" = plot_escapement(brood_data, goal_data, title),
-      "Spawner-Recruit" = plot_SR(posterior_data, brood_data, goal_data, title, multiplier = multiplier),
-      "Expected Yield" = plot_ey(posterior_data, brood_data, goal_data, title, multiplier = multiplier),
-      "OYP" = plot_profile(profile_data, goal_data, title)
-    )
-  }
-
-  out
 }
 
 

@@ -4,10 +4,11 @@
 #'
 #' @param brood_data A dataframe containing calendar year (yr) and escapement(S).
 #' @param goal_data  A dataframe containing calendar year (yr), the escapement goal
-#' lower bound (lb) and, the escapement goal upper bound (ub). Only needs to include
-#' years where the goal changed. If the updated analysis resulted in a new
-#' escapement goal finding the new finding should be included as the last row with
-#' the year labeled as "new". Use ub = NA for lower bound SEGs.
+#' lower bound (lb) and, the escapement goal upper bound (ub). Only needs to
+#' include years where the goal changed. If the updated analysis resulted in a
+#' new escapement goal finding the new finding should be included in the table
+#' with the year set to the year the new escapement goal finding will take effect.
+#' Use ub = NA for lower bound SEGs.
 #' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
 #'
 #' @return A figure
@@ -18,8 +19,7 @@
 #'
 #' @examples
 #'
-#' p_Igushik <- make_age(data_Igushik, min_age = 3, max_age = 8)
-#' brood_Igushik <- make_brood(data = data_Igushik, p = p_Igushik)
+#' brood_Igushik <- make_brood(data = data_Igushik)
 #'
 #' plot_escapement(brood_data = brood_Igushik, goal_data = goal_Igushik,
 #' title = "Igushik River Sockeye Salmon")
@@ -30,7 +30,7 @@ plot_escapement <- function(brood_data,
                    title){
   brood_data <- brood_data %>% dplyr::filter(!is.na(S))
 
-  yr_max <- if(sum(goal_data$yr == "new") == 0){max(brood_data$yr)}else{max(brood_data$yr) + 2}
+  yr_max <- if(max(goal_data$yr) < max(brood_data$yr)){max(brood_data$yr)}else{max(goal_data$yr) + 2}
   goal <-
     goal_data %>%
     dplyr::mutate(dplyr::across(c(lb, ub), function(x){ifelse(is.na(x), -99, x)}),

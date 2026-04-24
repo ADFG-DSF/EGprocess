@@ -1,18 +1,24 @@
-#' @title Create Brood Data
+#' @title Create a brood table from Shiny app "Run" data.
+#' @description Modifies Shiny app run data by either combining or censoring extreme ages form the
+#' input dataset. Only necessary if extreme ages were combined or censored in the escapement goal
+#' analysis. This function creates a dataframe that can be used by make_brood().
 #'
-#' @param data Brood data
-#' @param p Adam will explain
+#' @param run_data The "Run" data used by the shiny app during escapement goal analysis. Modify
+#' the "Run" data input into the Shiny appy by make_age() if extreme ages were combined
+#' or censored by the Shiny app.
 #'
 #' @returns data frame
 #'
 #' @examples
-#' p_Igushik <- make_age(data_Igushik, min_age = 3, max_age = 8)
-#' make_brood(data = data_Igushik, p = p_Igushik)
+#' make_brood(data = data_Igushik)
 #'
 #' @export
-make_brood <- function(data, p){
+make_brood <- function(run_data){
   # Extract name of age data (A2, A3, etc)
-  A.age <- names(data)[substr(names(data), 1, 1) == 'A']
+  A.age <- names(run_data)[substr(names(run_data), 1, 1) == 'A']
+
+  # p determines in age is provided as proportions or numbers
+  p <- if(sum(rowSums(run_data[, A.age])) > dim(run_data)[1]){FALSE} else{TRUE}
 
   # Convert the name to to numeric age
   N.age <- as.numeric(substr(A.age, 2, 2))
@@ -27,7 +33,7 @@ make_brood <- function(data, p){
   lage <- fage + nages-1
 
   # Calculate maximum brood year range:
-  byr <- seq(min(data$yr)-lage, max(data$yr))
+  byr <- seq(min(run_data$yr)-lage, max(run_data$yr))
 
   # Set up brood year matrix
   brood <- matrix(0, ncol = nages+2, nrow = length(byr))
@@ -36,17 +42,17 @@ make_brood <- function(data, p){
   brood[, 1] <- byr
 
   # Second column is Escapement by year
-  brood[, 2] <- c(rep(NA, lage), data$S)
+  brood[, 2] <- c(rep(NA, lage), run_data$S)
 
   # 3rd to the last columns are brood year return by age
   # Age comp data
-  if(isTRUE(p)) {data[, A.age] <- data$N*data[, A.age]}
+  if(isTRUE(p)) {run_data[, A.age] <- round(run_data$N * run_data[, A.age], 0)}
   # Case: only 1 age (Pink Salmon)
-  if(nages ==1){
-    brood[, 3] <- c(rep(NA, lage-fage), data[, 3], rep(NA, fage))
+  if(nages == 1){
+    brood[, 3] <- c(rep(NA, lage-fage), run_data[, 3], rep(NA, fage))
   } else {
     for(i in 1:nages){
-      brood[, i+2] <- c(rep(NA, lage-fage+1-i), data[,i+3], rep(NA, fage+i-1))
+      brood[, i + 2] <- c(rep(NA, lage-fage + 1 - i), run_data[,i + 3], rep(NA, fage + i - 1))
     }
   }
   brood <- data.frame(brood)
@@ -58,13 +64,6 @@ make_brood <- function(data, p){
   } else {
     brood$R <- rowSums(brood[, -c(1:2)])
   }
-  # Create SR data
-  # SR <- brood[complete.cases(brood),c('byr','S','R')]
-  # out <- list(brood=brood,SR=SR)
-  # Output data is a list data
-  brood #return(out)
+  brood
 }
-
-# Backwards compatibility
-make.brood <- make_brood
 

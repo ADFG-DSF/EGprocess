@@ -8,7 +8,7 @@
 #'
 #' @return A table
 #'
-#' @import dplyr flextable
+#' @import dplyr flextable officer
 #' @importFrom magrittr %>%
 #'
 #' @examples
@@ -18,6 +18,7 @@
 #' @export
 
 table_SR <- function(posterior_data,
+                     title,
                      multiplier = 1){
 
   digits <- function(p){
@@ -32,10 +33,10 @@ table_SR <- function(posterior_data,
   }
 
 
-  data.frame(beta = posterior_data[["beta"]] * multiplier,
-             lnalpha = posterior_data[["lnalpha"]],
-             phi = ifelse(names(posterior_data) %in% "phi", posterior_data[["phi"]], 0),
-             sigma = posterior_data[["sigma"]]) %>%
+  data.frame(beta = posterior_data[[1]][["beta"]] * multiplier,
+             lnalpha = posterior_data[[1]][["lnalpha"]],
+             phi = ifelse(names(posterior_data[[1]]) %in% "phi", posterior_data[[1]][["phi"]], 0),
+             sigma = posterior_data[[1]][["sigma"]]) %>%
     dplyr::mutate(Smax = 1/ beta,
                   Seq = lnalpha / beta,
                   Smsy = Seq * (0.5 - 0.07 * lnalpha)) %>%
@@ -95,9 +96,14 @@ table_SR <- function(posterior_data,
                                  param = "Symbol",
                                  description = "Description",
                                  print = "Median (95% CI)")) %>%
-    flextable::add_header_row(values = c("Parameter", "Estimate"),
-                              colwidths = c(2, 1),
+    flextable::add_header_row(values = names(posterior_data),
+                              colwidths = 3,
                               top = TRUE) %>%
+    flextable::add_header_row(values = title,
+                              colwidths = 3,
+                              top = TRUE) %>%
+    flextable::border(i = 1:2, j = NULL, border = officer::fp_border(color = "white"), part = "header") %>%
+    flextable::fontsize(part = "header", i = 1, size = 18) %>%
     flextable::compose(i = ~ param == "Seq",
                        j = "param",
                        value = flextable::as_paragraph("S", flextable::as_sub("EQ")),

@@ -1,26 +1,29 @@
 #' @title Comparative OYP Plot
 #' @description
-#'  Produces faceted OYP plots representing the prior and updated OYPs for the
-#'  stock, both overlain with escapement goal ranges. If a new escapement goal
-#'  finding was made as a result of the updated analysis the new escapement goal
-#'  will be overlay the updated OYP while the prior escapement goal range will
-#'  overlay the prior OYP.
+#'  Produces OYP plot(s) for the stock. Depending on the profile_data provided the
+#'  output will be either a single OYP from the updated analysis or two OYPs from
+#'  the original and updated analyses. In either case the OYP(s) show can be
+#'  overlain with a relevant escapement goal range.
 #'
-#' @param profile_data A list of 2 OYPs that you wish to plot. The name of each
-#' list object will be used as the facet title. Recommend "Brood Year: xxxx - YYYY"
-#' for each item. The function assumes the first item in the list is the old OYP
-#' and the second item in the list is the updated OYP.
+#' @param profile_data A list of the 1 or 2 OYP's to plot. The name of each list object
+#' will be used as the facet title and should follow the convention "Brood Year: xxxx - YYYY"
+#' for each item. If 2 OYPs are provided the function assumes the first item in the list
+#' is the OYP associated with the original escapement goal analysis and the second
+#' item in the list is the OYP associated with the updated escapement goal analysis.
 #' @param goal_data A dataframe containing calendar year (yr), the escapement goal
 #' lower bound (lb) and, the escapement goal upper bound (ub). Only needs to
 #' include years where the goal changed. If the updated analysis resulted in a
-#' new escapement goal finding the new finding should be included as the last
-#' row with the year labeled as "new". Use ub = NA for lower bound SEGs.
+#' new escapement goal finding the new finding should be included in the table
+#' with the year set to the year the new escapement goal finding will take effect.
+#' Use ub = NA for lower bound SEGs.
 #' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
+#' @param new_finding TRUE / FALSE. Indicates whether a new escapement goal finding
+#' resulted from the updated escapement goal analysis. If TRUE, the current escapement
+#' goal and the new escapement goal finding will be shown on profiles associated with
+#' the original and updated analyses, respectively.
 #' @param limit Upper bound of spawners for plot. Default (NULL) will use 2.25 times S.msy.
 #' @param labelK TRUE / FALSE value for whether plot should display x axis values
 #' using a K for thousands (e.g., 350,000 would be 350K). Defaults to FALSE.
-#'
-#' @seealso [plot_profile()]
 #'
 #' @return A figure
 #'
@@ -45,11 +48,12 @@
 plot_profile_facet <- function(profile_data,
                                goal_data,
                                title,
+                               new_finding = FALSE,
                                limit = NULL,
                                labelK = FALSE){
   S.msy50 <- max(sapply(profile_data, function(x) median(x[["S.msy"]])))
-  n_OYP <- sapply(profile_data, function(x) sum(grepl("OYP\\d+", names(x))))
-  name_alternate <- names(profile_data[[2]])[!(names(profile_data[[2]]) %in% c("s", "OYP90", "SY", "S.msy"))]
+  n_OYP <- sapply(length(profile_data), function(x) sum(grepl("OYP\\d+", names(profile_data[[x]]))))
+  name_alternate <- names(profile_data[[length(profile_data)]])[!(names(profile_data[[length(profile_data)]]) %in% c("s", "OYP90", "SY", "S.msy"))]
   pct_alternate <- gsub("\\D", "", name_alternate)
 
   if(is.null(limit)){
@@ -58,8 +62,7 @@ plot_profile_facet <- function(profile_data,
   else xmax <- limit
 
   goal_data <-
-    if(goal_data$yr[dim(goal_data)[1]] == "new")
-    {goal_data[(dim(goal_data)[1] - 1):dim(goal_data)[1], ]}else{
+    if(isTRUE(new_finding)){goal_data[(dim(goal_data)[1] - 1):dim(goal_data)[1], ]}else{
       goal_data[rep(dim(goal_data)[1], 2), ]}
   goal_data$profile <- names(profile_data)
 
@@ -143,4 +146,3 @@ plot_profile_facet <- function(profile_data,
         ggplot2::scale_x_continuous(limits = c(0, xmax), labels = scales::comma)
       }}
 }
-

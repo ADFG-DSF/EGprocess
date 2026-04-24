@@ -7,11 +7,12 @@
 #' @param brood_data A dataframe containing year (yr), Spawners (S), and Recruits (R)
 #' to be included in the plot. The data frame should include years without empirical
 #' observations of S and R.
-#' @param goal_data  A dataframe containing calendar year (yr), the escapement
-#' goal lower bound (lb) and, the escapement goal upper bound (ub). Only needs
-#' to include years where the goal changed. If the updated analysis resulted in
-#' a new escapement goal finding the new finding should be included as the last
-#' row with the year labeled as "new". Use ub = NA for lower bound SEGs.
+#' @param goal_data  A dataframe containing calendar year (yr), the escapement goal
+#' lower bound (lb) and, the escapement goal upper bound (ub). Only needs to
+#' include years where the goal changed. If the updated analysis resulted in a
+#' new escapement goal finding the new finding should be included in the table
+#' with the year set to the year the new escapement goal finding will take effect.
+#' Use ub = NA for lower bound SEGs.
 #' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
 #' @param multiplier The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.
 #'
@@ -22,6 +23,8 @@
 #' @importFrom scales comma
 #'
 #' @examples
+#'
+#' brood_Igushik <- make_brood(data = data_Igushik)
 #'
 #' plot_ey(posterior_data = post_Igushik_byr63_15, brood_data = brood_Igushik,
 #' goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
@@ -47,18 +50,14 @@ plot_ey <- function(posterior_data,
   }
 
   if(length(posterior_data) == 2){param50_update <- get_param50(posterior_data[[2]])}
-  else{param50_update <- get_param50(posterior_data)}
-  if(length(posterior_data) == 2){param50_last <- get_param50(posterior_data[[1]])}
+  else{param50_update <- get_param50(posterior_data[[1]])}
+  if(length(posterior_data) == 2 & !is.null(posterior_data[[1]])){param50_last <- get_param50(posterior_data[[1]])}
 
-  goal_range <- as.numeric(goal_data[dim(goal_data)[1], c(2, 3)])
-
-  # Identify brood years added since the last goal change.
-  # Likely fragile. Need Hamachan to output some of this stuff.
-  max_age <- length(brood_data$yr[is.na(brood_data$R) & !is.na(brood_data$S)])
-  byr_modified <- suppressWarnings(max(as.numeric(goal_data$yr[goal_data$yr != "new"])) - max_age)
+  byr_updated <-
+    if(length(posterior_data) == 2){as.numeric(gsub(".*: \\d+-(\\d+)", "\\1", names(posterior_data)[1]))}else{0}
   brood_data <-
     brood_data %>%
-    dplyr::mutate(update = ifelse(yr > byr_modified, "updated", "existing"),
+    mutate(update = ifelse(yr > byr_updated, "updated", "existing"),
            Y = R - S) %>%
     dplyr::select(yr, S, Y, update) %>%
     dplyr::filter(complete.cases(.))
@@ -109,7 +108,7 @@ plot_ey <- function(posterior_data,
     theme_eg()
 
 
-  if(length(posterior_data) == 2){
+  if(length(posterior_data) == 2 & !is.null(posterior_data[[1]])){
     plot +
       ggplot2::stat_function(fun=function(x){(x * exp(param50_last$lnalpha - param50_last$beta * x) - x)},
                              linetype = "dashed",

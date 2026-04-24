@@ -1,10 +1,11 @@
 #' @title SR Profile Data Creation
 #' @description Creates a dataset for plotting OYP and EY plots.
-#' This function creates a dataframe that can be used by plot_profile() and plot_ey()
+#' This function creates a dataframe that can be used by plot_profile()
 #'
 #' @param posterior_data An mcmc object with nodes lnalpha, beta, phi, and sigma.
 #' @param multiplier The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.
-#' @param MSY_pct The 70% or 80% OYP can be specified; must be entered as either 70 or 80. Defaults to NA. The 90% OYP is included regardless.
+#' @param MSY_pct The 70% or 80% OYP can be specified; must be entered as either 70 or 80.
+#' Defaults to NA. The 90% OYP is included regardless.
 #'
 #' @return A data.frame
 #'
@@ -29,8 +30,6 @@ get_profile <- function(posterior_data, multiplier = 1, MSY_pct = NA){
                lnalpha = posterior_data$lnalpha,
                phi = ifelse(is.na(posterior_data$phi), 0, posterior_data$phi),
                sigma = posterior_data$sigma) %>%
-    #JTP: can this be deleted??
-    as.data.frame() %>%
     dplyr::mutate(S.msy = lnalpha / beta * (0.5 - 0.07 * lnalpha),
                   R.msy = S.msy * exp(lnalpha - beta * S.msy),
                   MSY = R.msy - S.msy) %>%
