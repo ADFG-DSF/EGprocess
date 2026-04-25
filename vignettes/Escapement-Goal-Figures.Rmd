@@ -19,6 +19,7 @@ knitr::opts_chunk$set(
 ```{r, message = FALSE, warning = FALSE, include = FALSE}
 library(EGprocess)
 library(tidyverse)
+library(flextable)
 ```
 
 # Preamble
@@ -50,17 +51,15 @@ tail(data_Igushik)
 `EGprocess` contains helper functions to create the brood table from "Run" type data. The function `make_age` creates the age composition used in the spawner-recruit analysis and is a required input to build the brood table. The function `make_brood` creates the brood table itself. *(Note to EGPIT: Use of these helper functions will likely go away. A better approach would be for the shiny app to output the exact information needed to produce these plots. Hamachan, Justin and i are working together to make that happen.)* Notice that the results is 'jagged' and includes escapements (`S`), recruits (`R`) and return-by-age (`b.Age#`) which were not observed. For example, the Igushik River Sockeye salmon analysis update conducted prior to the 2026 BOF meeting utilized escapement information through 2023 but only had recruitment through 2015 because 8 year old fish from the 2015 escapement were not observed until 2023. 
 
 ```{r}
-# These don't do what I thought they did. Brood table built off data not p. It works but not if we attempted to pool extreme ages.
 # It would be preferable to have the shiny app output the required information rather than attempting to recreate them externally. Brood table, posterior, multiplier, max_age are needed. 
 
-# make age composition
-p_Igushik <- make_age(age_data = data_Igushik,
+# Replace with an age composition example
+p_Igushik <- get_age(run_data = data_Igushik,
                       min_age = 3,
                       max_age = 7)
 
 # make brood table
-brood_Igushik <- make_brood(data = data_Igushik,
-                            p = p_Igushik)
+brood_Igushik <- get_brood(run_data = data_Igushik)
 
 # Showing only the first and last 12 rows to save space.
 head(brood_Igushik, n = 12)
@@ -80,7 +79,7 @@ goal_Igushik
 The function argument `posterior_data` expects random draws from the posterior distributions of `lnalpha`, `beta`, `phi` and `sigma` and can be retrieve from the shiny app using the *Download MCMC* button. Colloquially, one can think of the rows in `posterior_data` representing possible values of `lnalpha`, `beta`, `phi` and `sigma` (and in combination possible mean and median spawner-recruit or expected yield relationships) that are supported by the empirical data used in the analysis. Two examples of `posterior data` are available in `EGprocess`. The file `post_Igushik_byr63_15` represents posterior draws from the analysis update that occurred prior to the 2026 Bristol Bay BOF meeting. Using descriptive names for `posterior_data`, referencing the brood years included in the analysis and/or model specifications used, is a best practice when saving these objects.   
 
 ```{r}
-head(post_Igushik_byr63_15)
+str(post_Igushik_byr63_15)
 ```
 
 Recall that the previous escapement goal update that resulted in a new escapement goal finding occurred in 2015. Spawning escapements and the subsequent recruitment from the 1963 - 2005 brood years were available to inform that finding. `EGprocess` also contains the file `post_Igushik_byr63_05` representing posterior draws from the analysis which informed the 2015 finding[^3].
@@ -88,16 +87,14 @@ Recall that the previous escapement goal update that resulted in a new escapemen
 [^3]: Staff knowledgeable about the history of Bristol Bay sockeye salmon escapement goals will recognize this statement is not strictly true. Instead the file, `post_Igushik_byr63_05` contains model output using only the 1963 - 2005 brood years because we were unable to locate the actual posterior produced in 2015. This is sufficient to demonstrate use of the `EGprocess` package and not intended to provide complete historic fidelity.   
 
 ```{r}
-head(post_Igushik_byr63_05)
+str(post_Igushik_byr63_05)
 ```
 
 In Alaska, most salmon stocks have existing escapement goals and those escapement goals bounds represent the result of extensive negotiations that account for not only th information about how to maximize sustained yield that was provided by the analysis but also concerns about stock status that are poorly reflected in the analysis and concerns from stakeholders and management staff about how to most effectively persecute the fishery. For these reasons, it is often most helpful to consider how the updated escapement goal analysis changes our interpretation of the existing goal rather than using the updated analysis to develop an new escapement goal finding naively. `EGprocess` can help make this comparison if both sets of posterior data are provided to the functions as a list with the posteriors named and provided in chronological order.
 
 ```{r}
-post_Igushik_list <- 
-  list('Brood years: 1963-2005' = post_Igushik_byr63_05,
-       'Brood years: 1963-2015' = post_Igushik_byr63_15
-  )
+post_Igushik_list <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
+str(post_Igushik_list)
 ```
 
 ### profile_data
@@ -107,14 +104,11 @@ Some `EGprocess` functions utilize the function argument `profile_data` which is
 ```{r}
 # For a single posterior
 profile_Igushik_byr63_15 <- 
-  get_profile(posterior_data = post_Igushik_byr63_15,
+  get_profile(posterior_list = post_Igushik_byr63_15,
               multiplier = 1e-5)
 
-#For multiple posteriors, use a list (and lapply() to the elements)
-profile_Igushik_list <- 
-  lapply(post_Igushik_list, 
-         FUN = get_profile, 
-         multiplier = 1e-5)
+#For multiple posteriors
+profile_Igushik_list <- get_profile(post_Igushik_list, multiplier = 1e-5)
 ```
 
 # EGprocess output
@@ -127,7 +121,7 @@ The simplest way to retrieve the output from `EGprocess` is to run the function 
 -   Users retain the ability to customize figures to stock specific situations.
 ```{r}
 output_Igushik <-
-  output_SR(posterior_data = post_Igushik_list, 
+  output_SR(posterior_list = post_Igushik_list, 
             brood_data = brood_Igushik, 
             goal_data = goal_Igushik, 
             title = "Igushik River Sockeye Salmon", 
@@ -160,6 +154,10 @@ ggsave(filename = "../man/figures/Igushik_profile.png", #Replace with a path rel
        width = 6,
        height = 6,
        dpi = 300)
+
+#Save the parameter table as a png file
+save_as_image(output_Igushik[[5]],
+              path = "../man/figures/Igushik_parameters.png")
 ```
 
 EGPIT decided historical escapements should be depicted as a bar plot overlain with the contemporary escapement goal range and color coded to indicate escapements below the lower bound of the contemporary escapement goal. *(Note to EGPIT: It might make more sense to color the escapements added to the analysis since the last goal change in Figure 1. This would be more consistent with the other figures and escapements below the lb are self evident to the reader.)*
@@ -194,7 +192,13 @@ EGPIT decided escapement goals intended to target MSY should use a universal sta
 
 <br>
 
+Words.
 
+<br>
+
+![Figure 5: Igushik River sockeye salmon spawner-recruit parameters.](../man/figures/Igushik_parameters.png)
+
+<br>
 
 
 
@@ -204,48 +208,48 @@ EGPIT decided escapement goals intended to target MSY should use a universal sta
 During the escapement goal review process for Igushik River Sockeye salmon the escapement goal review committee elected not to change the escapement goal. Imagine the committee had disregarded the stability of the relations hip between the escapement goal bounds and the OYP probabilities and decided the goal was too aggressive relative to a target of 90% of MSY. This imaginary committee may have decided increases to both the lower and upper bounds of the existing escapement goal were appropriate.   universe the committee may have determined a new escapement goal finding was appropriate. This decision could have been communicated using `EGprocess` outputs by modifying the `goal_data` file. 
 
 ```{r}
-# It's likely better to have the new year be numeric. Make sure the functions would handle that well provided the new finding year > max(brood_data$yr)
-goal_imaginary <- 
-  goal_Igushik %>%
-  mutate(yr = as.character(yr)) %>%
-  bind_rows(
-    data.frame(yr = "new",
-               lb = 175000,
-               ub = 500000)
-  )
-goal_imaginary
+# # It's likely better to have the new year be numeric. Make sure the functions would handle that well provided the new finding year > max(brood_data$yr)
+# goal_imaginary <- 
+#   goal_Igushik %>%
+#   mutate(yr = as.character(yr)) %>%
+#   bind_rows(
+#     data.frame(yr = "new",
+#                lb = 175000,
+#                ub = 500000)
+#   )
+# goal_imaginary
 ```
 
 In what follows we will also change the figure titles to make clear that this is an imaginary example.
 ```{r}
-# Should name the elements in the output list
-output_imaginary <-
-  output_SR(posterior_data = post_Igushik_list, 
-            brood_data = brood_Igushik, 
-            goal_data = goal_imaginary, 
-            title = "Imaginary River Sockeye Salmon", 
-            multiplier = 1e-5)
-
-#Save the historical escapement figure as a png file
-ggsave(filename = "../man/figures/imaginary_escapement.png", #Replace with a path relevant to you.
-       plot = output_imaginary[[1]],
-       width = 6,
-       height = 4,
-       dpi = 300)
-
-#Save the Spawner-Recruit figure as a png file
-ggsave(filename = "../man/figures/imaginary_spawner_recruit.png", #Replace with a path relevant to you.
-       plot = output_imaginary[[2]],
-       width = 6,
-       height = 6,
-       dpi = 300)
-
-#Save the OYP figure as a png file
-ggsave(filename = "../man/figures/imaginary_profile.png", #Replace with a path relevant to you.
-       plot = output_imaginary[[4]],
-       width = 6,
-       height = 6,
-       dpi = 300)
+# # Should name the elements in the output list
+# output_imaginary <-
+#   output_SR(posterior_data = post_Igushik_list, 
+#             brood_data = brood_Igushik, 
+#             goal_data = goal_imaginary, 
+#             title = "Imaginary River Sockeye Salmon", 
+#             multiplier = 1e-5)
+# 
+# #Save the historical escapement figure as a png file
+# ggsave(filename = "../man/figures/imaginary_escapement.png", #Replace with a path relevant to you.
+#        plot = output_imaginary[[1]],
+#        width = 6,
+#        height = 4,
+#        dpi = 300)
+# 
+# #Save the Spawner-Recruit figure as a png file
+# ggsave(filename = "../man/figures/imaginary_spawner_recruit.png", #Replace with a path relevant to you.
+#        plot = output_imaginary[[2]],
+#        width = 6,
+#        height = 6,
+#        dpi = 300)
+# 
+# #Save the OYP figure as a png file
+# ggsave(filename = "../man/figures/imaginary_profile.png", #Replace with a path relevant to you.
+#        plot = output_imaginary[[4]],
+#        width = 6,
+#        height = 6,
+#        dpi = 300)
 ```
 
 The new escapement goal finding is shown as a change to the escapement goal range overlain on yet to be observed escapements.
@@ -278,43 +282,43 @@ First time  escapement goals can be accommodated by creating a `goal_data` file 
 
 ```{r}
 # It's likely better to have the new year be numeric. Make sure the functions would handle that well provided the new finding year > max(brood_data$yr)
-goal_nonexistant <- 
-  data.frame(yr = "new",
-             lb = 175000,
-             ub = 500000
-  )
-goal_nonexistant
+# goal_nonexistant <- 
+#   data.frame(yr = "new",
+#              lb = 175000,
+#              ub = 500000
+#   )
+# goal_nonexistant
 ```
 
 In what follows we will also change the figure titles to make clear this fishery is nonexistent. Notice that `profile_data` is provided a single profile file since there is no prior analysis for comparison.
 ```{r}
-output_nonexistant <-
-  output_SR(posterior_data = post_Igushik_byr63_15, 
-            brood_data = brood_Igushik, 
-            goal_data =goal_nonexistant, 
-            title = "Nonexistant River Sockeye Salmon", 
-            multiplier = 1e-5)
-
-#Save the historical escapement figure as a png file
-ggsave(filename = "../man/figures/nonexistant_escapement.png", #Replace with a path relevant to you.
-       plot = output_nonexistant[[1]],
-       width = 6,
-       height = 4,
-       dpi = 300)
-
-#Save the Spawner-Recruit figure as a png file
-ggsave(filename = "../man/figures/nonexistant_spawner_recruit.png", #Replace with a path relevant to you.
-       plot = output_nonexistant[[2]],
-       width = 6,
-       height = 6,
-       dpi = 300)
-
-#Save the OYP figure as a png file
-ggsave(filename = "../man/figures/nonexistant_profile.png", #Replace with a path relevant to you.
-       plot = output_nonexistant[[4]],
-       width = 6,
-       height = 4,
-       dpi = 300)
+# output_nonexistant <-
+#   output_SR(posterior_data = post_Igushik_byr63_15, 
+#             brood_data = brood_Igushik, 
+#             goal_data =goal_nonexistant, 
+#             title = "Nonexistant River Sockeye Salmon", 
+#             multiplier = 1e-5)
+# 
+# #Save the historical escapement figure as a png file
+# ggsave(filename = "../man/figures/nonexistant_escapement.png", #Replace with a path relevant to you.
+#        plot = output_nonexistant[[1]],
+#        width = 6,
+#        height = 4,
+#        dpi = 300)
+# 
+# #Save the Spawner-Recruit figure as a png file
+# ggsave(filename = "../man/figures/nonexistant_spawner_recruit.png", #Replace with a path relevant to you.
+#        plot = output_nonexistant[[2]],
+#        width = 6,
+#        height = 6,
+#        dpi = 300)
+# 
+# #Save the OYP figure as a png file
+# ggsave(filename = "../man/figures/nonexistant_profile.png", #Replace with a path relevant to you.
+#        plot = output_nonexistant[[4]],
+#        width = 6,
+#        height = 4,
+#        dpi = 300)
 ```
 
 A first time escapement goal finding is overlain on yet to be observed escapements of the historical escapement plot.
@@ -346,26 +350,26 @@ First time escapement goal findings are overlain on the optimal yield profile. S
 The `goal_data` file can handle lower bound SEGs and situations where the escapement goal was temporarily rescinded as demonstrated with the fictitious data below. We will also use this example to demonstrate the use of datasets that were not derived from shiny app inputs, use of a single plotting function, and modifying the default output to fit unique situations.
 
 ```{r}
-fictitious_escapement <-
-  plot_escapement(
-    brood_data =
-      data.frame(
-        yr = 1800:1839,
-        S = runif(40, 7501, 14000)
-      ),
-  title = "Fictitious River Sockeye Salmon",
-  goal_data =
-    data.frame(
-      yr = c(1800, 1810, 1820, 1830),
-      lb = c(8000, 9000, 7000, NA),
-      ub = c(12000, 13000, NA, NA)
-      )
-  )
-ggsave(filename = "../man/figures/fictitious_escapement.png", #Replace with a path relevant to you.
-       plot = fictitious_escapement,
-       width = 6,
-       height = 4,
-       dpi = 300)
+# fictitious_escapement <-
+#   plot_escapement(
+#     brood_data =
+#       data.frame(
+#         yr = 1800:1839,
+#         S = runif(40, 7501, 14000)
+#       ),
+#   title = "Fictitious River Sockeye Salmon",
+#   goal_data =
+#     data.frame(
+#       yr = c(1800, 1810, 1820, 1830),
+#       lb = c(8000, 9000, 7000, NA),
+#       ub = c(12000, 13000, NA, NA)
+#       )
+#   )
+# ggsave(filename = "../man/figures/fictitious_escapement.png", #Replace with a path relevant to you.
+#        plot = fictitious_escapement,
+#        width = 6,
+#        height = 4,
+#        dpi = 300)
 ```
 
 ![Figure 8: Fictitious River Sockeye Salmon escapement, 1800-1839.](../man/figures/fictitious_escapement.png)
@@ -379,23 +383,23 @@ Alternatively, simple modifications may be possible directly on the standardize 
 ```{r}
 # Made this to illustrate a point but it does be the question of whether goal type should be an column in the goal_data.
 
-fictitious_escapement_OEG <-
-  fictitious_escapement +
-  geom_line(
-    data =
-      data.frame(
-        yr = 1830:1839,
-        lb = rep(5000, 10)
-      ),
-    mapping = aes(y = lb),
-    linetype = "dotted"
-  ) +
-  labs(caption =str_wrap("Note: SEG lower and upper bounds are shown as solid and dashed lines, respectively while the lower bound OEG is shown as a dotted line. Escapements below the lower bound of the contemporaneous escapement goal are indicated with black fill.", width = 85))
-ggsave(filename = "../man/figures/fictitious_escapement_OEG.png", #Replace with a path relevant to you.
-       plot = fictitious_escapement_OEG,
-       width = 6,
-       height = 4,
-       dpi = 300)
+# fictitious_escapement_OEG <-
+#   fictitious_escapement +
+#   geom_line(
+#     data =
+#       data.frame(
+#         yr = 1830:1839,
+#         lb = rep(5000, 10)
+#       ),
+#     mapping = aes(y = lb),
+#     linetype = "dotted"
+#   ) +
+#   labs(caption =str_wrap("Note: SEG lower and upper bounds are shown as solid and dashed lines, respectively while the lower bound OEG is shown as a dotted line. Escapements below the lower bound of the contemporaneous escapement goal are indicated with black fill.", width = 85))
+# ggsave(filename = "../man/figures/fictitious_escapement_OEG.png", #Replace with a path relevant to you.
+#        plot = fictitious_escapement_OEG,
+#        width = 6,
+#        height = 4,
+#        dpi = 300)
 ```
 
 ![Figure 9: Fictitious River Sockeye Salmon escapement, 1800-1839.](../man/figures/fictitious_escapement_OEG.png)
@@ -409,21 +413,21 @@ EGPIT decided escapement goals intended to target MSY should use a universal sta
 [^4]: https://www.bbsri.org/_files/ugd/bc10d6_adeb1b9e83fa411dba02044cc76565c9.pdf
 
 ```{r}
-profile_Igushik_80 <-
-  lapply(post_Igushik_list,
-         get_profile,
-         multiplier = 1e-5,
-         MSY_pct = 80) # creates a second profile that includes 80% MSY targets.
-
-Igushik_profile_80 <-
-  plot_profile_facet(profile_data = profile_Igushik_80,
-                     goal_dat = goal_Igushik,
-                     title = "Igushik River Sockeye Salmon")
-ggsave(filename = "../man/figures/Igushik_profile_80.png", #Replace with a path relevant to you.
-       plot = Igushik_profile_80,
-       width = 6,
-       height = 6,
-       dpi = 300)
+# profile_Igushik_80 <-
+#   lapply(post_Igushik_list,
+#          get_profile,
+#          multiplier = 1e-5,
+#          MSY_pct = 80) # creates a second profile that includes 80% MSY targets.
+# 
+# Igushik_profile_80 <-
+#   plot_profile_facet(profile_data = profile_Igushik_80,
+#                      goal_dat = goal_Igushik,
+#                      title = "Igushik River Sockeye Salmon")
+# ggsave(filename = "../man/figures/Igushik_profile_80.png", #Replace with a path relevant to you.
+#        plot = Igushik_profile_80,
+#        width = 6,
+#        height = 6,
+#        dpi = 300)
 ```
 
 <br>

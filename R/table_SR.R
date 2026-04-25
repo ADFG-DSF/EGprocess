@@ -70,9 +70,9 @@ table_SR <- function(posterior_data,
                                     "Density-dependence",
                                     "Residual temporal correlation",
                                     "Process error",
-                                    "Spawning abundance that maximumizes sustained yield",
-                                    "Spawning abundance that maximumizes recruitment",
-                                    "Largest spawning abundance providing sustained sield")
+                                    "Escapement that maximizes sustained yield",
+                                    "Escapement that maximizes recruitment",
+                                    "Largest escapement providing sustained yield")
                                   ),
                   param = factor(param,
                                  levels = c(
