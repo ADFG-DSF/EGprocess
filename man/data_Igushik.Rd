@@ -34,7 +34,7 @@ inputs for stock-recruit analyses.
 \details{
 Age composition fields may represent either expanded counts or proportions,
 depending on how the dataset was processed prior to being archived.
-These values are used by functions such as \code{make_age()} and \code{make_brood()}.
+These values are used by functions such as \code{get_age()} and \code{get_brood()}.
 The dataset originates from Igushik River escapement goal analyses.
 }
 \examples{

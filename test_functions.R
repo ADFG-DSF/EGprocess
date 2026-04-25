@@ -1,7 +1,7 @@
 #Script to run functions under various common scenarios.
 
 library(EGprocess)
-#library(tidyverse)
+library(tidyverse)
 brood_Igushik <- get_brood(data_Igushik)
 goal_Igushik <-
   data.frame(
@@ -16,14 +16,10 @@ goal_Igushik_new <-
     ub = c(250000, 300000, 400000, 500000)
   )
 
-# Create list of profiles
-post_list <-
-  list(
-    "Brood years: 1963-2005" = post_Igushik_byr63_05,
-    "Brood years: 1963-2015" = post_Igushik_byr63_15
-  )
-profile_list <- get_profile(post_list, multiplier = 1e-5)
-profile_list80 <- get_profile(post_list, multiplier = 1e-5, MSY_pct = 80)
+# Combine profiles list of profiles
+post_Igushik <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
+profile_list <- get_profile(post_Igushik, multiplier = 1e-5)
+profile_list80 <- get_profile(post_Igushik, multiplier = 1e-5, MSY_pct = 80)
 
 
 # test plot_s w and wo a new goal finding
@@ -41,20 +37,20 @@ plot_escapement(brood_Igushik,
 
 #test plot_SR function
 # No goal change, single analysis
-plot_SR(post_list[2],
+plot_SR(post_Igushik[2],
         brood_Igushik,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 # No goal change, two analyses
-plot_SR(post_list,
+plot_SR(post_Igushik,
         brood_Igushik,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 # No goal change, two analyses, unknown profile
-plot_SR(list('Brood years: 1963-2005' = c(lnalpha = 1.5, beta = 0.15, sigma = 0.5),
-             'Brood years: 1963-2017' = post_Igushik_byr63_15),
+plot_SR(c(list('Brood years: 1963-2005' = c(lnalpha = 1.5, beta = 0.15, sigma = 0.5)),
+          'Brood years: 1963-2017' = post_Igushik_byr63_15),
         brood_Igushik,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon",
@@ -66,36 +62,36 @@ plot_SR(list('Brood years: 1963-2005' = NULL,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon")
 #new finding
-plot_SR(post_list,
+plot_SR(post_Igushik,
         brood_Igushik,
         goal_dat = goal_Igushik_new,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 #first finding
-plot_SR(post_list[2],
+plot_SR(post_Igushik[2],
         brood_Igushik,
         goal_dat = goal_Igushik_new[dim(goal_Igushik_new)[1], ],
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 
-table_SR(post_list[2], title = "Igushik River Sockeye Salmon", multiplier = 1e-6)
+table_SR(post_Igushik[2], title = "Igushik River Sockeye Salmon", multiplier = 1e-6)
 
 #test plot_ey function
 # No goal change, single analysis
-plot_ey(post_list[2],
+plot_ey(post_Igushik[2],
         brood_Igushik,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 # No goal change, two analyses
-plot_ey(post_list,
+plot_ey(post_Igushik,
         brood_Igushik,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 # No goal change, two analyses, unknown profile
-plot_ey(list('Brood years: 1963-2005' = c(lnalpha = 1.5, beta = 0.15, sigma = 0.5),
-             'Brood years: 1963-2017' = post_Igushik_byr63_15),
+plot_ey(c(list('Brood years: 1963-2005' = c(lnalpha = 1.5, beta = 0.15, sigma = 0.5)),
+          'Brood years: 1963-2017' = post_Igushik_byr63_15),
         brood_Igushik,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon",
@@ -107,13 +103,13 @@ plot_ey(list('Brood years: 1963-2005' = NULL,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon")
 #new finding
-plot_ey(post_list,
+plot_ey(post_Igushik,
         brood_Igushik,
         goal_dat = goal_Igushik_new,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 #first finding
-plot_ey(post_list[2],
+plot_ey(post_Igushik[2],
         brood_Igushik,
         goal_dat = goal_Igushik_new[dim(goal_Igushik_new)[1], ],
         "Igushik River Sockeye Salmon",
@@ -160,11 +156,11 @@ plot_profile(profile_list80,
 
 # Test EGoutput
 # 90% of MSY
-output_SR(post_list, brood_Igushik, goal_Igushik, "Igushik River Sockeye Salmon", multiplier = 1e-5)
-output_SR(post_list, brood_Igushik, goal_Igushik_new, "Igushik River Sockeye Salmon", new_finding = TRUE, multiplier = 1e-5)
-output_SR(post_list[2], brood_Igushik, goal_Igushik, "Igushik River Sockeye Salmon", multiplier = 1e-5)
+output_SR(post_Igushik, brood_Igushik, goal_Igushik, "Igushik River Sockeye Salmon", multiplier = 1e-5)
+output_SR(post_Igushik, brood_Igushik, goal_Igushik_new, "Igushik River Sockeye Salmon", new_finding = TRUE, multiplier = 1e-5)
+output_SR(post_Igushik[2], brood_Igushik, goal_Igushik, "Igushik River Sockeye Salmon", multiplier = 1e-5)
 
 # 80% & 90% of MSY
-output_SR(post_list, brood_Igushik, goal_Igushik, "Igushik River Sockeye Salmon", MSY_pct = 80, multiplier = 1e-5)
-output_SR(post_list, brood_Igushik, goal_Igushik_new, "Igushik River Sockeye Salmon", new_finding = TRUE, MSY_pct = 80, multiplier = 1e-5)
-output_SR(post_list[2], brood_Igushik, goal_Igushik, "Igushik River Sockeye Salmon", MSY_pct = 80, multiplier = 1e-5)
+output_SR(post_Igushik, brood_Igushik, goal_Igushik, "Igushik River Sockeye Salmon", MSY_pct = 80, multiplier = 1e-5)
+output_SR(post_Igushik, brood_Igushik, goal_Igushik_new, "Igushik River Sockeye Salmon", new_finding = TRUE, MSY_pct = 80, multiplier = 1e-5)
+output_SR(post_Igushik[2], brood_Igushik, goal_Igushik, "Igushik River Sockeye Salmon", MSY_pct = 80, multiplier = 1e-5)

@@ -9,7 +9,7 @@ A data frame with one row per MCMC draw and columns:
 \describe{
 \item{beta}{Density dependence parameter.}
 \item{deviance}{Deviance measure used for MCMC diagnostics.}
-\item{e0}{Adam will fill this in}
+\item{e0}{Initial 'residual' for autoregressive model.}
 \item{lnalpha}{Log-scale productivity parameter.}
 \item{phi}{Temporal autocorrelation parameter.}
 \item{sigma}{Process or observation error standard deviation.}

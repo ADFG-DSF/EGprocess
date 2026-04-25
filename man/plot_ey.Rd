@@ -38,7 +38,9 @@ Produces an expected yield plot with an overlay of the SR curve and the goal ran
 
 brood_Igushik <- get_brood(data = data_Igushik)
 
-plot_ey(posterior_list = post_Igushik_byr63_15, brood_data = brood_Igushik,
+post_Igushik <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
+
+plot_ey(posterior_list = post_Igushik, brood_data = brood_Igushik,
 goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
 
 }

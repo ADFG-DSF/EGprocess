@@ -50,14 +50,10 @@ overlain with a relevant escapement goal range.
 }
 \examples{
 
-post_list <-
-  list(
-    'Brood Years: 1963-2005' = post_Igushik_byr63_05,
-    'Brood Years: 1963-2015' = post_Igushik_byr63_15
-  )
-profile_list <- lapply(post_list, get_profile, multiplier = 1e-5)
+post_Igushik <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
+profile_Igushik <- get_profile(post_Igushik, multiplier = 1e-5)
 
-plot_profile(profile_data = profile_list, goal_data = goal_Igushik,
+plot_profile(profile_data = profile_Igushik, goal_data = goal_Igushik,
 title = "Igushik River Sockeye Salmon")
 
 }

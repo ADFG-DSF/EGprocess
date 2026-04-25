@@ -46,7 +46,7 @@
 #' @details
 #' Age composition fields may represent either expanded counts or proportions,
 #' depending on how the dataset was processed prior to being archived.
-#' These values are used by functions such as `make_age()` and `make_brood()`.
+#' These values are used by functions such as `get_age()` and `get_brood()`.
 #' The dataset originates from Igushik River escapement goal analyses.
 #'
 #' @source Internal ADF&G escapement and age composition data,
@@ -60,7 +60,7 @@
 
 #' Igushik River MCMC Output (Brood Years 1963-2005)
 #'
-#' A matrix or data frame of posterior samples from a stock-recruitment model
+#' A named list of posterior samples from a stock-recruitment model
 #' fit to Igushik River brood years 1963-2005. Each row represents one MCMC
 #' sample and contains primary parameter nodes used by downstream functions such
 #' as `get_profile()`, `plot_SR()`, and Optimal Yield Profile calculations.
@@ -69,7 +69,7 @@
 #' \describe{
 #'   \item{beta}{Density dependence parameter.}
 #'   \item{deviance}{Deviance measure used for MCMC diagnostics.}
-#'   \item{e0}{Adam will fill this in}
+#'   \item{e0}{Initial 'residual' for autoregressive model.}
 #'   \item{lnalpha}{Log-scale productivity parameter.}
 #'   \item{phi}{Temporal autocorrelation parameter.}
 #'   \item{sigma}{Process or observation error standard deviation.}
@@ -97,7 +97,7 @@
 #' \describe{
 #'   \item{beta}{Density dependence parameter.}
 #'   \item{deviance}{Deviance measure used for MCMC diagnostics.}
-#'   \item{e0}{Adam will fill this in}
+#'   \item{e0}{Initial 'residual' for autoregressive model.}
 #'   \item{lnalpha}{Log-scale productivity parameter.}
 #'   \item{phi}{Temporal autocorrelation parameter.}
 #'   \item{sigma}{Process or observation error standard deviation.}

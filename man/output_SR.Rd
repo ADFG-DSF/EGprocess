@@ -53,13 +53,9 @@ Produces a list containing standardized escapement goal process tables and figur
 
 brood_Igushik <- get_brood(data = data_Igushik)
 
-post_list <-
-  list(
-    'Brood Years: 1963-2005' = post_Igushik_byr63_05,
-    'Brood Years: 1963-2015' = post_Igushik_byr63_15
-  )
+post_Igushik <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
 
-output_SR(posterior_list = post_list, brood_data = brood_Igushik,
+output_SR(posterior_list = post_Igushik, brood_data = brood_Igushik,
 goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
 
 }

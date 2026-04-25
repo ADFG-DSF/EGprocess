@@ -61,8 +61,8 @@ There are repeated elements within EGprocess for ease of use. Common
 data inputs include:  
 - *brood_data*: Brood table created by function `make_brood()`  
 - *goal_data*: Current and historical escapement goals  
-- *posterior_data*: MCMC samples for ln(alpha), beta, sigma, and related
-parameters  
+- *posterior_data*: A named list containing MCMC samples for ln(alpha),
+beta, sigma, and related parameters  
 - *profile_data*: Data output from function `get_profile()`
 
 ### Flexible MSY Targets
@@ -91,13 +91,10 @@ data.
 ### get_profile()
 
 Function `get_profile()` generates optimal yield profiles (OYP) from
-posterior MCMC samples. Posterior MCM samples should be packaged in a
-named list before using the function.
+posterior MCMC samples.
 
 ``` r
-Igushik_posterior <- list(
-     'Brood Years: 1963-2005' = post_Igushik_byr63_05,
-     'Brood Years: 1963-2015' = post_Igushik_byr63_15)
+Igushik_posterior <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
 Igushik_profile <- get_profile(Igushik_posterior, multiplier = 1e-5)
 ```
 
