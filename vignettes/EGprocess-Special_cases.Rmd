@@ -1,0 +1,238 @@
+---
+title: "EGprocess: Special Cases"
+output:
+  html_document:   # for HTML with figure numbering 
+    number_sections: false
+    fig_caption: true
+vignette: >
+  %\VignetteIndexEntry{Special}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "../man/figures/Special-",
+  out.width = "100%"
+)
+```
+
+```{r, message = FALSE, warning = FALSE, include = FALSE}
+library(EGprocess)
+library(tidyverse)
+library(flextable)
+```
+
+# Overview
+
+This vignette is the third in a series describing use of the `EGprocess` package. Unfamilar users may want to refer to vignettes about [package structure ](EGprocess-Orientation.html) or [standard usage](EGprocess-Standard-process.html) before digesting the special use cases described here.
+
+# Figure Modifications {.tabset}
+
+Users are implored to realize that standardization of figures does not mean modifications supportive of special situations existing in individual fisheries are discouraged. 
+
+Simple modifications can be done by modifying figures created by `EGprocess` functions. One example of a simple customization can be seen in the historic escapements figure for Igushik River Sockeye Salmon. Notice that while escapements used in the spawner-recruit analysis extended through 2023, by the time the analysis was presented to the Board of Fisheries (January 2026) 2 more spawning escapements had been observed. These additional escapements can easily be included in the historical escapement plot along with symbol and legend modifications to notify the reader that the most recent years were not included in the escapement goal analysis. 
+
+## Historical Escapement-Standard
+```{r, echo = FALSE}
+plot_alt_escapement <- function(brood_data,
+                             goal_data,
+                             title,
+                             new_finding = FALSE,
+                             broods_updated = 0){
+  brood_data <- brood_data %>% dplyr::filter(!is.na(S))
+  
+  yr_max <- if(max(goal_data$yr) < max(brood_data$yr)){max(brood_data$yr + 2)}else{max(goal_data$yr) + 2}
+  goal <-
+    goal_data %>%
+    dplyr::mutate(yr = yr - 0.5,
+                  dplyr::across(c(lb, ub), function(x){ifelse(is.na(x), -99, x)}),
+                  finding = ifelse(yr == max(goal_data$yr) - 0.5 & isTRUE(new_finding), "new", "current")) %>%
+    tidyr::complete(yr = tidyr::full_seq(c(yr, yr_max), 0.1)) %>%
+    tidyr::fill(lb, ub, finding, .direction = "down") %>%
+    dplyr::mutate(across(c(lb, ub), function(x){ifelse(x == -99, NA, x)}))
+  
+  cap <- 
+  case_when(isTRUE(new_finding) & broods_updated >= min(goal_data$yr) ~ stringr::str_wrap("Note: Filled 
+    circles indicated observations added to the dataset since the escapement goal last changed. Escapement 
+    goal ranges are shaded, brown for the new escapement goal finding and grey for current and historical goals.", 
+    width = 85),
+    isTRUE(new_finding) & broods_updated < min(goal_data$yr)  ~ stringr::str_wrap("Note: Escapement 
+    goal ranges are shaded, brown for the new escapement goal finding and grey for current and historical goals.", 
+    width = 85),
+    !isTRUE(new_finding) & broods_updated >= min(goal_data$yr) ~ stringr::str_wrap("Note: Filled 
+    circles indicated observations added to the dataset since the escapement goal last changed. Escapement 
+    goal ranges are shaded grey", width = 85),
+    !isTRUE(new_finding) & broods_updated < min(goal_data$yr) ~ stringr::str_wrap("Note: Escapement goal ranges 
+    are shaded grey.", width = 85)
+  )
+                   
+  
+  brood_data %>%
+    dplyr::select(yr, S) %>%
+    dplyr::mutate(update = ifelse(yr >= broods_updated, "updated", "existing")) %>%
+    ggplot2::ggplot(aes(x = yr)) +
+    ggplot2::geom_point(aes(y = S, shape = update)) +
+    ggplot2::geom_line(aes(y = S), linewidth = 0.5) +
+    ggplot2::geom_ribbon(ggplot2::aes(x = yr, ymin = lb, ymax = ub, fill = finding),
+                         data = goal,
+                         alpha = 0.5,
+                         inherit.aes = FALSE) +
+    ggplot2::scale_fill_manual(values = c("new" = "#AB7E4C", "current" = "gray80")) +
+    ggplot2::scale_shape_manual(values = c("updated" = 16, "existing" = 1)) +
+    ggplot2::scale_y_continuous(labels = scales::comma) +
+    ggplot2::labs(title = title,
+                  x = "Year",
+                  y = "Escapement",
+                  caption = cap) +
+    theme_eg()
+  
+}
+```
+
+```{r historicS_nochange, fig.width = 6, fig.height= 4}
+brood_Igushik <- get_brood(run_data = data_Igushik)
+
+plot_S <- 
+  plot_alt_escapement(brood_data = brood_Igushik, 
+                      goal_data = goal_Igushik, 
+                      title = "Igushik River Sockeye Salmon")
+plot_S
+```
+
+## Historical Escapement-modifed
+```{r alternateS_nochange, echo = FALSE, fig.width = 6, fig.height= 4}
+plot_S  +
+  geom_point(aes(y = S),
+           data = data.frame(yr = c(2024, 2025), S = c(692616, 668268)),
+           shape = 4, size = 1, stroke = 1.25) + 
+  labs(caption = stringr::str_wrap("Note: Filled circles indicated observations added to 
+  the dataset since the escapement goal last changed. Crosses represent observed escapements 
+  not included in the updated analysis. Escapement goals are shown as with grey fill.", width = 85))
+```
+
+# New Goal {-}
+
+For a brand new escapement goal there is no prior analysis to compare to the updated analysis, the escapement goal finding is new and all of the empirical data is being considered for the first time. EG process can accommodate this use case by utilizing a single item list for `posterior_list` and `profile_list` function arguments, providing a single row dataframe to `goal_data`, and specifying `new_finding` = TRUE.  
+
+### Spawner-Recruit and Expected Yieled Plots
+
+Spawner-recruit and expected yield plots for the new goal situation uses a line type that indicates only the most recent analysis is presented, color coding that indicates the goal range represents a new finding and color coding that indicates all of the empirical data was new to this analysis[^1]. 
+
+[^1]: Note on the multiplier argument. The multiplier argument is required for Shiny app posteriors retrieved prior to May 2026 in which a scaled version of $\beta$ is included in the posterior distribution provided by the app. After May 2026, $\beta$ is provided on the natural scale and the multiplier argument of 1, which is the default, is appropriate.
+```{r new_SR, fig.width = 6, fig.height = 6}
+goal_new <- data.frame(yr = 2026, lb = 175000, ub = 500000)
+
+plot_SR(post_Igushik_byr63_15,
+        brood_Igushik,
+        goal_dat = goal_new,
+        "New River Sockeye Salmon",
+        new_finding = TRUE,
+        multiplier = 1e-5)
+```
+
+### Optimal Yield Profile
+
+Optimal yield plots for a new goal situation use  a line type that indicates only the most recent analysis is presented and color coding that indicates the goal range represents a new finding.
+```{r new_OYP, warning = FALSE, fig.width = 6, fig.height = 4}
+profile_new <- get_profile(post_Igushik_byr63_15, multiplier = 1e-5)
+
+plot_profile(profile_new,
+             goal_new,
+             "New River Sockeye Salmon",
+             new_finding = TRUE)
+```
+
+# Incomplete Information
+
+It is acknowledged that many users may not possess posterior distributions from the analysis responsible for the current escapement goal while completing the escapement goal update. There are several ways to deal with this situation, which vary based on the information staff do have available.
+
+## Existing Goal - No Spawner-Recruit Information
+
+In some situations a current escapement goal may exist but we lack any information about the original spawner-recruit analysis. One would hope this is a rare situation when the current escapement goal was based on a spawner-recruit analysis. This situation may also arise when the the current goal was based on another method (percentile, euphotic volume, exc.) but is now being supported by a spawner-recruit analysis.
+ 
+### Spawner-Recruit and Expected Yieled Plots
+
+In the situation where we don't have any spawner-recruit information to accompany the existing goal, spawner-recruit and expected yield plots can only communicate information about the updated analysis and the years added to the dataset since the last escapement goal change. Therefore spawner-recruit and expected yield plots contain solid lines to indicate only the updated analysis is shown and color coding to identify the empirical data added to the analysis since the last escapement goal change. This combination can be accomplished by including a 2 item names list to `posterior_list` where the first item is set to `NULL` and the second item is the posterior for the updated analysis. This example illustrate how the names in the list are used to identify the empirical data added to the updated analysis. In this example we will pretend a new escapement goal finding did not result from the updating the escapement goal analysis.  
+```{r missing_SR, fig.width = 6, fig.height = 5}
+posterior_missing <- 
+  c(list('Brood years: 1963-2005' = NULL),
+    post_Igushik_byr63_15)
+
+goal_new <- data.frame(yr = 2026, lb = 175000, ub = 500000)
+
+plot_ey(posterior_missing,
+        brood_Igushik,
+        goal_dat = goal_Igushik,
+        "Missing River Sockeye Salmon",
+        multiplier = 1e-5)
+```
+
+### Optimal Yield Profile
+
+In the situation where we don't have any spawner-recruit information to accompany the existing goal can only present OYP from the updated analysis and the resultant figure would contain a single OYP. 
+```{r missing_OYP, warning = FALSE, fig.width = 6, fig.height = 4}
+profile_missing <- get_profile(post_Igushik_byr63_15, multiplier = 1e-5)
+
+plot_profile(profile_missing,
+             goal_Igushik,
+             "Missing River Sockeye Salmon")
+```
+
+## Existing Goal - Only Spawner-Recruit Parameters Available 
+
+In situations where a current escapement goal exists, and a parameter table was published, but we do not have the posterior distribution from the original spawner-recruit analysis `EGprocess` functions allow users to produced spawner-recruit and expected yield plots that include comparisons between the original and updated analyses based only on parameter estimates.
+
+### Spawner-Recruit and Expected Yieled Plots
+
+In the situation where we only have parameter estimates to accompany the existing goal, spawner-recruit and expected yield plots can communicate all of the usual information by including the point estimates for each parameter as the first item in the named list provided to `posterior_data`. Notice the point estimate for $\beta$ was multiplied by $10^{5}$ to place it on the same scale as the shiny app posterior. In this example, we will assume a new escapement goal finding was made.
+
+```{r onlyparameters_SR, fig.width = 6, fig.height = 6}
+post_onlyparameters <-
+  c(list('Brood years: 1963-2005' = c(lnalpha = 1.5, beta = 0.15, sigma = 0.5)),
+    post_Igushik_byr63_15)
+
+goal_onlyparameters_new <-
+  goal_Igushik %>%
+  bind_rows(
+    data.frame(yr = 2026,
+               lb = 175000,
+               ub = 500000)
+  )
+
+plot_SR(post_onlyparameters,
+        brood_Igushik,
+        goal_dat = goal_onlyparameters_new,
+        "Onlyparameters River Sockeye Salmon",
+        new_finding = TRUE,
+        multiplier = 1e-5)
+```
+
+## Hindcasted analysis
+
+*Note to EGPIT: Adam believes this is sound advice. Does our group?*
+
+Recall that the escapement goal's location on the OYP reflects the final decision from a complex process to determine how to best maximize yield in the context of various other concerns about the stock, data and fishery. Therefore, in the situation where we don't have any spawner-recruit information to accompany the existing goal it may be helpful to rerun the spawner-recruit analysis on a subset of the updated dataset to approximate the information that would have been available had the spawner-recruit analysis been conducted at the time when the current escapement goal was adopted. This process can help quantify the performance (relative the maximizing sustained yield) of the existing goal and changes in the spawned-recruit relationship since the current goal was adopted. The best decision regarding whether to rerun the analysis on subsetted data likely involved consideration of why we don't have posterior data from the original analysis, how much the spawner-recruit relationship has changed since the original analysis, and how closely the hindcasted and original analyses match for the information which is comparable. If this approach is utilized staff should be clear that they are hindcasting an analysis rather than presenting the true original analysis.
+
+# Escapement Goal evaluation against a lower MSY target
+
+EGPIT decided escapement goals intended to target MSY should use a universal standard target yield of greater than 90% of MSY to evaluate and describe escapement goal bounds. A standard target of 90% of MSY makes sense for most salmon fisheries in Alaska. Arguably, Igushik River sockeye salmon is not one of them. The first issue is practical: because the lower bound of the escapement goal offers near 0% probability of achieving 90% of MSY, the standard target yield does a poor job of discriminating between potential changes to the lower bound of the escapement goal. Taken alone, that information might be functional because communicating the existing lower bound already minimizes our standard target is persuasive. However, Bristol Bay stakeholders have expressed a preference for suboptimal yield because they prefer fisheries that open regularly, and because the fishery harvests can easily exceed processor capacity even with suboptimal yield[^4]. In situations like this, where staff and stakeholders can clearly describe a need or preference to target suboptimal yield, profile plots can be modified to evaluate escapement goals relative to both optimal and suboptimal yield.
+
+[^4]: https://www.bbsri.org/_files/ugd/bc10d6_adeb1b9e83fa411dba02044cc76565c9.pdf
+
+This can be achieved by specifying the suboptimal yield level to the function `get_profile`. *(Note to EGPIT: We should decide if this functionality is needed.)*
+
+```{r suboptimal_OYP, fig.width = 6, fig.height = 6}
+post_Igushik <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
+
+profile_Igushik_80 <- 
+  get_profile(posterior_list = post_Igushik, 
+              MSY_pct = 80,
+              multiplier = 1e-5)
+
+plot_profile(profile_list = profile_Igushik_80,
+             goal_dat = goal_Igushik,
+             title = "Igushik River Sockeye Salmon")
+```

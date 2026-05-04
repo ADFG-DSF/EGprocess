@@ -17,6 +17,9 @@
 #' with the year set to the year the new escapement goal finding will take effect.
 #' Use ub = NA for lower bound SEGs.
 #' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
+#' @param new_finding TRUE / FALSE. Indicates whether a new escapement goal finding
+#' resulted from the updated escapement goal analysis. If TRUE, the escapement
+#' goal plotted will be brown, if FALSE the escapement goal plotted will be grey.
 #' @param multiplier The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.
 #'
 #' @return A figure
@@ -40,8 +43,8 @@ plot_SR <- function(posterior_list,
                     brood_data,
                     goal_data,
                     title,
+                    new_finding = FALSE,
                     multiplier = 1){
-
 
   get_param50 <- function(post){
     data.frame(beta = post[["beta"]] * multiplier,
@@ -73,19 +76,35 @@ plot_SR <- function(posterior_list,
   cap_width = 85
   cap <-
     case_when(
-      length(posterior_list) == 2 ~ str_wrap("Note: Filled circles
-      indicated observations added to the dataset since the escapement goal last changed. Dashed
-      lines indicate the estimated spawner-recruit relationship and the escapement that maximizes
-      sustained yield at the time of the last change while solid lines represent the updated estimates.
-      The dotted line represents the 1:1 line. The current escapement goal range is
+      length(posterior_list) == 2 & isTRUE(new_finding) ~ str_wrap("Note: Hollow circles and dotted lines
+      indicate the data and estimated spawner-recruit relationship available when the escapement goal
+      last changed, while filled circles and solid lines indicate the data collected since and the
+      estimated spawner-recruit relationship from all available data. Vertical lines show the escapement
+      that maximizes sustained yield and the dotted line represents the 1:1 line. The new escapement
+      goal finding is shaded brown.", width = cap_width),
+      length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 & isTRUE(new_finding) ~ str_wrap(
+        "Note: The dotted line represents the 1:1 line. Vertical lines show the escapement that maximizes
+        sustained yield and the dotted line represents the 1:1 line. The new escapement goal finding
+        is shaded brown.", width = cap_width),
+      length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 & isTRUE(new_finding) ~ str_wrap(
+        "Note: Hollow circles indicate the data available when the escapement goal last changed while filled
+        circles indicate the data collected since. Vertical lines show the escapement that maximizes
+        sustained yield and the dotted line represents the 1:1 line. The new escapement goal finding
+        is shaded brown.", width = cap_width),
+      length(posterior_list) == 2 ~ str_wrap("Note: Hollow circles and dotted lines indicate the data
+      and estimated spawner-recruit relationship available when the escapement goal last changed, while
+      filled circles and solid lines indicate the data collected since and the estimated spawner-recruit
+      relationship from all available data. Vertical lines show the escapement that maximizes sustained
+      yield and the dotted line represents the 1:1 line. The current escapement goal range is
       shaded gray.", width = cap_width),
       length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(
-        "Note: The dotted line represents the 1:1 line. The vertical line shows the escapement that
-        maximizes sustained yield. The current escapement goal range is shaded gray.", width = cap_width),
+        "Note: Vertical lines show the escapement that maximizes sustained yield and the dotted line represents
+        the 1:1 line. The current escapement goal range is shaded gray.", width = cap_width),
       length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(
-        "Note: Filled circles indicated observations added to the dataset since the escapement goal last
-        changed. The dotted line represents the 1:1 line. The vertical line shows the escapement that
-        maximizes sustained yield. The current escapement goal range is shaded gray.", width = cap_width)
+        "Note: Hollow circles indicate the data available when the escapement goal last changed while filled
+        circles indicate the data collected since. Vertical lines show the escapement that maximizes
+        sustained yield and the dotted line represents the 1:1 line. The current escapement goal range
+        is shaded gray.", width = cap_width)
     )
 
   plot <-
@@ -98,14 +117,16 @@ plot_SR <- function(posterior_list,
     ggplot2::scale_x_continuous(minor_breaks = NULL, labels = scales::comma) +
     ggplot2::scale_y_continuous(minor_breaks = NULL, labels = scales::comma) +
     ggplot2::coord_cartesian(xlim = c(0, upper_x), ylim = c(0, upper_y)) +
-    ggplot2::geom_abline(slope = 1, linewidth = 0.5, linetype = "dotted") +
+    ggplot2::geom_abline(slope = 1, linewidth = 0.5, linetype = "11") +
     ggplot2::geom_vline(xintercept = param50_update$Smsy, linetype = "solid", linewidth = 0.5) +
     ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf),
                        data = goal_data[dim(goal_data)[1], ],
-                       inherit.aes = FALSE, fill = "gray", alpha = 0.2) +
+                       fill = if(isTRUE(new_finding)){"#AB7E4C"}else{"gray80"},#BD9A7A
+                       alpha = 0.5,
+                       inherit.aes = FALSE) +
     ggplot2::scale_shape_manual(values = c("updated" = 16, "existing" = 1)) +
     ggplot2::labs(
-      title = paste0("SR: ", title),
+      title = title,
       subtitle = paste0("Brood Years:", min(brood_data$yr), " - ", max(brood_data$yr)),
       x = "Escapement",
       y = "Recruitment",

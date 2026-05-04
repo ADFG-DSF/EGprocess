@@ -69,8 +69,8 @@ the posterior data must contain nodes of lnalpha, beta, phi, and sigma.
 There are repeated elements within EGprocess for ease of use. Common data inputs include:  
  - *brood_data*: Brood table created by function `make_brood()`  
  - *goal_data*: Current and historical escapement goals  
- - *posterior_data*: A named list containing MCMC samples for ln(alpha), beta, sigma, and related parameters  
- - *profile_data*: Data output from function `get_profile()`   
+ - *posterior_list*: A named list containing MCMC samples for ln(alpha), beta, sigma, and related parameters  
+ - *profile_list*: Data output from function `get_profile()`   
 
 
 ### Flexible MSY Targets
@@ -132,7 +132,7 @@ plot_escapement(brood_data = brood_Igushik, goal_data = goal_Igushik,
 ### plot_profile()
 Function `plot_profile()` generates a standardized OYP plot.
 ```{r plot_profile_example, out.width="75%", fig.height=7}
-plot_profile(profile_data = Igushik_profile, goal_data = goal_Igushik, 
+plot_profile(profile_list = Igushik_profile, goal_data = goal_Igushik, 
              title = "Igushik River Sockeye Salmon")
 ```
 
@@ -158,7 +158,7 @@ plot_SR(posterior_list = Igushik_posterior, brood_data = brood_Igushik,
 ### table_SR()
 Function `table_SR()` creates a table of SR parameters with confidence intervals.
 ```{r table_SR_example, out.width="75%"}
-table_SR(posterior_data = Igushik_posterior[2], title = "Igushik River Sockeye Salmon",
+table_SR(posterior_list = Igushik_posterior[2], title = "Igushik River Sockeye Salmon",
          multiplier = 1e-5)
 ```
 

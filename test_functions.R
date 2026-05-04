@@ -66,12 +66,14 @@ plot_SR(post_Igushik,
         brood_Igushik,
         goal_dat = goal_Igushik_new,
         "Igushik River Sockeye Salmon",
+        new_finding = TRUE,
         multiplier = 1e-5)
 #first finding
 plot_SR(post_Igushik[2],
         brood_Igushik,
         goal_dat = goal_Igushik_new[dim(goal_Igushik_new)[1], ],
         "Igushik River Sockeye Salmon",
+        new_finding = TRUE,
         multiplier = 1e-5)
 
 table_SR(post_Igushik[2], title = "Igushik River Sockeye Salmon", multiplier = 1e-6)
@@ -107,12 +109,14 @@ plot_ey(post_Igushik,
         brood_Igushik,
         goal_dat = goal_Igushik_new,
         "Igushik River Sockeye Salmon",
+        new_finding = TRUE,
         multiplier = 1e-5)
 #first finding
 plot_ey(post_Igushik[2],
         brood_Igushik,
         goal_dat = goal_Igushik_new[dim(goal_Igushik_new)[1], ],
         "Igushik River Sockeye Salmon",
+        new_finding = TRUE,
         multiplier = 1e-5)
 
 # no goal change
@@ -124,13 +128,15 @@ plot_profile(profile_list80[2],
                    "Igushik River Sockeye Salmon")
 # new finding
 plot_profile(profile_list[2],
-                   goal_Igushik_new,
-                   "Igushik River Sockeye Salmon"
+             goal_Igushik_new,
+             "Igushik River Sockeye Salmon",
+             new_finding = TRUE
 )
 
 plot_profile(profile_list80[2],
-                   goal_Igushik_new,
-                   "Igushik River Sockeye Salmon"
+             goal_Igushik_new,
+             "Igushik River Sockeye Salmon",
+             new_finding = TRUE
 )
 
 #test plot_profile2

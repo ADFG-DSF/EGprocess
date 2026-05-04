@@ -30,7 +30,7 @@ plot_escapement <- function(brood_data,
                    title){
   brood_data <- brood_data %>% dplyr::filter(!is.na(S))
 
-  yr_max <- if(max(goal_data$yr) < max(brood_data$yr)){max(brood_data$yr)}else{max(goal_data$yr) + 2}
+  yr_max <- if(max(goal_data$yr) < max(brood_data$yr)){max(brood_data$yr) + 2}else{max(goal_data$yr) + 2}
   goal <-
     goal_data %>%
     dplyr::mutate(dplyr::across(c(lb, ub), function(x){ifelse(is.na(x), -99, x)}),
@@ -54,7 +54,7 @@ plot_escapement <- function(brood_data,
     ggplot2::geom_line(aes(y = S_bound, linetype = bound), data = goal) +
     ggplot2::scale_y_continuous(labels = scales::comma) +
     ggplot2::scale_fill_manual(values = c("gray75", "black")) +
-    ggplot2::labs(title = paste0("Escapement: ", title),
+    ggplot2::labs(title = title,
       x = "Year",
       y = "Escapement",
       caption = cap) +

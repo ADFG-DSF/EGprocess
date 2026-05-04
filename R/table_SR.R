@@ -16,11 +16,11 @@
 #' @examples
 #'
 #'
-#' params_Igushik <- table_SR(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
+#' params_Igushik <- table_SR(posterior_list = post_Igushik_byr63_15, multiplier = 1e-5)
 #'
 #' @export
 
-table_SR <- function(posterior_data,
+table_SR <- function(posterior_list,
                      title,
                      multiplier = 1){
 
@@ -36,10 +36,10 @@ table_SR <- function(posterior_data,
   }
 
 
-  data.frame(beta = posterior_data[[1]][["beta"]] * multiplier,
-             lnalpha = posterior_data[[1]][["lnalpha"]],
-             phi = ifelse(names(posterior_data[[1]]) %in% "phi", posterior_data[[1]][["phi"]], 0),
-             sigma = posterior_data[[1]][["sigma"]]) %>%
+  data.frame(beta = posterior_list[[1]][["beta"]] * multiplier,
+             lnalpha = posterior_list[[1]][["lnalpha"]],
+             phi = ifelse(names(posterior_list[[1]]) %in% "phi", posterior_list[[1]][["phi"]], 0),
+             sigma = posterior_list[[1]][["sigma"]]) %>%
     dplyr::mutate(Smax = 1/ beta,
                   Seq = lnalpha / beta,
                   Smsy = Seq * (0.5 - 0.07 * lnalpha)) %>%
@@ -99,10 +99,10 @@ table_SR <- function(posterior_data,
                                  param = "Symbol",
                                  description = "Description",
                                  print = "Median (95% CI)")) %>%
-    flextable::add_header_row(values = names(posterior_data),
+    flextable::add_header_row(values = names(posterior_list),
                               colwidths = 3,
                               top = TRUE) %>%
-    flextable::add_header_row(values = paste0("Parameters: ", title),
+    flextable::add_header_row(values = title,
                               colwidths = 3,
                               top = TRUE) %>%
     flextable::border(i = 1:2, j = NULL, border = officer::fp_border(color = "white"), part = "header") %>%

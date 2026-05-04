@@ -1,0 +1,175 @@
+---
+title: "EGprocess: Orientation"
+output:
+  html_document:   # for HTML with figure numbering
+    number_sections: false
+    fig_caption: true
+vignette: >
+  %\VignetteIndexEntry{Orientation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "../man/figures/Orient-",
+  out.width = "100%"
+)
+```
+
+```{r, message = FALSE, warning = FALSE, include = FALSE}
+library(EGprocess)
+library(tidyverse)
+```
+
+# Introduction and Motivation
+
+The `EGprocess` package provides R code to support ADF&G staff in production of the figures and tables required during the tri-annual ADF&G escapement goal review process[^1]. Use of this package will allow staff from both ADF&G fisheries divisions, and all regions within both divisions, to present standardized figures and tables during the escapement goal review process internally, to stakeholders and to BOF members. By utilizing standardized presentations of similar information reviewers can minimize the time spent orienting themselves to how the information is presented and maximize time spend understanding the information presented.
+
+[^1]: As described in "link to ADF&G report".
+
+Every salmon escapement goal in the State of Alaska is reviewed triennially synchronous with the BOF meeting cycle for each geographic area or region. The escapement goal review process is marked by 3 steps which are helpful to define before describing the use of the `EGprocess` package. The process begins with a **review** of all escapement goals in the area where ADF&G staff identify escapement goals where any factors associated with the stock, the fishery or the stock assessment have changed since the last time the escapement goal was modified. Some or all of the identified goals are then **updated** by compiling the stock assessment information accumulated since the last update and reanalyzing that complete dataset. After an analysis is updated the department makes a **finding** based on the updated analysis. Escapement goal findings can communicate a wide range of changes:
+
+-   *No change*: When the existing escapement goal range is deemed appropriate
+-   *Change to goal type*: Change from an SEG, lower bound SEG, or BEG to another type
+-   *Change the goal range*: Change the bounds of the escapement goal 
+-   *Remove the goal*: When a escapement goal is no longer appropriate
+
+`EGprocess` is intended to standardize the presentation of updated analyses. Typically, updated analyses are followed by one of the first 3 findings listed above.
+
+In Alaska, most salmon stocks have existing escapement goals and those escapement goals bounds are the result of extensive negotiations that account for not only the information about how to maximize sustained yield provided by the analysis but also concerns about stock status or data quality that are poorly reflected in the analysis and/or concerns from management staff about how to most effectively persecute the fishery. For these reasons, it is most helpful to consider how the updated escapement goal analysis changes our interpretation of the existing goal rather than using the updated analysis to develop an new escapement goal finding naively. For these reasons `EGprocess` includes features allowing for comparison between analyses and goals. 
+
+In addition to a common language about the escapement goal process it's helpful to have a common language about the analyses and goal being considered during the process. The **current** escapement goal is the BEG, SEG or lower bound SEG currently in use for management of the fishery. The current goal was adopted based on a department finding supported by an earlier analysis, which we refer to as the **original** analysis, since our reference point is relative the **updated** analysis just conducted. Recall that an updated analysis does not imply a change to the escapement current goal, but when it does the new goal range will be refered to as a **new** escapement goal finding.
+
+# Organization
+
+## Example Datasets
+
+`EGprocess` includes example data from the the escapement goal review process for Igushik River Sockeye salmon prior to the 2026 BOF meeting. Prior to this meeting, ADF&G staff decided to update the Igushik River Sockeye salmon analysis using the ADF&G Shiny application for escapement goal analysis [^2]. Data objects in `EGprocess` are designed to work seamlessly with inputs and outputs to the Pacific Salmon SR Escapement Goal Analysis Shiny Application but can also be easily produced in R if the spawner-recruit analysis is done outside of the shiny application.
+
+[^2]: [Shiny App](https://hamachan.shinyapps.io/Spawner_Recruit_Bayes/)
+
+### data_Igushik
+
+`data_Igushik` is the "Run" data ADF&G staff provided to the Shiny app to conduct the escapement goal analysis. It contains historical escapements, run sizes and age composition. When the Igushik River Sockeye salmon analysis was updated prior to the 2026 BOF meeting the input data contained escapement (`S`), run (harvest + escapement, `N`) and run by age estimates (`A3`-`A8`) from the 1996 - 2023 seasons.
+
+```{r}
+#Showing only the first and last 5 rows to save space.
+head(data_Igushik)
+tail(data_Igushik)
+```
+
+### post_data_Igushik_...
+
+`post_data_Igushik_byr13_05` and `post_data_Igushik_byr13_15` contain random draws from the posterior distributions of `lnalpha`, `beta`, `phi` and `sigma` and can be retrieve from the shiny app using the *Download MCMC* or *Download Jags* button[^3]. Colloquially, one can think of the rows in `post_data...` representing possible values of `lnalpha`, `beta`, `phi` and `sigma` (and in combination possible mean and median spawner-recruit or expected yield relationships) that are supported by the empirical data used in the analysis. Two examples of `posterior data` are available in `EGprocess`. The file `post_Igushik_byr63_15` represents posterior draws from the analysis update that occurred prior to the 2026 Bristol Bay BOF meeting (i.e. the updated analysis). The last time the Igushik River Sockeye salmon goal was changed was in 2015. Spawning escapements and the subsequent recruitment from the 1963 - 2005 brood years were available to inform that change. `EGprocess` also contains the file `post_Igushik_byr63_05` which approximates the analysis which would have been available to inform the 2015 finding (i.e the original analysis)[^4]. 
+
+[^3]: Prior to May 2026 the posterior distribution was retrieved using *Download MCMC* and the user would receive a single csv containing only the posterior distribution. After May 2026 the *Download JAGS* button will provide a .rds file (a R data file) which contains the input data file, the brood table, the jags data file, and the jags output file (which includes the posterior distribution of the analysis).
+
+[^4]: Ideally, the exact posterior would be available. That does not seem to be the case here but one benefit of standardizing the escapement goal review process is the we can identify these needs and aspire to archive them in the future. `post_Igushik_byr63_05` in included so the ideal escapement goal review process can be presented while demonstrating the use of `EGprocess`.
+
+`EGprocess` expects posterior data to be provided as a named list where the name follows the convention 'Brood years: xxxx-yyyy'. This is important because without this information posterior distributions are indistinguishable. `EGprocess` capitalizes on this naming convention by utilizing the name and/or brood year information in the label and presentation of tables and plots.
+
+```{r}
+str(post_Igushik_byr63_05)
+```
+
+```{r}
+str(post_Igushik_byr63_15)
+```
+
+Most plotting functions in `EGprocess` produce comparisons between the the updated and original analysis if 2 posterior distributions are provided. To make this comparison `EGprocess` expects both sets of posterior data to be provided in chronological order within a list.
+
+```{r}
+post_Igushik_list <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
+str(post_Igushik_list)
+```
+
+### goal_Igushik
+
+The data file `goal_Igushik` contains the history of escapement goals for the Igushik River sockeye salmon and contains a new row for each year the escapement goal changed. For Igushik River sockeye salmon the goal was created in 1984 and ranged from 150,000 to 250,000 fish. In 2001, the analysis was updated resulting in a new escapement goal finding of 150,000 to 300,000 fish. In 2015, the analysis was updated again resulting in a new escapement goal finding of 150,000 to 400,000 fish.
+
+```{r}
+goal_Igushik
+```
+
+## Functions
+
+Functions within the `EGprocess` package use prefixes to identify their intent:
+
+-   `get_`: Modify or create input datasets for downstream use
+    -   `get_age`: Modify Shiny app "Run" data age composition to account for censoring or combining extreme ages that occurred during the escapement goal analysis
+    -   `get_brood`: Create a brood table from Shiny app "Run" data
+    -   `get_profile`: Create the dataset required to plot an Optimal Yield Profile
+-   `plot_`: Create figures
+    -   `plot_escapement`: Historical escapement plot
+    -   `plot_SR`: Spawner-recruit relationship plot
+    -   `plot_ey`: Expected yield plot
+    -   `plot_profile`: Optimal yield profile plot
+-   `table_`: Create tables
+    -   `table_SR`: Spawner-recruit parameters table
+-   `output_`: Wrapper which combines `plot_` and `table_` functions typically called together.
+    -`  output_SR`: Outputs the historical escapement plot, Spawner-Recruit relationship plot, expected yield plot, Optimal yield profile plot, and Spawner-Recruit parameter table as a single list.
+
+R functions use the syntax `function(argument1, argument2, argument3, exc.)`. In all `EGprocess` functions the first several arguments reference the data being plotted and can be identified by the suffix `_list` or `_data` where the suffix indicates the data type expected[^5]. Plot and table functions have been coordinated to rely on similar arguments to the extent possible.
+
+[^5]: Named lists are expected for arguments with the _list suffix and dataframes are expected for arguments with the _data suffix.
+
+```{r args, fig.cap = "Data arguments utilized by the primary plotting functions.", fig.height = 3, echo = FALSE}
+funs <- getNamespaceExports("EGprocess")
+lapply(funs, formals) %>%
+  setNames(funs) %>%
+  sapply(function(x) gsub("$.*$(.*)", "\\1", names(x))) %>%
+  do.call(c, .) %>%
+  as.data.frame() %>%
+  rownames_to_column() %>%
+  setNames(c("fun", "arg")) %>%
+  mutate(fun = gsub("(.*)\\d+", "\\1", fun)) %>% 
+  mutate(value = 1, 
+         fun_factor = factor(fun, 
+                      levels = c("plot_escapement", 
+                                 "plot_SR", 
+                                 "plot_ey", 
+                                 "plot_profile", 
+                                 "table_SR")),
+         arg_factor = factor(arg, 
+                             levels = c("posterior_list", 
+                                        "brood_data", 
+                                        "goal_data", 
+                                        "profile_list", 
+                                        "title", 
+                                        "new_finding"))) %>%
+  filter(grepl("plot_|table_.*", fun) & !(arg %in% c("new_finding", "limit", "labelK", "multiplier"))) %>%
+  ggplot(aes(x = arg_factor, y = fun_factor, fill = value)) +
+  geom_tile() +
+  scale_fill_continuous(guide = NULL) +
+  scale_y_discrete(limits = rev) +
+  labs(x = "Argument Name", y = "Function Name")
+```
+
+### brood_data
+
+`EGprocess` contains helper functions[^]6 to create a brood table from "Run" type data. Two functions are included. The function `get_age` accepts "Run" data as an input and outputs "Run" data in the same format after modifying the age composition by censoring or combining extreme ages. This function is not needed if age composition information was not combined or censored during the escapement goal analysis, as was the case for Igushik River Sockeye salmon.
+
+The function `get_brood` creates the brood table. Notice that the results is 'jagged' and includes escapements (`S`), recruits (`R`) and return-by-age (`b.Age#`) which were not observed. For example, the Igushik River Sockeye salmon analysis update conducted prior to the 2026 BOF meeting utilized escapement information through 2023 but only had recruitment through 2015 because 8 year old fish from the 2015 escapement were not observed until 2023.
+
+[^6]: `get_age` and `get_brood` are included for analyses ran prior to May 2026. After May 2026 the brood table can be retrived directly from the rds file output buy the *Download Jags* button.
+
+```{r}
+# make brood table
+brood_Igushik <- get_brood(run_data = data_Igushik)
+
+# Showing only the first and last 12 rows to save space.
+head(brood_Igushik, n = 12)
+tail(brood_Igushik, n = 12)
+```
+
+
+### profile_list
+
+`plot_profile` requires the `profile_list` argument which is a derivative of the `posterior data` files described above. A helper function is provided to create `profile_list` from `posterior_data`. The function `get_priofle` can accept either 1 or 2 item lists as input and will provide an output list of the same size. 
+
+```{r}
+profile_Igushik_list <- get_profile(post_Igushik_list, multiplier = 1e-5)
+```

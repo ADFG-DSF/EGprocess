@@ -5,7 +5,7 @@
 \title{Optimal Yield Profile Plot(s)}
 \usage{
 plot_profile(
-  profile_data,
+  profile_list,
   goal_data,
   title,
   new_finding = FALSE,
@@ -14,7 +14,7 @@ plot_profile(
 )
 }
 \arguments{
-\item{profile_data}{A list of the 1 or 2 OYP's to plot. The name of each list object
+\item{profile_list}{A list of the 1 or 2 OYP's to plot. The name of each list object
 will be used as the facet title and should follow the convention "Brood Year: xxxx - YYYY"
 for each item. If 2 OYPs are provided the function assumes the first item in the list
 is the OYP associated with the original escapement goal analysis and the second
@@ -30,9 +30,10 @@ Use ub = NA for lower bound SEGs.}
 \item{title}{A character vector with the plot title. Suggest "X River, Y Salmon".}
 
 \item{new_finding}{TRUE / FALSE. Indicates whether a new escapement goal finding
-resulted from the updated escapement goal analysis. If TRUE, the current escapement
-goal and the new escapement goal finding will be shown on profiles associated with
-the original and updated analyses, respectively.}
+resulted from the updated escapement goal analysis. If TRUE, the new escapement goal
+finding will be shown in brown and associated with the updated analysis while the
+current escapement goal will be shown in grey and associated with the original analysis.
+If FALSE, the current escapement goal will be shown in grey and associated with both analyses.}
 
 \item{limit}{Upper bound of spawners for plot. Default (NULL) will use 2.25 times S.msy.}
 
@@ -43,7 +44,7 @@ using a K for thousands (e.g., 350,000 would be 350K). Defaults to FALSE.}
 A figure
 }
 \description{
-Produces OYP plot(s) for the stock. Depending on the profile_data provided the
+Produces OYP plot(s) for the stock. Depending on the profile_list provided the
 output will be either a single OYP from the updated analysis or two OYPs from
 the original and updated analyses. In either case the OYP(s) show can be
 overlain with a relevant escapement goal range.
@@ -53,7 +54,7 @@ overlain with a relevant escapement goal range.
 post_Igushik <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
 profile_Igushik <- get_profile(post_Igushik, multiplier = 1e-5)
 
-plot_profile(profile_data = profile_Igushik, goal_data = goal_Igushik,
+plot_profile(profile_list = profile_Igushik, goal_data = goal_Igushik,
 title = "Igushik River Sockeye Salmon")
 
 }

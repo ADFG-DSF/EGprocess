@@ -44,11 +44,28 @@ output_SR <- function(posterior_list, brood_data, goal_data, title, new_finding 
     profile_data <- get_profile(posterior_list, MSY_pct = MSY_pct, multiplier = multiplier)
 
     list(
-      "escapement" = plot_escapement(brood_data, goal_data, title),
-      "SR_plot" = plot_SR(posterior_list, brood_data, goal_data, title, multiplier = multiplier),
-      "ey" = plot_ey(posterior_list, brood_data, goal_data, title, multiplier = multiplier),
-      "OYP" = plot_profile(profile_data, goal_data, title, new_finding = new_finding),
-      "SR_table" = table_SR(posterior_list[length(posterior_list)], title, multiplier)
+      "escapement" = plot_escapement(brood_data,
+                                     goal_data,
+                                     title),
+      "SR_plot" = plot_SR(posterior_list,
+                          brood_data,
+                          goal_data,
+                          title,
+                          new_finding = new_finding,
+                          multiplier = multiplier),
+      "ey" = plot_ey(posterior_list,
+                     brood_data,
+                     goal_data,
+                     title,
+                     new_finding = new_finding,
+                     multiplier = multiplier),
+      "OYP" = plot_profile(profile_data,
+                           goal_data,
+                           title,
+                           new_finding = new_finding),
+      "SR_table" = table_SR(posterior_list[length(posterior_list)],
+                            title,
+                            multiplier)
     )
 }
 

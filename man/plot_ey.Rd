@@ -4,7 +4,14 @@
 \alias{plot_ey}
 \title{Expected Yield Plot}
 \usage{
-plot_ey(posterior_list, brood_data, goal_data, title, multiplier = 1)
+plot_ey(
+  posterior_list,
+  brood_data,
+  goal_data,
+  title,
+  new_finding = FALSE,
+  multiplier = 1
+)
 }
 \arguments{
 \item{posterior_list}{A named list. Each element of the list contains simulations from the posterior
@@ -25,6 +32,10 @@ with the year set to the year the new escapement goal finding will take effect.
 Use ub = NA for lower bound SEGs.}
 
 \item{title}{A character vector with the plot title. Suggest "X River, Y Salmon".}
+
+\item{new_finding}{TRUE / FALSE. Indicates whether a new escapement goal finding
+resulted from the updated escapement goal analysis. If TRUE, the escapement
+goal plotted will be brown, if FALSE the escapement goal plotted will be grey.}
 
 \item{multiplier}{The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.}
 }

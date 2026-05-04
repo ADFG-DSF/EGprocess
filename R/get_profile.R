@@ -23,7 +23,7 @@
 
 get_profile <- function(posterior_list, multiplier = 1, MSY_pct = NA){
   if (is.data.frame(posterior_list)) {
-    stop("Error: 'posterior_data' is a dataframe but must be a named list where the name refers
+    stop("Error: 'posterior_list' is a dataframe but must be a named list where the name refers
     to the brood years included in the analysis. e.g.:posterior_list = list('Brood year: xxxx-yyyy' =
     posterior_dataframe)")
   }

@@ -4,15 +4,15 @@
 \alias{table_SR}
 \title{Spawner-Recruit Parameter Table}
 \usage{
-table_SR(posterior_data, title, multiplier = 1)
+table_SR(posterior_list, title, multiplier = 1)
 }
 \arguments{
-\item{multiplier}{The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.}
-
 \item{posterior_list}{A named list. The list contains simulations from the posterior distributions
 of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). The name
 describes the brood years included in the model that generated the posteriors and follows the
 convention "Brood year: xxxx-yyyy".}
+
+\item{multiplier}{The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.}
 }
 \value{
 A table
@@ -23,6 +23,6 @@ Produces a table of SR parameters with confidence intervals.
 \examples{
 
 
-params_Igushik <- table_SR(posterior_data = post_Igushik_byr63_15, multiplier = 1e-5)
+params_Igushik <- table_SR(posterior_list = post_Igushik_byr63_15, multiplier = 1e-5)
 
 }
