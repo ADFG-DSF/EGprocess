@@ -4,6 +4,7 @@ output:
   html_document:   # for HTML with figure numbering 
     number_sections: false
     fig_caption: true
+    self_contained: true
 vignette: >
   %\VignetteIndexEntry{Standard}
   %\VignetteEngine{knitr::rmarkdown}
@@ -59,7 +60,7 @@ plot_escapement(brood_data = brood_Igushik,
 ```
 
 ### Alternative
-```{r alternateS_nochange, echo = FALSE, fig.width = 6, fig.height= 4}
+```{r, echo = FALSE}
 plot_alt_escapement <- function(brood_data,
                              goal_data,
                              title,
@@ -113,10 +114,12 @@ plot_alt_escapement <- function(brood_data,
     theme_eg()
   
 }
+```
+```{r alternateS_nochange, fig.width = 6, fig.height= 4}
 plot_alt_escapement(brood_Igushik,
                     goal_Igushik,
                     "Igushik River Sockeye Salmon",
-                    broods_updated = 2013)
+                    broods_updated = 2014)
 ```
 
 ## Spawner-Recruit Plot{-}
@@ -190,18 +193,18 @@ goal_imaginary
 Following the EGPIT standard the new escapement goal finding is shown as a change to the escapement goal range which extends into the future. *Note: The alternative is similar but highlights the presence of a new finding using color coding.*
 
 ### EGPIT
-```{r historicS_change}
+```{r historicS_change, fig.width = 6, fig.height= 4}
 plot_escapement(brood_data = brood_Igushik, 
                 goal_data = goal_imaginary, 
                 title = "Igushik River Sockeye Salmon")
 ```
 
 ### Alternative
-```{r, alternateS_change, echo = FALSE}
+```{r, alternateS_change, fig.width = 6, fig.height= 4}
 plot_alt_escapement(brood_Igushik,
                     goal_imaginary,
                     "Imaginary River Sockeye Salmon",
-                    broods_updated = 2013, 
+                    broods_updated = 2014, 
                     new_finding = TRUE)
 ```
 
