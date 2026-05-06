@@ -21,10 +21,10 @@
 theme_eg <- function(base_size = 16, ...) {
   ggplot2::theme_bw(base_size = base_size) +
   ggplot2::theme(text = ggplot2::element_text(family = "sans"),
-               plot.caption = ggplot2::element_text(
+                 plot.caption = ggplot2::element_text(
                  hjust = 0,
                  size = 10),
-               plot.subtitle = ggplot2::element_text(size = 10),
-               plot.caption.position = "plot",
-               legend.position = "none")
+                 plot.subtitle = ggplot2::element_text(size = 10),
+                 plot.caption.position = "plot",
+                 legend.position = "none")
 }

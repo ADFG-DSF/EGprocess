@@ -129,29 +129,29 @@ plot_profile <- function(profile_list,
     dplyr::mutate(max_pct = gsub("[A-Z]+([0-9]+)", "\\1", key)) %>%
     dplyr::ungroup() %>%
     ggplot2::ggplot(ggplot2::aes(x = s, y = prob, linetype = profile, linewidth = max_pct)) +
+    ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf, fill = new_finding),
+                       data = goal_plot,
+                       alpha = 0.5,
+                       inherit.aes = FALSE) +
     ggplot2::geom_line() +
     ggplot2::geom_segment(aes(x = x, xend = xend, y = y),
                           data = ref_lines,
                           linetype = "11",
                           linewidth = 0.5) +
-    ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf, fill = new_finding),
-                       data = goal_plot,
-                       alpha = 0.5,
-                       inherit.aes = FALSE) +
     ggplot2::facet_grid(profile ~ ., labeller = labeller(.rows = wrap_labels)) +
     #ggplot2::scale_x_continuous(limits = c(0, xmax), labels = scales::comma) +
     ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.2), limits = c(0, 1)) +
     ggplot2::scale_linetype_manual(values = if(n_analyses == 2){c("dashed", "solid")}else("solid")) +
     ggplot2::scale_linewidth_manual(values = if(max(n_OYP) == 2){c(0.5, 1)}else(1)) +
     ggplot2::scale_fill_manual(breaks = c(TRUE, FALSE), values = c("#AB7E4C", "grey80")) +
-    labs(
-      title = title,
-      x = "Escapement",
-      y = "Probability",
-      caption = cap) +
+    ggplot2::labs(
+                  title = title,
+                  x = "Escapement",
+                  y = "Probability",
+                  caption = cap) +
     theme_eg() +
-    theme(strip.text.x = element_text(hjust = 0.5),
-          strip.text.y = element_text(angle = 0, hjust = 0.5)) +
+    ggplot2::theme(strip.text.x = element_text(hjust = 0.5),
+                   strip.text.y = element_text(angle = 0, hjust = 0.5)) +
     {if(labelK==TRUE){
       ggplot2::scale_x_continuous(limits = c(0, xmax),
                                   labels = scales::label_number(scale = 1 / 1e3, big.mark = ",", suffix = "K"))

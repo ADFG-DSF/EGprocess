@@ -108,28 +108,28 @@ plot_ey <- function(posterior_list,
 
   plot <-
     ggplot2::ggplot(brood_data, aes(x = S, y = Y)) +
-    geom_point(aes(shape = update), size = 2) +
-    ggplot2::stat_function(fun=function(x){(x * exp(param50_update$lnalpha - param50_update$beta * x) - x)},
-                           linewidth = 1,
-                           linetype = "solid",
-                           xlim = c(0, xmax)) +
     ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf),
                        data = goal_data[dim(goal_data)[1], ],
                        inherit.aes = FALSE,
                        fill = if(isTRUE(new_finding)){"#AB7E4C"}else{"gray80"},#BD9A7A
                        alpha = 0.5) +
+    ggplot2::geom_point(aes(shape = update), size = 2) +
+    ggplot2::stat_function(fun=function(x){(x * exp(param50_update$lnalpha - param50_update$beta * x) - x)},
+                           linewidth = 1,
+                           linetype = "solid",
+                           xlim = c(0, xmax)) +
     ggplot2::geom_hline(yintercept = 0, linewidth = 0.5, linetype = "11") +
     ggplot2::geom_vline(xintercept = param50_update$Smsy, linetype = "solid", linewidth = 0.5) +
     ggplot2::scale_x_continuous(labels = scales::comma) +
     ggplot2::scale_y_continuous(labels = scales::comma) +
-    ggplot2::coord_cartesian(xlim = c(0, xmax), ylim = c(ymin, ymax)) +
     ggplot2::scale_color_manual(guide = "none", values = "black") +
-    scale_shape_manual(values = c("updated" = 16, "existing" = 1)) +
-    labs(title = title,
-      subtitle = paste0("Brood Years:", min(brood_data$yr), " - ", max(brood_data$yr)),
-      x = "Escapement",
-      y = "Yield",
-      caption = cap) +
+    ggplot2::scale_shape_manual(values = c("updated" = 16, "existing" = 1)) +
+    ggplot2::coord_cartesian(xlim = c(0, xmax), ylim = c(ymin, ymax)) +
+    ggplot2::labs(title = title,
+                  subtitle = paste0("Brood Years:", min(brood_data$yr), " - ", max(brood_data$yr)),
+                  x = "Escapement",
+                  y = "Yield",
+                  caption = cap) +
     theme_eg()
 
 
