@@ -2,7 +2,7 @@
 #'
 #' @description
 #' This function contains the basic theme elements to be repeated across the
-#' escapement goal figures. It uses theme_bw() as a base
+#' escapement goal figures. It uses `theme_bw()` as a base
 #'
 #' @param base_size The base font size, in points.
 #' @param ... Other ggplot theme arguments to be passed.

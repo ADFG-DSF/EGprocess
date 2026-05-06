@@ -35,5 +35,6 @@ Imports:
     scales,
     stringr,
     tibble,
-    tidyr
+    tidyr,
+    flextable
 Config/testthat/edition: 3

@@ -1,27 +1,27 @@
 #' @title Optimal Yield Profile Plot(s)
 #' @description
-#'  Produces OYP plot(s) for the stock. Depending on the profile_list provided the
-#'  output will be either a single OYP from the updated analysis or two OYPs from
-#'  the original and updated analyses. In either case the OYP(s) show can be
+#'  Produces OYP plot(s) for the stock. Depending on the profile_list provided, the
+#'  output will be either a single OYP from the updated analysis, or two OYPs from
+#'  the original and updated analyses. In either case the OYP(s) can be
 #'  overlain with a relevant escapement goal range.
 #'
-#' @param profile_list A list of the 1 or 2 OYP's to plot. The name of each list object
-#' will be used as the facet title and should follow the convention "Brood Year: xxxx - YYYY"
+#' @param profile_list A list of the 1 or 2 OYPs to plot. The name of each list object
+#' will be used as the facet title and should follow the convention "Brood Year: XXXX-YYYY"
 #' for each item. If 2 OYPs are provided the function assumes the first item in the list
 #' is the OYP associated with the original escapement goal analysis and the second
 #' item in the list is the OYP associated with the updated escapement goal analysis.
 #' @param goal_data A dataframe containing calendar year (yr), the escapement goal
 #' lower bound (lb) and, the escapement goal upper bound (ub). Only needs to
 #' include years where the goal changed. If the updated analysis resulted in a
-#' new escapement goal finding the new finding should be included in the table
-#' with the year set to the year the new escapement goal finding will take effect.
-#' Use ub = NA for lower bound SEGs.
+#' new escapement goal finding, the new finding should be included in the table
+#' with the year set to the year that the new escapement goal finding will take effect.
+#' Use `ub = NA` for lower bound SEGs.
 #' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
 #' @param new_finding TRUE / FALSE. Indicates whether a new escapement goal finding
 #' resulted from the updated escapement goal analysis. If TRUE, the new escapement goal
 #' finding will be shown in brown and associated with the updated analysis while the
-#' current escapement goal will be shown in grey and associated with the original analysis.
-#' If FALSE, the current escapement goal will be shown in grey and associated with both analyses.
+#' current escapement goal will be shown in gray and associated with the original analysis.
+#' If FALSE, the current escapement goal will be shown in gray and associated with both analyses.
 #' @param limit Upper bound of spawners for plot. Default (NULL) will use 2.25 times S.msy.
 #' @param labelK TRUE / FALSE value for whether plot should display x axis values
 #' using a K for thousands (e.g., 350,000 would be 350K). Defaults to FALSE.

@@ -3,9 +3,9 @@
 #' This function creates a dataframe that can be used by plot_profile()
 #'
 #' @param posterior_list A named list. Each element of the list contains simulations from the posterior
-#' distributions of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). Names
+#' distributions of lnalpha, beta, phi, and sigma (i.e., many possible values for each parameter). Names
 #' of each element describe the brood years included in the model that generated the posteriors
-#' and follows the convention "Brood year: xxxx-yyyy".
+#' and follows the convention "Brood year: XXXX-YYYY".
 #' @param multiplier The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.
 #' @param MSY_pct The 70% or 80% OYP can be specified; must be entered as either 70 or 80.
 #' Defaults to NA. The 90% OYP is included regardless.

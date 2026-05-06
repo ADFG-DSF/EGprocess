@@ -2,13 +2,13 @@
 #' @description
 #' Produces a plot of historical escapements with an overlay of the goal range.
 #'
-#' @param brood_data A dataframe containing calendar year (yr) and escapement(S).
+#' @param brood_data A dataframe containing calendar year (yr) and escapement (S).
 #' @param goal_data  A dataframe containing calendar year (yr), the escapement goal
-#' lower bound (lb) and, the escapement goal upper bound (ub). Only needs to
+#' lower bound (lb), and the escapement goal upper bound (ub). Only needs to
 #' include years where the goal changed. If the updated analysis resulted in a
 #' new escapement goal finding the new finding should be included in the table
-#' with the year set to the year the new escapement goal finding will take effect.
-#' Use ub = NA for lower bound SEGs.
+#' with the year set to the year that the new escapement goal finding will take effect.
+#' Use `ub = NA` for lower bound SEGs.
 #' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
 #'
 #' @return A figure

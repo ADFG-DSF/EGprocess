@@ -134,6 +134,7 @@ Function `plot_profile()` generates a standardized OYP plot.
 ```{r plot_profile_example, out.width="75%", fig.height=7}
 plot_profile(profile_list = Igushik_profile, goal_data = goal_Igushik, 
              title = "Igushik River Sockeye Salmon")
+
 ```
 
 

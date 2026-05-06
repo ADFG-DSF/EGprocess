@@ -17,25 +17,25 @@ plot_SR(
 \item{posterior_list}{A named list. Each element of the list contains simulations from the posterior
 distributions of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). Names
 of each element describe the brood years included in the model that generated the posteriors
-and follows the convention "Brood year: xxxx-yyyy". In this function the posterior simulations
+and follows the convention "Brood year: XXXX-YYYY". In this function the posterior simulations
 can be replaced with point estimates derived from the posterior (input as a single row).}
 
 \item{brood_data}{A dataframe containing year (yr), Spawners (S), and Recruits (R)
-to be included in the plot. The data frame should include years without empirical
+to be included in the plot. The dataframe should include years without empirical
 observations of S and R.}
 
 \item{goal_data}{A dataframe containing calendar year (yr), the escapement goal
-lower bound (lb) and, the escapement goal upper bound (ub). Only needs to
+lower bound (lb), and the escapement goal upper bound (ub). Only needs to
 include years where the goal changed. If the updated analysis resulted in a
 new escapement goal finding the new finding should be included in the table
 with the year set to the year the new escapement goal finding will take effect.
-Use ub = NA for lower bound SEGs.}
+Use \code{ub = NA} for lower bound SEGs.}
 
 \item{title}{A character vector with the plot title. Suggest "X River, Y Salmon".}
 
 \item{new_finding}{TRUE / FALSE. Indicates whether a new escapement goal finding
 resulted from the updated escapement goal analysis. If TRUE, the escapement
-goal plotted will be brown, if FALSE the escapement goal plotted will be grey.}
+goal plotted will be brown, if FALSE the escapement goal plotted will be gray.}
 
 \item{multiplier}{The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.}
 }
