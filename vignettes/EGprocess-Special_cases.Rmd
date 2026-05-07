@@ -117,9 +117,9 @@ plot_S  +
 
 # New Goal {-}
 
-For a brand new escapement goal there is no prior analysis to compare to the updated analysis, the escapement goal finding is new and all of the empirical data is being considered for the first time. EG process can accommodate this use case by utilizing a single item list for `posterior_list` and `profile_list` function arguments, providing a single row dataframe to `goal_data`, and specifying `new_finding` = TRUE.  
+For a brand new escapement goal there is no prior analysis to compare to the updated analysis, the escapement goal finding is new and all of the empirical data is being considered for the first time. EG process can accommodate this use case by utilizing a single item list for `posterior_list` and `profile_list` function arguments, providing a single row dataframe to `goal_data`, and specifying `new_finding = TRUE`.  
 
-### Spawner-Recruit and Expected Yieled Plots
+### Spawner-Recruit and Expected Yield Plots
 
 Spawner-recruit and expected yield plots for the new goal situation uses a line type that indicates only the most recent analysis is presented, color coding that indicates the goal range represents a new finding and color coding that indicates all of the empirical data was new to this analysis[^1]. 
 
@@ -153,7 +153,7 @@ It is acknowledged that many users may not possess posterior distributions from 
 
 ## Existing Goal - No Spawner-Recruit Information
 
-In some situations a current escapement goal may exist but we lack any information about the original spawner-recruit analysis. One would hope this is a rare situation when the current escapement goal was based on a spawner-recruit analysis. This situation may also arise when the the current goal was based on another method (percentile, euphotic volume, exc.) but is now being supported by a spawner-recruit analysis.
+In some situations a current escapement goal may exist but we lack any information about the original spawner-recruit analysis. One would hope this is a rare situation when the current escapement goal was based on a spawner-recruit analysis. This situation may also arise when the the current goal was based on another method (percentile, euphotic volume, etc.) but is now being supported by a spawner-recruit analysis.
  
 ### Spawner-Recruit and Expected Yieled Plots
 
@@ -187,7 +187,7 @@ plot_profile(profile_missing,
 
 In situations where a current escapement goal exists, and a parameter table was published, but we do not have the posterior distribution from the original spawner-recruit analysis `EGprocess` functions allow users to produced spawner-recruit and expected yield plots that include comparisons between the original and updated analyses based only on parameter estimates.
 
-### Spawner-Recruit and Expected Yieled Plots
+### Spawner-Recruit and Expected Yield Plots
 
 In the situation where we only have parameter estimates to accompany the existing goal, spawner-recruit and expected yield plots can communicate all of the usual information by including the point estimates for each parameter as the first item in the named list provided to `posterior_data`. Notice the point estimate for $\beta$ was multiplied by $10^{5}$ to place it on the same scale as the shiny app posterior. In this example, we will assume a new escapement goal finding was made.
 
@@ -212,11 +212,11 @@ plot_SR(post_onlyparameters,
         multiplier = 1e-5)
 ```
 
-## Hindcasted analysis
+## Hindcast analysis
 
 *Note to EGPIT: Adam believes this is sound advice. Does our group?*
 
-Recall that the escapement goal's location on the OYP reflects the final decision from a complex process to determine how to best maximize yield in the context of various other concerns about the stock, data and fishery. Therefore, in the situation where we don't have any spawner-recruit information to accompany the existing goal it may be helpful to rerun the spawner-recruit analysis on a subset of the updated dataset to approximate the information that would have been available had the spawner-recruit analysis been conducted at the time when the current escapement goal was adopted. This process can help quantify the performance (relative the maximizing sustained yield) of the existing goal and changes in the spawned-recruit relationship since the current goal was adopted. The best decision regarding whether to rerun the analysis on subsetted data likely involved consideration of why we don't have posterior data from the original analysis, how much the spawner-recruit relationship has changed since the original analysis, and how closely the hindcasted and original analyses match for the information which is comparable. If this approach is utilized staff should be clear that they are hindcasting an analysis rather than presenting the true original analysis.
+Recall that the escapement goal's location on the OYP reflects the final decision from a complex process to determine how to best maximize yield in the context of various other concerns about the stock, data and fishery. Therefore, in the situation where we don't have any spawner-recruit information to accompany the existing goal it may be helpful to rerun the spawner-recruit analysis on a subset of the updated dataset to approximate the information that would have been available had the spawner-recruit analysis been conducted at the time when the current escapement goal was adopted. This process can help quantify the performance (relative the maximizing sustained yield) of the existing goal and changes in the spawned-recruit relationship since the current goal was adopted. The best decision regarding whether to rerun the analysis on subsetted data likely involved consideration of why we don't have posterior data from the original analysis, how much the spawner-recruit relationship has changed since the original analysis, and how closely the hindcast and original analyses match for the information which is comparable. If this approach is utilized staff should be clear that they are hindcasting an analysis rather than presenting the true original analysis.
 
 # Escapement Goal evaluation against a lower MSY target
 

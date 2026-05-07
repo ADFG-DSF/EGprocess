@@ -208,9 +208,9 @@ plot_alt_escapement(brood_Igushik,
                     new_finding = TRUE)
 ```
 
-## Spawner-Recruit and Expected Yeild Plots {-}
+## Spawner-Recruit and Expected Yield Plots {-}
 
-When a new escapement goal finding is made the spawner recruit plot is identical except the new finding is displayed on the plot and highlighted using color coding. Color coding is extremely helpful here as the new finding can be difficult to detect unless the reader remembers the current and new escapement goal bounds very accurately. The expected yield plot (not shown) is similarly modified.
+When a new escapement goal finding is made the spawner-recruit plot is identical except the new finding is displayed on the plot and highlighted using color coding. Color coding is extremely helpful here as the new finding can be difficult to detect unless the reader remembers the current and new escapement goal bounds very accurately. The expected yield plot (not shown) is similarly modified.
 
 ```{r SRplot_change, fig.width = 6, fig.height= 6}
 plot_SR(posterior_list = post_Igushik, 
