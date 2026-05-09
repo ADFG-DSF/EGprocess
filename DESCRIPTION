@@ -1,7 +1,7 @@
 Package: EGprocess
 Type: Package
 Title: Escapement Goal Analysis Figure Standardization
-Version: 0.1.16
+Version: 0.2.0
 Authors@R: c(
     person(
       "Adam", "Reimer",
