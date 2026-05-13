@@ -16,7 +16,7 @@
 #' @examples
 #'
 #'
-#' params_Igushik <- table_SR(posterior_list = post_Igushik_byr63_15, multiplier = 1e-5)
+#' params_Igushik <- table_SR(posterior_list = post_Igushik_byr63_15[[1]], multiplier = 1e-5)
 #'
 #' @export
 
@@ -24,47 +24,49 @@ table_SR <- function(posterior_list,
                      title,
                      multiplier = 1){
 
-  digits <- function(p){
+  digits <- function(name, p){
+
     ps <- case_when(
-      p == 0 ~ format(p, TRUE, digits = 1),
-      abs(p) < 0.01 ~ format(p, TRUE, digits = 2, scientific = TRUE),
-      abs(p) < 2 ~ format(round(p, 2), TRUE, nsmall = 2),
-      abs(p) < 100 ~ format(round(p, 1), TRUE, nsmall = 1),
-      abs(p) >= 100  ~ format(round(p, 0), TRUE, nsmall = 0, width = 5, scientific = FALSE, big.mark = ",")
+      name == "beta" ~ format(signif(p, 3), trim = TRUE, scientific = TRUE),
+      name %in% c("phi", "sigma") ~ format(round(p, 2), trim = TRUE, nsmall = 2, scientific = FALSE),
+      name == "lnalpha" ~ format(round(p, 2), trim = TRUE, nsmall = 2, scientific = FALSE),
+      name %in% c("S.msy", "S.max", "S.eq") ~ format(signif(floor(p), 3),
+                                                     trim = TRUE,
+                                                     nsmall = 0,
+                                                     scientific = FALSE,
+                                                     big.mark = ",")
       )
     return(ps)
   }
 
-
-  data.frame(beta = posterior_list[[1]][["beta"]] * multiplier,
-             lnalpha = posterior_list[[1]][["lnalpha"]],
-             phi = ifelse(names(posterior_list[[1]]) %in% "phi", posterior_list[[1]][["phi"]], 0),
-             sigma = posterior_list[[1]][["sigma"]]) %>%
-    dplyr::mutate(Smax = 1/ beta,
-                  Seq = lnalpha / beta,
-                  Smsy = Seq * (0.5 - 0.07 * lnalpha)) %>%
+  posterior_list[[1]] %>%
+    dplyr::mutate(beta = beta * multiplier,
+                  phi = if("phi" %in% names(posterior_list[[1]])){posterior_list[[1]][["phi"]]}else{0},
+                  S.max = 1/ beta,
+                  S.eq = lnalpha / beta,
+                  S.msy = S.eq * (0.5 - 0.07 * lnalpha)) %>%
+    select(lnalpha, beta, phi, sigma, S.msy, S.max, S.eq) %>%
     tidyr::pivot_longer(tidyr::everything(), names_to = "param", values_to = "value") %>%
     dplyr::group_by(param) %>%
     dplyr::summarise(median = median(value),
+                     sd = sd(value),
                      q5 = quantile(value, 0.05),
                      q95 = quantile(value, 0.95)) %>%
-    dplyr::mutate(print =
-                    paste0(
-                      digits(median),
-                      " (",
-                      digits(q5),
-                      " - ",
-                      digits(q95),
-                      ")"),
+    dplyr::mutate(ci = paste0(digits(param, q5)," - ", digits(param, q95)),
+                  cv = ifelse(grepl("^S.", param),
+                              sqrt(exp(((log(q95)-log(q5))/1.645/2)^2)-1), #Geometric CV for lognormals
+                              sd / abs(median)),
+                  median_print = digits(param, median),
+                  cv_print = format(round(cv, 2), nsmall = 2, scientific = FALSE),
                   description = factor(param,
                                   levels = c(
                                     "lnalpha",
                                     "beta",
                                     "phi",
                                     "sigma",
-                                    "Smsy",
-                                    "Smax",
-                                    "Seq"),
+                                    "S.msy",
+                                    "S.max",
+                                    "S.eq"),
                                   labels = c(
                                     "Log-scale productivity",
                                     "Density-dependence",
@@ -80,9 +82,9 @@ table_SR <- function(posterior_list,
                                    "beta",
                                    "phi",
                                    "sigma",
-                                   "Smsy",
-                                   "Smax",
-                                   "Seq"),
+                                   "S.msy",
+                                   "S.max",
+                                   "S.eq"),
                                  labels = c(
                                    paste0("ln(", "\U03B1", ")"),
                                    "\U03B2",
@@ -94,16 +96,18 @@ table_SR <- function(posterior_list,
                                  ordered = TRUE)
                   ) %>%
     dplyr::arrange(param) %>%
-    flextable::flextable(col_keys = c("param", "description", "print")) %>%
+    flextable::flextable(col_keys = c("param", "description", "median_print", "cv_print", "ci")) %>%
     flextable::set_header_labels(values = list(
                                  param = "Symbol",
                                  description = "Description",
-                                 print = "Median (95% CI)")) %>%
+                                 median_print = "Median",
+                                 cv_print = "CV",
+                                 ci = "95% CI")) %>%
     flextable::add_header_row(values = names(posterior_list),
-                              colwidths = 3,
+                              colwidths = 5,
                               top = TRUE) %>%
     flextable::add_header_row(values = title,
-                              colwidths = 3,
+                              colwidths = 5,
                               top = TRUE) %>%
     flextable::border(i = 1:2, j = NULL, border = officer::fp_border(color = "white"), part = "header") %>%
     flextable::fontsize(part = "header", i = 1, size = 18) %>%
@@ -119,6 +123,14 @@ table_SR <- function(posterior_list,
                        j = "param",
                        value = flextable::as_paragraph("S", flextable::as_sub("MAX")),
                        part = "body") %>%
+    flextable::add_footer_lines(value = flextable::as_paragraph(
+      "Note: Geometric coefficents of variation (CV) are reported for (S",
+      flextable::as_sub("MSY"),
+      ", S",
+      flextable::as_sub("MAX"),
+      ", and S",
+      flextable::as_sub("EQ"),
+      ")")) %>%
     flextable::autofit()
 
 
