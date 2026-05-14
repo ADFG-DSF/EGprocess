@@ -109,7 +109,8 @@ table_SR <- function(posterior_list,
     flextable::add_header_row(values = title,
                               colwidths = 5,
                               top = TRUE) %>%
-    flextable::border(i = 1:2, j = NULL, border = officer::fp_border(color = "white"), part = "header") %>%
+    flextable::border(i = 1, j = NULL, border = officer::fp_border(color = "white"), part = "header") %>%
+    # table borders appear differently in viewer than when saved. i = 1 is optimal for th saved version.
     flextable::fontsize(part = "header", i = 1, size = 18) %>%
     flextable::compose(i = ~ param == "Seq",
                        j = "param",
@@ -124,7 +125,7 @@ table_SR <- function(posterior_list,
                        value = flextable::as_paragraph("S", flextable::as_sub("MAX")),
                        part = "body") %>%
     flextable::add_footer_lines(value = flextable::as_paragraph(
-      "Note: Geometric coefficents of variation (CV) are reported for (S",
+      "Note: Geometric coefficients of variation (CV) are reported for (S",
       flextable::as_sub("MSY"),
       ", S",
       flextable::as_sub("MAX"),

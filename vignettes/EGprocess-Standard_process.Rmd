@@ -161,7 +161,7 @@ plot_profile(profile_Igushik,
 
 ## Spawner-Recruit Parameter Table
 
-EGPIT determined the following parameters should be presented after each escapement goal update. Notice that the function only expects the posterior from the updated analysis. *note to EGPIT: I'd say it's a statistical best practice to present confidence intervals instead of SEs but I don't recall EGPIT having an opinion on this point.*
+EGPIT determined the following parameters should be presented after each escapement goal update. *note to EGPIT: Notice that estimates of the management reference points show 3 significant figures. It occurred to Adam that any more than this implies much more certainty about the SR parameter estimates than we have any reason to expect. If folks are happy with this it also provides guidance about a standard for rounding escapement goals produced by spawner-recruit analysis. Likely not universal bc it implies a goal on the scale of thousands should be rounded to the nearest 10 fish. Maybe it can set an upper limit. In that case 100 fish might be a reasonable lower limit.*
 
 ```{r SRtable_nochange}
 table_SR(post_Igushik[2], 
