@@ -4,6 +4,7 @@
 # EGprocess
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 The R package EGprocess facilitates simple and standard creation of
@@ -159,7 +160,7 @@ plot_escapement(brood_data = brood_Igushik, goal_data = goal_Igushik,
                 title = "Igushik River Sockeye Salmon")
 ```
 
-<img src="man/figures/README-plot_escapement_example-1.png" alt="" width="75%" />
+<img src="man/figures/README-plot_escapement_example-1.png" width="75%" />
 
 ### plot_profile()
 
@@ -172,7 +173,7 @@ plot_profile(profile_list = Igushik_profile, goal_data = goal_Igushik,
 #> (`geom_segment()`).
 ```
 
-<img src="man/figures/README-plot_profile_example-1.png" alt="" width="75%" />
+<img src="man/figures/README-plot_profile_example-1.png" width="75%" />
 
 ### plot_ey()
 
@@ -185,7 +186,7 @@ plot_ey(posterior_list = Igushik_posterior, brood_data = brood_Igushik,
         multiplier = 1e-5)
 ```
 
-<img src="man/figures/README-plot_ey_example-1.png" alt="" width="75%" />
+<img src="man/figures/README-plot_ey_example-1.png" width="75%" />
 
 ### plot_SR()
 
@@ -198,7 +199,7 @@ plot_SR(posterior_list = Igushik_posterior, brood_data = brood_Igushik,
         multiplier = 1e-5)
 ```
 
-<img src="man/figures/README-plot_SR_example-1.png" alt="" width="75%" />
+<img src="man/figures/README-plot_SR_example-1.png" width="75%" />
 
 ### table_SR()
 
@@ -210,7 +211,7 @@ table_SR(posterior_list = Igushik_posterior[2], title = "Igushik River Sockeye S
          multiplier = 1e-5)
 ```
 
-<img src="man/figures/README-table_SR_example-1.png" alt="" width="75%" />
+<img src="man/figures/README-table_SR_example-1.png" width="75%" />
 
 ### theme_eg()
 
@@ -218,13 +219,12 @@ Function `theme_eg()` is the default escapement goal ggplot theme.
 
 ``` r
 library(ggplot2)
-#> Warning: package 'ggplot2' was built under R version 4.4.3
 ggplot(mtcars, aes(wt, mpg)) + 
   geom_point() + 
   theme_eg()
 ```
 
-<img src="man/figures/README-theme_eg_example-1.png" alt="" width="50%" />
+<img src="man/figures/README-theme_eg_example-1.png" width="50%" />
 
 ### output_SR()
 

@@ -1,7 +1,7 @@
 Package: EGprocess
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.16
+Title: Escapement Goal Analysis Figure Standardization
+Version: 0.2.0
 Authors@R: c(
     person(
       "Adam", "Reimer",
@@ -11,8 +11,9 @@ Authors@R: c(
            email = "justin.priest@alaska.gov",
            role = "aut")
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Description: This R package facilitates simple and standard creation of 
+    escapement goal data reporting. Figures can be easily created using 
+    standardized plot elements. 
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
@@ -35,5 +36,6 @@ Imports:
     scales,
     stringr,
     tibble,
-    tidyr
+    tidyr,
+    flextable
 Config/testthat/edition: 3
