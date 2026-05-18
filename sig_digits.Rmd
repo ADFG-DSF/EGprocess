@@ -1,0 +1,29 @@
+---
+title: "Significant Digits in Escapement Goals"
+author: "Adam Reimer"
+date: "2026-05-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Quick notes on this concept. Not sure it's worth the time.
+
+Came up while producing the table_SR function with the Igushik dataset. Will get reference points with 7 significant digits. Made me research what the significant digit rules are and how they might apply to this situation (or EG bounds more generally).
+
+Recall reference points are functions of SR parameter estimates so the question of how we calculate significant figures in the reference point comes down to how may significant digits we ascribe to the parameter estimates. It doesn't seem like there is a hard and fast way to do this. Options:
+
+-   The default position seems to be to assume 2-3 significant digits for regression parameter estimates (and 2 for their SE's). This could give 2-3 for the reference points since each reference point is multiplication or division of the parameter estimates.
+    -   One way to ground truth this is to calculate the standard error of the estimate and note that (generally) the standard error is 2-3 orders of magnitude less than the estimate itself. I haven't tested this widely but it does seem to hold for the Igushik dataset when calculating a stand error like quantity using Neff. This seems tidy to me and could even be done algorithmically inside the function.
+-   Another option is to calculate standard error's for the reference points directly to get a feel for their implied precision.
+-   One wrinkle with all of the above is that you don't want the assumed significant digits for your parameter estimates to be larger that the initial data contained. I don't think this is an issue for Igushik River bc they are expanded tower counts (10 minutes per hour) combined with fish ticket information. Unfortunately, they don't report the escapement SE's but we can intuit they would be small. One could imagine a situation where the escapement estimates were imprecise (say MR based) but well behaved from the SR perceptive that could lead to an overestimation of significant digits. Copper River Chinook or Kenai Chinook might be a place to examine that.
+
+Currently, in table_SR we present 3 significant digits for $\alpha$, $\beta$ and all reference points and 2 significant digits for $\sigma$, $\phi$, and all CV's. The use of two significant digits was somewhat arbitrary but followed the general guidance above and I felt like since most of those can be envisioned as ratios it was misleading to imply we had better precision that 1/100.
+
+Initially, I thought this might be a nice addition to internal ADF&G policy and extend to EG bounds for large stocks (... and paired with EG bounds criteria for small stocks derived mostly fro considerations of management precision). Turns out almost all of the EGs is the state already comply with this guidance.
+
+

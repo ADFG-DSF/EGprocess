@@ -3,3 +3,6 @@
 .RData
 .Ruserdata
 inst/doc
+Thumbs.db
+man/figures/Thumbs.db
+process_report/
