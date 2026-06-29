@@ -26,38 +26,40 @@
 #'
 #' @export
 plot_escapement <- function(brood_data,
-                   goal_data,
-                   title){
+                            goal_data,
+                            title){
   brood_data <- brood_data %>% dplyr::filter(!is.na(S))
 
   yr_max <- if(max(goal_data$yr) < max(brood_data$yr)){max(brood_data$yr) + 2}else{max(goal_data$yr) + 2}
   goal <-
     goal_data %>%
-    dplyr::mutate(dplyr::across(c(lb, ub), function(x){ifelse(is.na(x), -99, x)}),
-           yr = as.numeric(ifelse(yr == "new", max(brood_data$yr) + 1, yr))) %>%
+    dplyr::mutate(yr_start = yr - 1,
+                  yr_end = ifelse(is.na(lead(yr_start)), yr_max + 1, lead(yr_start))) %>%
+    pivot_longer(cols = c(lb, ub), names_to = "bound", values_to = "S_bound")
+  goal_fill <-
+    goal_data %>%
+    dplyr::select(-ub) %>%
     tidyr::complete(yr = tidyr::full_seq(c(yr, yr_max), 1)) %>%
-    tidyr::fill(lb, ub, .direction = "down") %>%
-    dplyr::mutate(across(c(lb, ub), function(x){ifelse(x == -99, NA, x)})) %>%
-    tidyr::pivot_longer(cols = c(lb, ub), names_to = "bound", values_to = "S_bound")
+    tidyr::fill(lb, .direction = "down")
 
   cap <- stringr::str_wrap("Note: Escapement goal lower and upper bounds are shown as solid
                   and dashed lines, respectively. Escapements below the lower bound
                   of the contemporaneous escapement goal are indicated with black fill.",
-                  width = 85)
+                           width = 85)
 
   brood_data %>%
     dplyr::select(yr, S) %>%
-    dplyr::left_join(goal[goal$bound == "lb", ], by = "yr") %>%
-    dplyr::mutate(miss = ifelse(S >= S_bound | is.na(S_bound), FALSE, TRUE)) %>%
+    dplyr::left_join(goal_fill, by = "yr") %>%
+    dplyr::mutate(miss = ifelse(S >= lb | is.na(lb), FALSE, TRUE)) %>%
     ggplot2::ggplot(aes(x = yr)) +
     ggplot2::geom_bar(aes(y = S, fill = miss), stat = "identity") +
-    ggplot2::geom_line(aes(y = S_bound, linetype = bound), data = goal) +
+    ggplot2::geom_segment(aes(x = yr_start, xend = yr_end, y = S_bound, linetype = bound), data = goal) +
     ggplot2::scale_y_continuous(labels = scales::comma) +
     ggplot2::scale_fill_manual(values = c("gray75", "black")) +
     ggplot2::labs(title = title,
-      x = "Year",
-      y = "Escapement",
-      caption = cap) +
+                  x = "Year",
+                  y = "Escapement",
+                  caption = cap) +
     theme_eg()
 
 }
