@@ -26,5 +26,7 @@ theme_eg <- function(base_size = 16, ...) {
                  size = 10),
                  plot.subtitle = ggplot2::element_text(size = 10),
                  plot.caption.position = "plot",
-                 legend.position = "none")
+                 legend.position = "none",
+                 plot.background = element_rect(colour = "black", fill = NA, linewidth = 0.25), # Outer border
+                 plot.margin = margin(5, 5, 5, 5)) # Space between plot and border
 }
