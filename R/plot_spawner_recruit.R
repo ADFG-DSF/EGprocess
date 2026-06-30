@@ -76,35 +76,49 @@ plot_SR <- function(posterior_list,
   cap_width = 85
   cap <-
     case_when(
-      length(posterior_list) == 2 & isTRUE(new_finding) ~ str_wrap("Note: Hollow circles and dotted lines
-      indicate the data and estimated spawner-recruit relationship available when the escapement goal
-      last changed, while filled circles and solid lines indicate the data collected since and the
-      estimated spawner-recruit relationship from all available data. Vertical lines show the escapement
-      that maximizes sustained yield and the dotted line represents the 1:1 line. The new escapement
-      goal finding is shaded brown.", width = cap_width),
+      length(posterior_list) == 2 & isTRUE(new_finding) ~ str_wrap(paste0("Note: Hollow circles and dotted lines
+        indicate the data and estimated spawner-recruit relationship associated with the current escapement goal
+        while filled circles and solid lines indicate the data collected since and the
+        estimated spawner-recruit relationship from all available data. Vertical lines show the escapement
+        that maximizes sustained yield and the dotted line represents the 1:1 line. The new escapement
+        goal finding (",
+      format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+      format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+      ") is shaded brown."), width = cap_width),
       length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 & isTRUE(new_finding) ~ str_wrap(
-        "Note: The dotted line represents the 1:1 line. Vertical lines show the escapement that maximizes
-        sustained yield and the dotted line represents the 1:1 line. The new escapement goal finding
-        is shaded brown.", width = cap_width),
+        paste0("Note: The dotted line represents the 1:1 line. Vertical lines show the escapement that maximizes
+        sustained yield and the dotted line represents the 1:1 line. The new escapement goal finding (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded brown."), width = cap_width),
       length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 & isTRUE(new_finding) ~ str_wrap(
-        "Note: Hollow circles indicate the data available when the escapement goal last changed while filled
+        paste0("Note: Hollow circles indicate the data associated with the current escapement goal while filled
         circles indicate the data collected since. Vertical lines show the escapement that maximizes
-        sustained yield and the dotted line represents the 1:1 line. The new escapement goal finding
-        is shaded brown.", width = cap_width),
-      length(posterior_list) == 2 ~ str_wrap("Note: Hollow circles and dotted lines indicate the data
-      and estimated spawner-recruit relationship available when the escapement goal last changed, while
-      filled circles and solid lines indicate the data collected since and the estimated spawner-recruit
-      relationship from all available data. Vertical lines show the escapement that maximizes sustained
-      yield and the dotted line represents the 1:1 line. The current escapement goal range is
-      shaded gray.", width = cap_width),
-      length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(
+        sustained yield and the dotted line represents the 1:1 line. The new escapement goal finding (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded brown."), width = cap_width),
+      length(posterior_list) == 2 ~ str_wrap(paste0("Note: Hollow circles and dotted lines indicate the data
+        and estimated spawner-recruit relationship associated with the current escapement goal while
+        filled circles and solid lines indicate the data collected since and the estimated spawner-recruit
+        relationship from all available data. Vertical lines show the escapement that maximizes sustained
+        yield and the dotted line represents the 1:1 line. The current escapement goal range (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded gray."), width = cap_width),
+      length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(paste0(
         "Note: Vertical lines show the escapement that maximizes sustained yield and the dotted line represents
-        the 1:1 line. The current escapement goal range is shaded gray.", width = cap_width),
-      length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(
-        "Note: Hollow circles indicate the data available when the escapement goal last changed while filled
+        the 1:1 line. The current escapement goal range (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded gray."), width = cap_width),
+      length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(paste0(
+        "Note: Hollow circles indicate the data associated with the current escapement goal while filled
         circles indicate the data collected since. Vertical lines show the escapement that maximizes
-        sustained yield and the dotted line represents the 1:1 line. The current escapement goal range
-        is shaded gray.", width = cap_width)
+        sustained yield and the dotted line represents the 1:1 line. The current escapement goal range (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded gray."), width = cap_width)
     )
 
   plot <-

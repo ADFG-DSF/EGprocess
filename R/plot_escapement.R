@@ -44,7 +44,7 @@ plot_escapement <- function(brood_data,
 
   cap <- stringr::str_wrap("Note: Escapement goal lower and upper bounds are shown as solid
                   and dashed lines, respectively. Escapements below the lower bound
-                  of the contemporaneous escapement goal are indicated with black fill.",
+                  of the concurrent escapement goal are indicated with black fill.",
                            width = 85)
 
   brood_data %>%

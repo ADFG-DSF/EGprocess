@@ -76,19 +76,62 @@ plot_profile <- function(profile_list,
   cap_width = 85
   cap <-
     case_when(
-      max(n_OYP) == 1 ~ stringr::str_wrap("Note: Optimal Yield Profiles (OYP)
-               show the probability (under average productivity) of achieving 90%
-               of maximum sustained yield (MSY) relative to the number of salmon
-               escaped. The probability of achieving 90% of MSY is the standard
-               criteria used to describe an escapement goal range.", width = cap_width),
-      max(n_OYP) == 2 ~ stringr::str_wrap(paste0(
-        "Note: Optimal Yield Profiles (OYP) show the probability (under average
+      max(n_OYP) == 1 & new_finding == FALSE ~ stringr::str_wrap(paste0(
+        "Note: Optimal Yield Profiles (OYP)
+        show the probability (under historical productivity) of achieving 90%
+        of maximum sustained yield (MSY) relative to the number of salmon
+        escaped. The current escapement goal range (",
+        format(goal_plot[dim(goal_plot)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_plot[dim(goal_plot)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded gray."), width = cap_width),
+      max(n_OYP) == 2 & new_finding == FALSE ~ stringr::str_wrap(paste0(
+        "Note: Optimal Yield Profiles (OYP) show the probability (under historical
                productivity) of achieving ",
         pct_alternate,
-        "% (dashed line) and 90% (solid line) of maximum sustained yield (MSY)
-               relative to the number of salmon escaped. The probability of achieving
-               90% of MSY is the standard criteria used to describe an escapement goal
-               range."), width = cap_width)
+        "% (thin line) and 90% (thick line) of maximum sustained yield (MSY)
+        relative to the number of salmon escaped. The current escapement goal range (",
+        format(goal_plot[dim(goal_plot)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_plot[dim(goal_plot)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded grey."), width = cap_width),
+      max(n_OYP) == 1 & n_analyses == 1 & new_finding == TRUE ~ stringr::str_wrap(paste0(
+      "Note: Optimal Yield Profiles (OYP)
+        show the probability (under historical productivity) of achieving 90%
+        of maximum sustained yield (MSY) relative to the number of salmon
+        escaped. The new escapement goal finding (",
+        format(goal_plot[dim(goal_plot)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_plot[dim(goal_plot)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded brown."), width = cap_width),
+      max(n_OYP) == 2 & n_analyses == 1 & new_finding == TRUE ~ stringr::str_wrap(paste0(
+        "Note: Optimal Yield Profiles (OYP) show the probability (under historical
+               productivity) of achieving ",
+        pct_alternate,
+        "% (thin line) and 90% (thick line) of maximum sustained yield (MSY)
+        relative to the number of salmon escaped. The new escapement goal finding (",
+        format(goal_plot[dim(goal_plot)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_plot[dim(goal_plot)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded brown."), width = cap_width),
+      max(n_OYP) == 1 & n_analyses == 2 & new_finding == TRUE ~ stringr::str_wrap(paste0(
+        "Note: Optimal Yield Profiles (OYP) show the probability (under historical
+        productivity) of achieving 90% of maximum sustained yield (MSY)
+        relative to the number of salmon escaped. The current escapement goal range (",
+        format(goal_plot[1, "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_plot[1, "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded grey while the new escapement goal finding (",
+        format(goal_plot[2, "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_plot[2, "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded brown."), width = cap_width),
+      max(n_OYP) == 2 & n_analyses == 2 & new_finding == TRUE ~ stringr::str_wrap(paste0(
+        "Note: Optimal Yield Profiles (OYP) show the probability (under historical
+               productivity) of achieving ",
+        pct_alternate,
+        "% (thin line) and 90% (thick line) of maximum sustained yield (MSY)
+        relative to the number of salmon escaped. The current escapement goal range (",
+        format(goal_plot[1, "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_plot[1, "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded grey while the new escapement goal finding (",
+        format(goal_plot[2, "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_plot[2, "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded brown."), width = cap_width),
     )
 
   wrap_labels <- function(labels) {

@@ -78,32 +78,48 @@ plot_ey <- function(posterior_list,
   cap_width = 85
   cap <-
     case_when(
-      length(posterior_list) == 2 & isTRUE(new_finding) ~ str_wrap("Note: Hollow circles and dotted lines
-      indicate the data and the estimate of median sustained yield available when the escapement goal
-      last changed, while filled circles and solid lines indicate the data collected since and the
-      estimate of median sustained yield from all available data. Vertical lines show the escapement
-      that maximizes sustained yield. The new escapement goal finding is shaded brown.", width = cap_width),
+      length(posterior_list) == 2 & isTRUE(new_finding) ~ str_wrap(paste0("Note: Hollow circles and dotted lines
+        indicate the data and the estimate of median sustained yield associated with the current escapement goal
+        while filled circles and solid lines indicate the data collected since and the
+        estimate of median sustained yield from all available data. Vertical lines show the escapement
+        that maximizes sustained yield. The new escapement goal finding (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded brown."), width = cap_width),
       length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 & isTRUE(new_finding) ~ str_wrap(
-        "Note: Vertical lines show the escapement that maximizes sustained yield. The new escapement
-        goal finding is shaded brown.", width = cap_width),
+        paste0("Note: Vertical lines show the escapement that maximizes sustained yield. The new escapement
+        goal finding (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded brown."), width = cap_width),
       length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 & isTRUE(new_finding) ~ str_wrap(
-        "Note: Hollow circles indicate the data available when the escapement goal last changed
+        paste0("Note: Hollow circles indicate the data associated with the current escapement goal
         while filled circles indicate the data collected since. Vertical lines show the escapement
-      that maximizes sustained yield. The new escapement goal finding is
-        shaded brown.", width = cap_width),
-      length(posterior_list) == 2 ~ str_wrap("Note: Hollow circles and dotted lines indicate the data and the
-        estimate of median sustained yield available when the escapement goal last changed, while filled circles
+        that maximizes sustained yield. The new escapement goal finding (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded brown."), width = cap_width),
+      length(posterior_list) == 2 ~ str_wrap(paste0("Note: Hollow circles and dotted lines indicate the data and the
+        estimate of median sustained yield associated with the current escapement goal, while filled circles
         and solid lines indicate the data collected since and the estimate of median sustained yield from all
         available data. Vertical lines show the escapement that maximizes sustained yield. The current
-        escapement goal range is shaded gray.", width = cap_width),
-      length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(
+        escapement goal range (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded gray."), width = cap_width),
+      length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(paste0(
         "Note: Vertical lines show the escapement that maximizes sustained yield. The current escapement
-        goal range is shaded gray.", width = cap_width),
-      length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(
-        "Note: Hollow circles indicate the data available when the escapement goal last changed
+        goal range (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded gray."), width = cap_width),
+      length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(paste0(
+        "Note: Hollow circles indicate the data associated with the current escapement goal
         while filled circles indicate the data collected since. Vertical lines show the escapement
-      that maximizes sustained yield. The current escapement goal range
-        is shaded gray.", width = cap_width)
+        that maximizes sustained yield. The current escapement goal range (",
+        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
+        ") is shaded gray."), width = cap_width)
     )
 
   plot <-
