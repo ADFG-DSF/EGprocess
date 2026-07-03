@@ -9,6 +9,14 @@ goal_Igushik <-
     lb = c(150000, 150000, 150000),
     ub = c(250000, 300000, 400000)
   )
+
+goal_test <-
+  data.frame(
+    yr = c(1984, 2001, 2015),
+    lb = c(100000, 150000, 100000),
+    ub = c(NA, NA, NA)
+  )
+
 goal_Igushik_new <-
   data.frame(
     yr = c(1984, 2001, 2015, 2026),
@@ -27,6 +35,12 @@ plot_escapement(brood_Igushik,
        goal_Igushik,
        "Igushik River Sockeye Salmon"
 )
+
+plot_escapement(brood_Igushik,
+                goal_test,
+                "Igushik River Sockeye Salmon"
+)
+
 plot_escapement(brood_Igushik,
        goal_Igushik_new,
        "Igushik River Sockeye Salmon"
@@ -48,16 +62,17 @@ plot_SR(post_Igushik,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
+
 # No goal change, two analyses, unknown profile
 plot_SR(c(list('Brood years: 1963-2005' = c(lnalpha = 1.5, beta = 0.15, sigma = 0.5)),
-          'Brood years: 1963-2017' = post_Igushik_byr63_15),
+               post_Igushik_byr63_15),
         brood_Igushik,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon",
         multiplier = 1e-5)
 # No goal change, two analyses, unknown SR params
 plot_SR(list('Brood years: 1963-2005' = NULL,
-             'Brood years: 1963-2017' = c(lnalpha = 1.7, beta = 1.4e-6, sigma = 0.5)),
+             'Brood years: 1963-2015' = c(lnalpha = 1.7, beta = 1.4e-6, sigma = 0.5)),
         brood_Igushik,
         goal_dat = goal_Igushik,
         "Igushik River Sockeye Salmon")

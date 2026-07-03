@@ -20,13 +20,14 @@
 
 theme_eg <- function(base_size = 16, ...) {
   ggplot2::theme_bw(base_size = base_size) +
-  ggplot2::theme(text = ggplot2::element_text(family = "sans"),
+  ggplot2::theme(text = ggplot2::element_text(family = "serif"),
                  plot.caption = ggplot2::element_text(
                  hjust = 0,
-                 size = 10),
+                 size = 12),
                  plot.subtitle = ggplot2::element_text(size = 10),
                  plot.caption.position = "plot",
-                 legend.position = "none",
-                 plot.background = element_rect(colour = "black", fill = NA, linewidth = 0.25), # Outer border
-                 plot.margin = margin(5, 5, 5, 5)) # Space between plot and border
+                 plot.background = element_rect(colour = "black", fill = NA, linewidth = 0.25),
+                 plot.margin = margin(5, 5, 5, 5),
+                 legend.position = "bottom",
+                 legend.key.width = unit(1.2, "cm"))
 }

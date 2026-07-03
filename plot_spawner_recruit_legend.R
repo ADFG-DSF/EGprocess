@@ -1,44 +1,3 @@
-#' @title Spawner-Recruit Plot
-#' @description
-#' Produces a SR plot with an overlay of Smsy and the goal range.
-#'
-#' @param posterior_list A named list. Each element of the list contains simulations from the posterior
-#' distributions of lnalpha, beta, phi, and sigma (i.e. many possible values for each parameter). Names
-#' of each element describe the brood years included in the model that generated the posteriors
-#' and follows the convention "Brood year: XXXX-YYYY". In this function the posterior simulations
-#' can be replaced with point estimates derived from the posterior (input as a single row).
-#' @param brood_data A dataframe containing year (yr), Spawners (S), and Recruits (R)
-#' to be included in the plot. The dataframe should include years without empirical
-#' observations of S and R.
-#' @param goal_data  A dataframe containing calendar year (yr), the escapement goal
-#' lower bound (lb), and the escapement goal upper bound (ub). Only needs to
-#' include years where the goal changed. If the updated analysis resulted in a
-#' new escapement goal finding the new finding should be included in the table
-#' with the year set to the year the new escapement goal finding will take effect.
-#' Use `ub = NA` for lower bound SEGs.
-#' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
-#' @param new_finding TRUE / FALSE. Indicates whether a new escapement goal finding
-#' resulted from the updated escapement goal analysis. If TRUE, the escapement
-#' goal plotted will be brown, if FALSE the escapement goal plotted will be gray.
-#' @param multiplier The Shiny app uses a multiplier to scale beta. Input that here. Defaults to 1.
-#'
-#' @return A figure
-#'
-#' @import dplyr tibble tidyr ggplot2 stringr
-#' @importFrom magrittr %>%
-#' @importFrom scales comma
-#'
-#' @examples
-#'
-#' brood_Igushik <- get_brood(data = data_Igushik)
-#'
-#' post_Igushik <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
-#'
-#' plot_SR(posterior_list = post_Igushik, brood_data = brood_Igushik,
-#' goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", multiplier = 1e-5)
-#'
-#' @export
-
 plot_SR <- function(posterior_list,
                     brood_data,
                     goal_data,
@@ -75,19 +34,19 @@ plot_SR <- function(posterior_list,
   brood_labels <-
     if(length(posterior_list) == 1){
       gsub("(.*: )(\\d+-\\d+)", "\\2", names(posterior_list[1]))
-    }
-  else{c(
-    paste0(as.numeric(gsub(".*: (\\d+)-(\\d+)", "\\2", names(posterior_list[1]))) + 1, #broods added
-           "-",
-           gsub(".*: (\\d+)-(\\d+)", "\\2", names(posterior_list[2]))),
-    paste0(gsub(".*: (\\d+-\\d+)", "\\1", names(posterior_list[1]))), #current EG broods
-    paste0(gsub(".*: (\\d+-\\d+)", "\\1", names(posterior_list[2]))))} #all broods
+      }
+    else{c(
+      paste0(as.numeric(gsub(".*: (\\d+)-(\\d+)", "\\2", names(posterior_list[1]))) + 1,
+        "-",
+        gsub(".*: (\\d+)-(\\d+)", "\\2", names(posterior_list[2]))),
+        paste0(gsub(".*: (\\d+-\\d+)", "\\1", names(posterior_list[1]))),
+        paste0(gsub(".*: (\\d+-\\d+)", "\\1", names(posterior_list[2]))))}
 
   linetype_values = if(length(posterior_list) == 1){c("solid")}
-  else(if(sum(sapply(posterior_list, function(x) !is.null(x))) == 1){c(NA, NA, "solid")}
-       else(c(NA, "dashed", "solid")))
+    else(if(sum(sapply(posterior_list, function(x) !is.null(x))) == 1){c(NA, NA, "solid")}
+      else(c(NA, "dashed", "solid")))
   names(linetype_values) <- brood_labels
-  shape_values <- if(length(posterior_list) == 1){c(16)}else(c(16, 1, NA))
+  shape_values <- if(length(posterior_list) == 1){c(16)}else(c(1, 16, NA))
   names(shape_values) <- brood_labels
 
   byr_updated <-
@@ -118,8 +77,8 @@ plot_SR <- function(posterior_list,
            R = S * exp(lnalpha - beta * S)) %>%
     {if(length(posterior_list) == 2){bind_rows(., data.frame(Smsy = 1, S = 1, R = 1, broods = brood_labels[1]))}else(.)} %>%
     {if(length(posterior_list) == 2 & sum(sapply(posterior_list, function(x) !is.null(x)) == 1))
-    {bind_rows(., data.frame(Smsy = 1, S = 1, R = 1, broods = brood_labels[2]))}
-      else(.)}
+        {bind_rows(., data.frame(Smsy = 1, S = 1, R = 1, broods = brood_labels[2]))}
+        else(.)}
 
   goal_plot <- goal_data[dim(goal_data)[1], ]
   goal_plot$new_finding <- if(isTRUE(new_finding)){TRUE}else{FALSE}
@@ -132,7 +91,7 @@ plot_SR <- function(posterior_list,
     sum(sapply(posterior_list, function(x) !is.null(x))) == 2 ~ stringr::str_wrap("Curved lines show the
           estimated Ricker spawner-recruit relationships. Vertical lines show the escapements that
           maximizes sustained yield.", width = 85)
-  )
+    )
 
   ggplot2::ggplot(brood_data, ggplot2::aes(x = S, y = R)) +
     ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf, fill = new_finding),

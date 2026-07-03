@@ -1,30 +1,3 @@
-#' @title Historical Escapement Plot
-#' @description
-#' Produces a plot of historical escapements with an overlay of the goal range.
-#'
-#' @param brood_data A dataframe containing calendar year (yr) and escapement (S).
-#' @param goal_data  A dataframe containing calendar year (yr), the escapement goal
-#' lower bound (lb), and the escapement goal upper bound (ub). Only needs to
-#' include years where the goal changed. If the updated analysis resulted in a
-#' new escapement goal finding the new finding should be included in the table
-#' with the year set to the year that the new escapement goal finding will take effect.
-#' Use `ub = NA` for lower bound SEGs.
-#' @param title A character vector with the plot title. Suggest "X River, Y Salmon".
-#'
-#' @return A figure
-#'
-#' @import dplyr tibble tidyr ggplot2 stringr
-#' @importFrom magrittr %>%
-#' @importFrom rlang .data
-#'
-#' @examples
-#'
-#' brood_Igushik <- get_brood(data = data_Igushik)
-#'
-#' plot_escapement(brood_data = brood_Igushik, goal_data = goal_Igushik,
-#' title = "Igushik River Sockeye Salmon")
-#'
-#' @export
 plot_escapement <- function(brood_data,
                             goal_data,
                             title){
@@ -60,22 +33,16 @@ plot_escapement <- function(brood_data,
   cap <- case_when(
     max(goal_data$yr) <= max(brood_data$yr) & is.na(goal_data[dim(goal_data)[1], "ub"]) ~
       stringr::str_wrap(paste0("The curent escapement goal lower bound is ",
-                               format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "."),
-                        width = 85),
-    max(goal_data$yr) <= max(brood_data$yr)  ~
-      stringr::str_wrap(paste0("The curent escapement goal lower bound is ",
-                               format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-                               format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE), "."),
-                        width = 85),
+      format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "."), width = 85),
+    max(goal_data$yr) <= max(brood_data$yr)  ~  stringr::str_wrap(paste0("The curent escapement goal lower bound is ",
+      format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+      format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE), "."), width = 85),
     max(goal_data$yr) > max(brood_data$yr) & is.na(goal_data[dim(goal_data)[1], "ub"]) ~
       stringr::str_wrap(paste0("The new escapement goal lower bound finding is ",
-                               format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "."),
-                        width = 85),
-    max(goal_data$yr) > max(brood_data$yr) ~
-      stringr::str_wrap(paste0("The new escapement goal finding is ",
-                               format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-                               format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE), "."),
-                        width = 85)
+      format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "."), width = 85),
+    max(goal_data$yr) > max(brood_data$yr) ~ stringr::str_wrap(paste0("The new escapement goal finding is ",
+      format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
+      format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE), "."), width = 85)
   )
 
   brood_data %>%
@@ -104,5 +71,19 @@ plot_escapement <- function(brood_data,
 
 }
 
-# For backwards compatibility
-plot_S <- plot_escapement
+brood_lt10K <- brood_Igushik %>% mutate(across(S:R, function(x) x/1e3))
+goal_lt10K <- goal_Igushik %>% mutate(across(lb:ub, function(x) x/1e3))
+plot_escapement(brood_lt10K,
+                goal_lt10K,
+                "Igushik River Sockeye Salmon (scaled to lt 10K)"
+)
+brood_gt10K<- brood_Igushik %>% mutate(across(S:R, function(x) x/1e2))
+goal_gt10K<- goal_Igushik %>% mutate(across(lb:ub, function(x) x/1e2))
+plot_escapement(brood_gt10K,
+                goal_gt10K,
+                "Igushik River Sockeye Salmon (scaled to gt 10K)"
+)
+plot_escapement(brood_Igushik,
+                goal_Igushik,
+                "Igushik River Sockeye Salmon"
+)

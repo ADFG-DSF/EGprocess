@@ -1,0 +1,148 @@
+---
+title: "EGPIT Update, July 2 2026"
+format:
+  html:
+    embed-resources: true
+editor: visual
+---
+
+**Note: this markdown had become obsolete bc the package functions have been updated from the versions used prior to the meeting. Forgot to commit before some of those changes. HTML is the version presented. Recommend not rendering this file.**
+
+Comments from the May 7 meeting, James email, or the developers to do list are provided as heading below. Each heading is followed by an example for the figure modification.
+
+```{r, message = FALSE, warning = FALSE, include = FALSE}
+library(EGprocess)
+library(tidyverse)
+library(flextable)
+```
+
+### Make EG lines discontinuous (Done)
+
+### Add figure borders (Done)
+
+```{r, fig.width = 6, fig.height= 4}
+#| fig.format: png
+#| fig.dpi: 300
+brood_Igushik <- get_brood(run_data = data_Igushik)
+
+plot_escapement(brood_data = brood_Igushik, 
+                goal_data = goal_Igushik, 
+                title = "Igushik River Sockeye Salmon")
+```
+
+### Scale plot axes (Example developed)
+
+```{r, fig.width = 6, fig.height= 4}
+#| fig.format: png
+#| fig.dpi: 300
+
+source(".\\plot_escapement_scaled.R")
+plot_escapement(brood_data = brood_Igushik, 
+                goal_data = goal_Igushik, 
+                title = "Igushik River Sockeye Salmon")
+```
+
+```{r, fig.width = 6, fig.height= 4}
+#| fig.format: png
+#| fig.dpi: 300
+brood_lt10K <- brood_Igushik %>% mutate(across(S:R, function(x) x/1e3))
+goal_lt10K <- goal_Igushik %>% mutate(across(lb:ub, function(x) x/1e3))
+plot_escapement(brood_lt10K,
+                goal_lt10K,
+                "max escapement is below 10K"
+)
+```
+
+```{r, fig.width = 6, fig.height= 4}
+#| fig.format: png
+#| fig.dpi: 300
+brood_gt10K<- brood_Igushik %>% mutate(across(S:R, function(x) x/1e2))
+goal_gt10K<- goal_Igushik %>% mutate(across(lb:ub, function(x) x/1e2))
+plot_escapement(brood_gt10K,
+                goal_gt10K,
+                "max escapement is above 10K"
+)
+```
+
+### Figure caption improvements (Done)
+
+### Add EG range to figure captions (Done)
+
+```{r, fig.width = 6, fig.height= 5}
+#| fig.format: png
+#| fig.dpi: 300
+post_Igushik <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
+
+plot_ey(post_Igushik,
+        brood_Igushik,
+        goal_dat = goal_Igushik,
+        "Igushik River Sockeye Salmon",
+        multiplier = 1e-5)
+```
+
+```{r, fig.width = 6, fig.height= 5}
+#| fig.format: png
+#| fig.dpi: 300
+goal_imaginary <-
+  goal_Igushik %>%
+  bind_rows(
+    data.frame(yr = 2026,
+               lb = 175000,
+               ub = 500000)
+  )
+goal_imaginary
+
+plot_ey(post_Igushik,
+        brood_Igushik,
+        goal_dat = goal_imaginary,
+        "Imaginary River Sockeye Salmon",
+        new_finding = TRUE,
+        multiplier = 1e-5)
+```
+
+### Comment: Table CV's and referecne point rounding (Done)
+
+```{r}
+#| fig.format: png
+#| fig.dpi: 300
+table_SR(post_Igushik[2], title = "Igushik River Sockeye Salmon", multiplier = 1e-6)
+```
+
+### Comment: visual legends for presentations (example developed)
+
+```{r, fig.width = 6, fig.height= 6.5, fig.cap = "Relationship between escapement and recruitment and the spawning escapement that maximizes sustained yield for Igushik River Sockeye salmon."}
+#| fig.format: png
+#| fig.dpi: 300
+source(".\\plot_spawner_recruit_legend.R")
+# No goal change, single analysis
+plot_SR(post_Igushik[2],
+        brood_Igushik,
+        goal_dat = goal_Igushik,
+        "Igushik River Sockeye Salmon",
+        multiplier = 1e-5)
+```
+
+```{r, fig.width = 6, fig.height= 6.5, warning = FALSE}
+#| fig.format: png
+#| fig.dpi: 300
+# No goal change, two analyses
+plot_SR(post_Igushik,
+        brood_Igushik,
+        goal_dat = goal_Igushik,
+        "Igushik River Sockeye Salmon",
+        multiplier = 1e-5)
+```
+
+```{r, fig.width = 6, fig.height= 6.5, warning = FALSE}
+#| fig.format: png
+#| fig.dpi: 300
+#new finding
+plot_SR(post_Igushik,
+        brood_Igushik,
+        goal_dat = goal_imaginary,
+        "Imaginary River Sockeye Salmon",
+        new_finding = TRUE,
+        multiplier = 1e-5)
+```
+
+Plan to move towards a combination of visual and text legends for each figure. Also need to migrate all figures to Times New Roman.
