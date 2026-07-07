@@ -47,115 +47,145 @@ plot_ey <- function(posterior_list,
                     multiplier = 1){
 
   get_param50 <- function(post){
-    data.frame(beta = post[["beta"]] * multiplier,
-               lnalpha = post[["lnalpha"]],
-               phi = ifelse(names(post) %in% "phi", post[["phi"]], 0),
-               sigma = post[["sigma"]]) %>%
-      dplyr::summarise(beta = median(beta),
-                       lnalpha = median(lnalpha),
-                       phi = median(phi),
-                       sigma = median(sigma),
-                       Smsy = lnalpha / beta * (0.5 - 0.07 * lnalpha))
+    if(is.null(post)){}else{
+      data.frame(beta = post[["beta"]] * multiplier,
+                 lnalpha = post[["lnalpha"]],
+                 phi = ifelse(names(post) %in% "phi", post[["phi"]], 0),
+                 sigma = post[["sigma"]]) %>%
+        dplyr::summarise(beta = median(beta),
+                         lnalpha = median(lnalpha),
+                         phi = median(phi),
+                         sigma = median(sigma),
+                         Smsy = lnalpha / beta * (0.5 - 0.07 * lnalpha))
+    }
   }
 
-  if(length(posterior_list) == 2){param50_update <- get_param50(posterior_list[[2]])}
-  else{param50_update <- get_param50(posterior_list[[1]])}
-  if(length(posterior_list) == 2 & !is.null(posterior_list[[1]])){param50_last <- get_param50(posterior_list[[1]])}
+  brood_data <-
+    brood_data %>%
+    mutate(Y = R - S) %>%
+    dplyr::select(yr, S, Y) %>%
+    dplyr::filter(complete.cases(.))
+
+  upper_x <- max(brood_data$S, na.rm = TRUE) * 1.05
+  S_scale <- case_when(upper_x >= 1e6 ~ 1e6, upper_x >= 1e4 ~ 1e3, upper_x < 1e4 ~ 1)
+  S_symbol <- case_when(upper_x >= 1e6 ~ "M", upper_x >= 1e4 ~ "K", upper_x < 1e4 ~ "")
+  x_label <- case_when(upper_x >= 1e6 ~ "Escapement (millions)",
+                       upper_x >= 1e4 ~ "Escapement (thousands)",
+                       upper_x < 1e4 ~ "Escapement")
+
+  upper_y <- max(brood_data$Y, na.rm = TRUE) * 1.05
+  lower_y <- if(min(brood_data$Y) < 0){min(brood_data$Y) * 1.05} else{0}
+  Y_max <- max(c(lower_y, upper_y), na.rm = TRUE)
+  Y_scale <- case_when(Y_max >= 1e6 ~ 1e6, Y_max >= 1e4 ~ 1e3, Y_max < 1e4 ~ 1)
+  Y_symbol <- case_when(Y_max >= 1e6 ~ "M", Y_max >= 1e4 ~ "K", Y_max < 1e4 ~ "")
+  y_label <- case_when(Y_max >= 1e6 ~ "Recruitment (millions)",
+                       Y_max >= 1e4 ~ "Recruitment (thousands)",
+                       Y_max < 1e4 ~ "Recruitment")
+
+  brood_labels <-
+    if(length(posterior_list) == 1){
+      gsub("(.*: )(\\d+-\\d+)", "\\2", names(posterior_list[1]))
+    }
+  else{c(
+    paste0(as.numeric(gsub(".*: (\\d+)-(\\d+)", "\\2", names(posterior_list[1]))) + 1, #broods added
+           "-",
+           gsub(".*: (\\d+)-(\\d+)", "\\2", names(posterior_list[2]))),
+    paste0(gsub(".*: (\\d+-\\d+)", "\\1", names(posterior_list[1]))), #current EG broods
+    paste0(gsub(".*: (\\d+-\\d+)", "\\1", names(posterior_list[2]))))} #all broods
+
+  linetype_values = if(length(posterior_list) == 1){c("solid")}
+  else(if(sum(sapply(posterior_list, function(x) !is.null(x))) == 1){c(NA, NA, "solid")}
+       else(c(NA, "dashed", "solid")))
+  names(linetype_values) <- brood_labels
+  shape_values <- if(length(posterior_list) == 1){c(16)}else(c(16, 1, NA))
+  names(shape_values) <- brood_labels
 
   byr_updated <-
     if(length(posterior_list) == 2){as.numeric(gsub(".*: \\d+-(\\d+)", "\\1", names(posterior_list)[1]))}else{0}
   brood_data <-
     brood_data %>%
-    mutate(update = ifelse(yr > byr_updated, "updated", "existing"),
-           Y = R - S) %>%
-    dplyr::select(yr, S, Y, update) %>%
-    dplyr::filter(complete.cases(.))
+    mutate(broods = ifelse(yr > byr_updated & length(posterior_list) == 2,
+                           gsub("(.*: )(\\d+)(-\\d+)",
+                                paste0(as.numeric(gsub(".*: \\d+-(\\d+)", "\\1", names(posterior_list[1]))) + 1,
+                                       "\\3"),
+                                names(posterior_list[2])),
+                           gsub("(.*: )(\\d+-\\d+)", "\\2", names(posterior_list[1])))) %>%
+    {if(length(posterior_list) == 2){rbind(., data.frame(yr = NA, S = NA, Y = NA, broods = brood_labels[3]))}else(.)}
 
-  ymax <- max(brood_data$Y) * 1.05
-  ymin <- if(min(brood_data$Y) < 0){min(brood_data$Y) * 1.05} else{0}
-  xmax <- max(brood_data$S) * 1.05
+  params <-
+    lapply(posterior_list, get_param50) %>%
+    do.call(rbind, .) %>%
+    rownames_to_column() %>%
+    mutate(broods = gsub("(.*: )(\\d+-\\d+)", "\\2", rowname)) %>%
+    select(-rowname)
+
+  params_plot <-
+    params %>%
+    dplyr::slice(rep(1:n(), 10000)) %>%
+    mutate(S = seq(0, upper_x, length.out = 10000 * sum(sapply(posterior_list, function(x) !is.null(x)))),
+           R = S * exp(lnalpha - beta * S),
+           Y = R - S) %>%
+    {if(length(posterior_list) == 2){bind_rows(., data.frame(Smsy = 1, S = 1, RY = 1, broods = brood_labels[1]))}else(.)} %>%
+    {if(length(posterior_list) == 2 & sum(sapply(posterior_list, function(x) !is.null(x)) == 1))
+    {bind_rows(., data.frame(Smsy = 1, S = 1, Y = 1, broods = brood_labels[2]))}
+      else(.)}
+
+  goal_plot <- goal_data[dim(goal_data)[1], ]
+  goal_plot$new_finding <- if(isTRUE(new_finding)){TRUE}else{FALSE}
+  goal_plot$ub <- if(is.na(goal_plot$ub)){Inf}else(goal_plot$ub)
 
   cap_width = 85
-  cap <-
-    case_when(
-      length(posterior_list) == 2 & isTRUE(new_finding) ~ str_wrap(paste0("Note: Hollow circles and dotted lines
-        indicate the data and the estimate of median sustained yield associated with the current escapement goal
-        while filled circles and solid lines indicate the data collected since and the
-        estimate of median sustained yield from all available data. Vertical lines show the escapement
-        that maximizes sustained yield. The new escapement goal finding (",
-        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded brown."), width = cap_width),
-      length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 & isTRUE(new_finding) ~ str_wrap(
-        paste0("Note: Vertical lines show the escapement that maximizes sustained yield. The new escapement
-        goal finding (",
-        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded brown."), width = cap_width),
-      length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 & isTRUE(new_finding) ~ str_wrap(
-        paste0("Note: Hollow circles indicate the data associated with the current escapement goal
-        while filled circles indicate the data collected since. Vertical lines show the escapement
-        that maximizes sustained yield. The new escapement goal finding (",
-        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded brown."), width = cap_width),
-      length(posterior_list) == 2 ~ str_wrap(paste0("Note: Hollow circles and dotted lines indicate the data and the
-        estimate of median sustained yield associated with the current escapement goal, while filled circles
-        and solid lines indicate the data collected since and the estimate of median sustained yield from all
-        available data. Vertical lines show the escapement that maximizes sustained yield. The current
-        escapement goal range (",
-        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded gray."), width = cap_width),
-      length(posterior_list) != 2 & sum(brood_data$update == "existing") == 0 ~ str_wrap(paste0(
-        "Note: Vertical lines show the escapement that maximizes sustained yield. The current escapement
-        goal range (",
-        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded gray."), width = cap_width),
-      length(posterior_list) != 2 & sum(brood_data$update == "updated") > 0 ~ str_wrap(paste0(
-        "Note: Hollow circles indicate the data associated with the current escapement goal
-        while filled circles indicate the data collected since. Vertical lines show the escapement
-        that maximizes sustained yield. The current escapement goal range (",
-        format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded gray."), width = cap_width)
-    )
+  cap <- case_when(
+    sum(sapply(posterior_list, function(x) !is.null(x))) == 1 ~ stringr::str_wrap("The curved line shows
+          estimated median sustained yield. The vertical line show the escapement that
+          maximizes sustained yield.", width = 85),
+    sum(sapply(posterior_list, function(x) !is.null(x))) == 2 ~ stringr::str_wrap("Curved lines show
+          estimated median sustained yields. Vertical lines show the escapements that
+          maximize sustained yield.", width = 85)
+  )
 
-  plot <-
-    ggplot2::ggplot(brood_data, aes(x = S, y = Y)) +
-    ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf),
-                       data = goal_data[dim(goal_data)[1], ],
-                       inherit.aes = FALSE,
-                       fill = if(isTRUE(new_finding)){"#AB7E4C"}else{"gray80"},#BD9A7A
-                       alpha = 0.5) +
-    ggplot2::geom_point(aes(shape = update), size = 2) +
-    ggplot2::stat_function(fun=function(x){(x * exp(param50_update$lnalpha - param50_update$beta * x) - x)},
-                           linewidth = 1,
-                           linetype = "solid",
-                           xlim = c(0, xmax)) +
-    ggplot2::geom_hline(yintercept = 0, linewidth = 0.5, linetype = "11") +
-    ggplot2::geom_vline(xintercept = param50_update$Smsy, linetype = "solid", linewidth = 0.5) +
-    ggplot2::scale_x_continuous(labels = scales::comma) +
-    ggplot2::scale_y_continuous(labels = scales::comma) +
-    ggplot2::scale_color_manual(guide = "none", values = "black") +
-    ggplot2::scale_shape_manual(values = c("updated" = 16, "existing" = 1)) +
-    ggplot2::coord_cartesian(xlim = c(0, xmax), ylim = c(ymin, ymax)) +
-    ggplot2::labs(title = title,
-                  subtitle = paste0("Brood Years:", min(brood_data$yr), " - ", max(brood_data$yr)),
-                  x = "Escapement",
-                  y = "Yield",
-                  caption = cap) +
+  ggplot2::ggplot(brood_data, ggplot2::aes(x = S, y = Y)) +
+    ggplot2::geom_rect(ggplot2::aes(xmin = lb, xmax = ub, ymin = -Inf, ymax = Inf, fill = new_finding),
+                       data = goal_plot,
+                       alpha = 0.5,
+                       inherit.aes = FALSE) +
+    ggplot2::geom_point(aes(shape = broods), size = 2) +
+    ggplot2::geom_line(aes(linetype = broods), params_plot) +
+    ggplot2::geom_hline(yintercept = 1, linewidth = 0.5, linetype = "11") +
+    ggplot2::geom_vline(aes(xintercept = Smsy, linetype = broods), params, linewidth = 0.5, show.legend = FALSE) +
+    ggplot2::scale_x_continuous(minor_breaks = NULL,
+                                labels = scales::label_number(scale = 1 / S_scale,
+                                                              big.mark = ",",
+                                                              suffix = S_symbol)) +
+    ggplot2::scale_y_continuous(minor_breaks = NULL,
+                                labels = scales::label_number(scale = 1 / Y_scale,
+                                                              big.mark = ",",
+                                                              suffix = Y_symbol)) +
+    ggplot2::coord_cartesian(xlim = c(0, upper_x), ylim = c(lower_y, upper_y)) +
+    ggplot2::scale_shape_manual(values = shape_values) +
+    ggplot2::scale_linetype_manual(values = linetype_values) +
+    ggplot2::scale_fill_manual(
+      name = if(isTRUE(new_finding)){"New EG finding"}else("Current EG"),
+      values = c("TRUE" = "#AB7E4C", "FALSE" = "gray80"),
+      labels =
+        if(is.infinite(goal_plot$ub)){
+          paste0(format(goal_plot$lb, big.mark = ",", scientific = FALSE),
+                 " +")
+        }
+        else{
+          paste0(format(goal_plot$lb, big.mark = ",", scientific = FALSE),
+                 " - ",
+                 format(goal_plot$ub, big.mark = ",", scientific = FALSE))
+          }
+          ) +
+    ggplot2::guides(
+      shape = guide_legend(title = "Brood years", direction = "vertical", ncol = 1, order = 1, override.aes = list(size = 4)),
+      fill = guide_legend(direction = "vertical", ncol = 1, order = 2),
+      linetype = guide_legend(title = "Brood years", direction = "vertical", ncol = 1, order = 1)) +
+    ggplot2::labs(
+      title = title,
+      x = x_label,
+      y = y_label,
+      caption = cap) +
     theme_eg()
-
-
-  if(length(posterior_list) == 2 & !is.null(posterior_list[[1]])){
-    plot +
-      ggplot2::stat_function(fun=function(x){(x * exp(param50_last$lnalpha - param50_last$beta * x) - x)},
-                             linetype = "dashed",
-                             linewidth = 0.5,
-                             xlim = c(0, xmax)) +
-      ggplot2::geom_vline(xintercept = param50_last$Smsy, linewidth = 0.5, linetype = "dashed")
-  }
-  else(plot)
 }

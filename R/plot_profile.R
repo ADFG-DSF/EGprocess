@@ -62,9 +62,15 @@ plot_profile <- function(profile_list,
   n_goals <- if(new_finding == TRUE & n_analyses == 2){2}else{1}
 
   if(is.null(limit)){
-    xmax <- S.msy50 * 2.25
+    upper_x <- S.msy50 * 2.25
   }
-  else xmax <- limit
+  else upper_x <- limit
+
+  S_scale <- case_when(upper_x >= 1e6 ~ 1e6, upper_x >= 1e4 ~ 1e3, upper_x < 1e4 ~ 1)
+  S_symbol <- case_when(upper_x >= 1e6 ~ "M", upper_x >= 1e4 ~ "K", upper_x < 1e4 ~ "")
+  x_label <- case_when(upper_x >= 1e6 ~ "Escapement (millions)",
+                       upper_x >= 1e4 ~ "Escapement (thousands)",
+                       upper_x < 1e4 ~ "Escapement")
 
   goal_plot<-
     goal_data %>%
@@ -72,66 +78,25 @@ plot_profile <- function(profile_list,
     mutate(new_finding = if(n_goals == 1){new_finding}else(c(FALSE, new_finding)))
   goal_plot <- if(n_goals < n_analyses){slice(goal_plot, rep(1, 2))}else{goal_plot}
   goal_plot$profile = names(profile_list)
+  goal_plot$ub <- ifelse(is.na(goal_plot$ub), Inf, goal_plot$ub)
+  goal_plot$label <- ifelse(is.infinite(goal_plot$ub),
+    paste0(format(goal_plot$lb, big.mark = ",", scientific = FALSE)," +"),
+    paste0(format(goal_plot$lb, big.mark = ",", scientific = FALSE),
+           " - ",
+           format(goal_plot$ub, big.mark = ",", scientific = FALSE)))
 
   cap_width = 85
   cap <-
     case_when(
-      max(n_OYP) == 1 & new_finding == FALSE ~ stringr::str_wrap(paste0(
-        "Note: Optimal Yield Profiles (OYP)
-        show the probability (under historical productivity) of achieving 90%
+      max(n_OYP) == 1 ~ stringr::str_wrap(
+        "The curved line shows the probability (under historical productivity) of achieving at least 90%
         of maximum sustained yield (MSY) relative to the number of salmon
-        escaped. The current escapement goal range (",
-        format(goal_plot[dim(goal_plot)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_plot[dim(goal_plot)[1], "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded gray."), width = cap_width),
-      max(n_OYP) == 2 & new_finding == FALSE ~ stringr::str_wrap(paste0(
-        "Note: Optimal Yield Profiles (OYP) show the probability (under historical
-               productivity) of achieving ",
+        escaped.", width = cap_width),
+      max(n_OYP) == 2 ~ stringr::str_wrap(paste0(
+        "The curved lines show the probability (under historical productivity) of achieving at least ",
         pct_alternate,
-        "% (thin line) and 90% (thick line) of maximum sustained yield (MSY)
-        relative to the number of salmon escaped. The current escapement goal range (",
-        format(goal_plot[dim(goal_plot)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_plot[dim(goal_plot)[1], "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded grey."), width = cap_width),
-      max(n_OYP) == 1 & n_analyses == 1 & new_finding == TRUE ~ stringr::str_wrap(paste0(
-      "Note: Optimal Yield Profiles (OYP)
-        show the probability (under historical productivity) of achieving 90%
-        of maximum sustained yield (MSY) relative to the number of salmon
-        escaped. The new escapement goal finding (",
-        format(goal_plot[dim(goal_plot)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_plot[dim(goal_plot)[1], "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded brown."), width = cap_width),
-      max(n_OYP) == 2 & n_analyses == 1 & new_finding == TRUE ~ stringr::str_wrap(paste0(
-        "Note: Optimal Yield Profiles (OYP) show the probability (under historical
-               productivity) of achieving ",
-        pct_alternate,
-        "% (thin line) and 90% (thick line) of maximum sustained yield (MSY)
-        relative to the number of salmon escaped. The new escapement goal finding (",
-        format(goal_plot[dim(goal_plot)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_plot[dim(goal_plot)[1], "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded brown."), width = cap_width),
-      max(n_OYP) == 1 & n_analyses == 2 & new_finding == TRUE ~ stringr::str_wrap(paste0(
-        "Note: Optimal Yield Profiles (OYP) show the probability (under historical
-        productivity) of achieving 90% of maximum sustained yield (MSY)
-        relative to the number of salmon escaped. The current escapement goal range (",
-        format(goal_plot[1, "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_plot[1, "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded grey while the new escapement goal finding (",
-        format(goal_plot[2, "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_plot[2, "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded brown."), width = cap_width),
-      max(n_OYP) == 2 & n_analyses == 2 & new_finding == TRUE ~ stringr::str_wrap(paste0(
-        "Note: Optimal Yield Profiles (OYP) show the probability (under historical
-               productivity) of achieving ",
-        pct_alternate,
-        "% (thin line) and 90% (thick line) of maximum sustained yield (MSY)
-        relative to the number of salmon escaped. The current escapement goal range (",
-        format(goal_plot[1, "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_plot[1, "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded grey while the new escapement goal finding (",
-        format(goal_plot[2, "lb"], big.mark = ",", scientific = FALSE), "-",
-        format(goal_plot[2, "ub"], big.mark = ",", scientific = FALSE),
-        ") is shaded brown."), width = cap_width),
+        " or 90% of maximum sustained yield (MSY) relative to the number of salmon escaped."),
+        width = cap_width)
     )
 
   wrap_labels <- function(labels) {
@@ -165,7 +130,7 @@ plot_profile <- function(profile_list,
   lapply(1:length(profile_list), function(x) mutate(profile_list[[x]], profile = names(profile_list)[x])) %>%
     do.call(rbind, .) %>%
     dplyr::group_by(s) %>%
-    dplyr::filter(s <= xmax) %>%
+    dplyr::filter(s <= upper_x) %>%
     #tidyr::gather("key", "prob", -s, -S.msy, -SY, - profile, factor_key = TRUE) %>%
     pivot_longer(cols = -c(s, S.msy, SY, profile),names_to  = "key",values_to = "prob") %>%
     #names_transform = list(key = forcats::fct_inorder) # insert in case things break in future
@@ -182,24 +147,31 @@ plot_profile <- function(profile_list,
                           linetype = "11",
                           linewidth = 0.5) +
     ggplot2::facet_grid(profile ~ ., labeller = labeller(.rows = wrap_labels)) +
-    #ggplot2::scale_x_continuous(limits = c(0, xmax), labels = scales::comma) +
+    ggplot2::scale_x_continuous(minor_breaks = NULL,
+                                labels = scales::label_number(scale = 1 / S_scale,
+                                                              big.mark = ",",
+                                                              suffix = S_symbol)) +
     ggplot2::scale_y_continuous(breaks = seq(0, 1, 0.2), limits = c(0, 1)) +
     ggplot2::scale_linetype_manual(values = if(n_analyses == 2){c("dashed", "solid")}else("solid")) +
-    ggplot2::scale_linewidth_manual(values = if(max(n_OYP) == 2){c(0.5, 1)}else(1)) +
-    ggplot2::scale_fill_manual(breaks = c(TRUE, FALSE), values = c("#AB7E4C", "grey80")) +
+    ggplot2::scale_linewidth_manual(
+      name = "Target Yield",
+      values = if(max(n_OYP) == 2){c(0.5, 1)}else{1},
+      labels = if(max(n_OYP) == 2){
+        c(paste0("\u2265 ", pct_alternate, "% of MSY"),
+          "\u2265 90% of MSY")}else{
+        "\u2265 90% of MSY"}) +
+    ggplot2::scale_fill_manual(
+      name = if(isTRUE(new_finding)){"New EG finding"}else("Current EG"),
+      values = c("TRUE" = "#AB7E4C", "FALSE" = "gray80"),
+      labels = goal_plot$label) +
+    ggplot2::guides(
+      fill = guide_legend(direction = "vertical", ncol = 1, order = 2),
+      linewidth = guide_legend(direction = "vertical", ncol = 1, order = 1),
+      linetype = "none") +
     ggplot2::labs(
                   title = title,
                   x = "Escapement",
                   y = "Probability",
                   caption = cap) +
-    theme_eg() +
-    ggplot2::theme(strip.text.x = element_text(hjust = 0.5),
-                   strip.text.y = element_text(angle = 0, hjust = 0.5)) +
-    {if(labelK==TRUE){
-      ggplot2::scale_x_continuous(limits = c(0, xmax),
-                                  labels = scales::label_number(scale = 1 / 1e3, big.mark = ",", suffix = "K"))
-    }
-      else{
-        ggplot2::scale_x_continuous(limits = c(0, xmax), labels = scales::comma)
-      }}
+    theme_eg()
 }

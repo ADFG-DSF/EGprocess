@@ -123,6 +123,7 @@ plot_SR <- function(posterior_list,
 
   goal_plot <- goal_data[dim(goal_data)[1], ]
   goal_plot$new_finding <- if(isTRUE(new_finding)){TRUE}else{FALSE}
+  goal_plot$ub <- if(is.na(goal_plot$ub)){Inf}else(goal_plot$ub)
 
   cap_width = 85
   cap <- case_when(
@@ -131,7 +132,7 @@ plot_SR <- function(posterior_list,
           maximizes sustained yield.", width = 85),
     sum(sapply(posterior_list, function(x) !is.null(x))) == 2 ~ stringr::str_wrap("Curved lines show the
           estimated Ricker spawner-recruit relationships. Vertical lines show the escapements that
-          maximizes sustained yield.", width = 85)
+          maximize sustained yield.", width = 85)
   )
 
   ggplot2::ggplot(brood_data, ggplot2::aes(x = S, y = R)) +
@@ -158,10 +159,16 @@ plot_SR <- function(posterior_list,
       name = if(isTRUE(new_finding)){"New EG finding"}else("Current EG"),
       values = c("TRUE" = "#AB7E4C", "FALSE" = "gray80"),
       labels =
-        paste0(
-          format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE),
-          "-",
-          format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE))) +
+        if(is.infinite(goal_plot$ub)){
+          paste0(format(goal_plot$lb, big.mark = ",", scientific = FALSE),
+                 " +")
+        }
+      else{
+        paste0(format(goal_plot$lb, big.mark = ",", scientific = FALSE),
+               " - ",
+               format(goal_plot$ub, big.mark = ",", scientific = FALSE))
+      }
+    ) +
     ggplot2::guides(
       shape = guide_legend(title = "Brood years", direction = "vertical", ncol = 1, order = 1, override.aes = list(size = 4)),
       fill = guide_legend(direction = "vertical", ncol = 1, order = 2),

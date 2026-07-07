@@ -9,19 +9,23 @@ goal_Igushik <-
     lb = c(150000, 150000, 150000),
     ub = c(250000, 300000, 400000)
   )
-
-goal_test <-
-  data.frame(
-    yr = c(1984, 2001, 2015),
-    lb = c(100000, 150000, 100000),
-    ub = c(NA, NA, NA)
-  )
-
 goal_Igushik_new <-
   data.frame(
     yr = c(1984, 2001, 2015, 2026),
     lb = c(150000, 150000, 150000, 200000),
     ub = c(250000, 300000, 400000, 500000)
+  )
+goal_Igushik_lbSEG <-
+  data.frame(
+    yr = c(1984, 2001, 2015),
+    lb = c(100000, 150000, 100000),
+    ub = c(NA, 300000, NA)
+  )
+goal_Igushik_lbSEG_new <-
+  data.frame(
+    yr = c(1984, 2001, 2015, 2026),
+    lb = c(100000, 150000, 100000, 150000),
+    ub = c(NA, 300000, NA, 350000)
   )
 
 # Combine profiles list of profiles
@@ -37,7 +41,7 @@ plot_escapement(brood_Igushik,
 )
 
 plot_escapement(brood_Igushik,
-                goal_test,
+                goal_lbSEG,
                 "Igushik River Sockeye Salmon"
 )
 
@@ -90,6 +94,13 @@ plot_SR(post_Igushik[2],
         "Igushik River Sockeye Salmon",
         new_finding = TRUE,
         multiplier = 1e-5)
+# lbSEG
+plot_SR(post_Igushik,
+        brood_Igushik,
+        goal_dat = goal_Igushik_lbSEG,
+        "Igushik River Sockeye Salmon",
+        new_finding = TRUE,
+        multiplier = 1e-5)
 
 table_SR(post_Igushik[2], title = "Igushik River Sockeye Salmon", multiplier = 1e-6)
 
@@ -133,6 +144,22 @@ plot_ey(post_Igushik[2],
         "Igushik River Sockeye Salmon",
         new_finding = TRUE,
         multiplier = 1e-5)
+# lbSEG
+plot_ey(post_Igushik,
+        brood_Igushik,
+        goal_dat = goal_Igushik_lbSEG,
+        "Igushik River Sockeye Salmon",
+        new_finding = TRUE,
+        multiplier = 1e-5)
+# lbSEG
+plot_ey(post_Igushik,
+        brood_Igushik,
+        goal_dat = goal_Igushik_lbSEG,
+        "Igushik River Sockeye Salmon",
+        new_finding = FALSE,
+        multiplier = 1e-5)
+
+
 
 # no goal change
 plot_profile(profile_list[2],
@@ -171,6 +198,18 @@ plot_profile(profile_list,
 
 plot_profile(profile_list80,
              goal_Igushik_new,
+             "Igushik River Sockeye Salmon",
+             new_finding = TRUE
+)
+# lbSEG
+plot_profile(profile_list,
+             goal_Igushik_lbSEG,
+             "Igushik River Sockeye Salmon",
+             new_finding = FALSE
+)
+
+plot_profile(profile_list80,
+             goal_Igushik_lbSEG_new,
              "Igushik River Sockeye Salmon",
              new_finding = TRUE
 )
