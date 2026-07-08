@@ -27,22 +27,22 @@ library(tidyverse)
 
 # Introduction and Motivation
 
-The `EGprocess` package provides R code to support ADF&G staff in production of the figures and tables required during the tri-annual ADF&G escapement goal review process[^1]. Use of this package will allow staff from both ADF&G fisheries divisions, and all regions within both divisions, to present standardized figures and tables during the escapement goal review process internally, to stakeholders and to BOF members. By utilizing standardized presentations of similar information reviewers can minimize the time spent orienting themselves to how the information is presented and maximize time spend understanding the information presented.
+The `EGprocess` package provides R code to support ADF&G staff in production of the figures and tables required during the tri-annual ADF&G escapement goal review process[^1]. Use of this package will allow staff from both ADF&G fisheries divisions, and all regions within both divisions, to present standardized figures and tables during the escapement goal review process internally, to stakeholders and to BOF members. By utilizing standardized presentations of similar information reviewers can minimize the time spent orienting themselves to how the information is presented and maximize time spend understanding the information presented. This vignette is the first in a series describing use of the `EGprocess` package. Familiar users may want to refer to vignettes about [standard usage](EGprocess-Standard_process.html) or [special cases](EGprocess-Special_cases.html).
 
 [^1]: As described in "link to ADF&G report".
 
-Every salmon escapement goal in the State of Alaska is reviewed triennially synchronous with the BOF meeting cycle for each geographic area or region. The escapement goal review process is marked by 3 steps which are helpful to define before describing the use of the `EGprocess` package. The process begins with a **review** of all escapement goals in the area where ADF&G staff identify escapement goals where any factors associated with the stock, the fishery or the stock assessment have changed since the last time the escapement goal was modified. Some or all of the identified goals are then **updated** by compiling the stock assessment information accumulated since the last update and reanalyzing that complete dataset. After an analysis is updated the department makes a **finding** based on the updated analysis. Escapement goal findings can communicate a wide range of changes:
+Every salmon escapement goal in the State of Alaska is reviewed triennially synchronous with the BOF meeting cycle for each geographic area or region. The escapement goal review process is marked by 3 steps which are helpful to define before describing the use of the `EGprocess` package. The process begins with a **review** of all escapement goals in the area where ADF&G staff identify escapement goals where any factors associated with the stock, the fishery, or the stock assessment have changed since the last time the escapement goal was modified. Some or all of the identified goals are then **updated** by compiling the stock assessment information accumulated since the last update and reanalyzing that complete dataset. After an analysis is updated the department makes a **finding** based on the updated analysis. Escapement goal findings can communicate a wide range of changes:
 
--   *No change*: When the existing escapement goal range is deemed appropriate
+-   *No change*: When the current escapement goal range is deemed appropriate
 -   *Change to goal type*: Change from an SEG, lower bound SEG, or BEG to another type
 -   *Change the goal range*: Change the bounds of the escapement goal 
 -   *Remove the goal*: When a escapement goal is no longer appropriate
 
 `EGprocess` is intended to standardize the presentation of updated analyses. Typically, updated analyses are followed by one of the first 3 findings listed above.
 
-In Alaska, most salmon stocks have existing escapement goals and those escapement goals bounds are the result of extensive negotiations that account for not only the information about how to maximize sustained yield provided by the analysis but also concerns about stock status or data quality that are poorly reflected in the analysis and/or concerns from management staff about how to most effectively persecute the fishery. For these reasons, it is most helpful to consider how the updated escapement goal analysis changes our interpretation of the existing goal rather than using the updated analysis to develop an new escapement goal finding naively. For these reasons `EGprocess` includes features allowing for comparison between analyses and goals. 
+In Alaska, most salmon stocks have existing escapement goals and those escapement goals bounds are the result of extensive negotiations that account for not only the information about how to maximize sustained yield provided by the analysis but also concerns about stock status or data quality that are poorly reflected in the analysis and/or concerns from management staff about how to most effectively persecute the fishery. Because all of these factors are incorporated in the current escapement goal, it is most helpful to consider how the updated escapement goal analysis changes our interpretation of the existing goal rather than using the updated analysis to develop an new escapement goal finding naively. For these reasons `EGprocess` includes features allowing for comparison between analyses and goals. 
 
-In addition to a common language about the escapement goal process it's helpful to have a common language about the analyses and goal being considered during the process. The **current** escapement goal is the BEG, SEG or lower bound SEG currently in use for management of the fishery. The current goal was adopted based on a department finding supported by an earlier analysis, which we refer to as the **original** analysis, since our reference point is relative the **updated** analysis just conducted. Recall that an updated analysis does not imply a change to the escapement current goal, but when it does the new goal range will be refered to as a **new** escapement goal finding.
+In addition to a common language about the escapement goal process it's helpful to have a common language about the analyses and goal being considered during the process. The **current** escapement goal is the BEG, SEG or lower bound SEG currently in use for management of the fishery. The current goal was adopted based on a department finding supported by an earlier analysis, which we refer to as the **original** analysis, since our reference point is relative the **updated** analysis just conducted. Recall that an updated analysis does not imply a change to the escapement current goal, but when it does the new goal range will be refered to as a **new** escapement goal **finding**.
 
 # Organization
 
@@ -54,7 +54,7 @@ In addition to a common language about the escapement goal process it's helpful 
 
 ### data_Igushik
 
-`data_Igushik` is the "Run" data ADF&G staff provided to the Shiny app to conduct the escapement goal analysis. It contains historical escapements, run sizes and age composition. When the Igushik River Sockeye salmon analysis was updated prior to the 2026 BOF meeting the input data contained escapement (`S`), run (harvest + escapement, `N`) and run by age estimates (`A3`-`A8`) from the 1996 - 2023 seasons.
+`data_Igushik` is the "Run" data ADF&G staff provided to the Shiny app to conduct the escapement goal analysis. It contains historical escapements, total run sizes and run sizes by age. When the Igushik River Sockeye salmon analysis was updated prior to the 2026 BOF meeting the input data contained escapement (`S`), run (harvest + escapement, `N`) and run by age (`A3`-`A8`) estimates from the 1996 - 2023 seasons.
 
 ```{r}
 #Showing only the first and last 5 rows to save space.
@@ -70,7 +70,7 @@ tail(data_Igushik)
 
 [^4]: Ideally, the exact posterior would be available. That does not seem to be the case here but one benefit of standardizing the escapement goal review process is the we can identify these needs and aspire to archive them in the future. `post_Igushik_byr63_05` in included so the ideal escapement goal review process can be presented while demonstrating the use of `EGprocess`.
 
-`EGprocess` expects posterior data to be provided as a named list where the name follows the convention 'Brood years: xxxx-yyyy'. This is important because without this information posterior distributions are indistinguishable. `EGprocess` capitalizes on this naming convention by utilizing the name and/or brood year information in the label and presentation of tables and plots.
+`EGprocess` expects posterior data to be provided as a named list where the name follows the convention 'Brood years: xxxx-yyyy'. This is important because without this information posterior distributions are indistinguishable. `EGprocess` capitalizes on this naming convention by utilizing the name to label empirical data and statistical outputs by brood year in tables and plots.
 
 ```{r}
 str(post_Igushik_byr63_05)
@@ -111,13 +111,13 @@ Functions within the `EGprocess` package use prefixes to identify their intent:
 -   `table_`: Create tables
     -   `table_SR`: Spawner-recruit parameters table
 -   `output_`: Wrapper which combines `plot_` and `table_` functions typically called together.
-    -`  output_SR`: Outputs the historical escapement plot, Spawner-Recruit relationship plot, expected yield plot, Optimal yield profile plot, and Spawner-Recruit parameter table as a single list.
+    -`  output_SR`: Outputs the historical escapement plot, spawner-recruit relationship plot, expected yield plot, Optimal yield profile plot, and spawner-recruit parameter table as a single list.
 
 R functions use the syntax `function(argument1, argument2, argument3, exc.)`. In all `EGprocess` functions the first several arguments reference the data being plotted and can be identified by the suffix `_list` or `_data` where the suffix indicates the data type expected[^5]. Plot and table functions have been coordinated to rely on similar arguments to the extent possible.
 
 [^5]: Named lists are expected for arguments with the _list suffix and dataframes are expected for arguments with the _data suffix.
 
-```{r args, fig.cap = "Data arguments utilized by the primary plotting functions.", fig.height = 3, echo = FALSE}
+```{r, args, fig.height = 3, echo = FALSE}
 funs <- getNamespaceExports("EGprocess")
 lapply(funs, formals) %>%
   setNames(funs) %>%
@@ -146,16 +146,18 @@ lapply(funs, formals) %>%
   geom_tile() +
   scale_fill_continuous(guide = NULL) +
   scale_y_discrete(limits = rev) +
-  labs(x = "Argument Name", y = "Function Name")
+  labs(title = "EGprocess table and figure function arguments",
+       x = "Argument Name", 
+       y = "Function Name")
 ```
 
-### brood_data
+### get_age & get_brood
 
-`EGprocess` contains helper functions[^]6 to create a brood table from "Run" type data. Two functions are included. The function `get_age` accepts "Run" data as an input and outputs "Run" data in the same format after modifying the age composition by censoring or combining extreme ages. This function is not needed if age composition information was not combined or censored during the escapement goal analysis, as was the case for Igushik River Sockeye salmon.
+`EGprocess` contains helper functions[^6] to create a brood table from "Run" type data input into the ADF&G shiny app.  Two functions are included. The function `get_age` accepts "Run" data as an input and outputs "Run" data in the same format after modifying the age composition by censoring or combining extreme ages. This function is not needed if age composition information was not combined or censored during the escapement goal analysis, as was the case for Igushik River Sockeye salmon.
 
 The function `get_brood` creates the brood table. Notice that the results is 'jagged' and includes escapements (`S`), recruits (`R`) and return-by-age (`b.Age#`) which were not observed. For example, the Igushik River Sockeye salmon analysis update conducted prior to the 2026 BOF meeting utilized escapement information through 2023 but only had recruitment through 2015 because 8 year old fish from the 2015 escapement were not observed until 2023.
 
-[^6]: `get_age` and `get_brood` are included for analyses ran prior to May 2026. After May 2026 the brood table can be retrived directly from the rds file output buy the *Download Jags* button.
+[^6]: `get_age` and `get_brood` are included for analyses ran prior to May 2026. After May 2026 the brood table can be retrieved directly from the rds file output buy the *Download Jags* button.
 
 ```{r}
 # make brood table
@@ -166,11 +168,24 @@ head(brood_Igushik, n = 12)
 tail(brood_Igushik, n = 12)
 ```
 
-
-### profile_list
+### get_profile
 
 `plot_profile` requires the `profile_list` argument which is a derivative of the `posterior data` files described above. A helper function is provided to create `profile_list` from `posterior_data`. The function `get_priofle` can accept either 1 or 2 item lists as input and will provide an output list of the same size. 
 
 ```{r}
 profile_Igushik_list <- get_profile(post_Igushik_list, multiplier = 1e-5)
+```
+
+### get_escapement
+
+Most of the functions included in `EGprocess` are applicable to escapement goal updates associated with spawner-recruit analyses. One exception is the function `plot_escapement` which shows historical escapements overlain with current and historical escapement goal ranges and is a suggested figure when any escapement goal is updated during the escapement goal review process. We will use `plot_escapement` herein to demonstrate the use of a `EGprocess` plotting function.
+
+To create the output the user needs to present the function with 2 datasets: one including the calendar years and escapements to be plotted[^7] and a second including a chronological list of each year the escapement goal changed and the appropriate lower and upper bounds established at each change.
+
+[^7]: A brood table will satisfy this requirement but so with any data.frame with columns `yr` and `S`.
+
+```{r plot_S, fig.width = 6, fig.height= 5}
+plot_escapement(brood_data = brood_Igushik, 
+                goal_data = goal_Igushik, 
+                title = "Igushik River Sockeye Salmon")
 ```

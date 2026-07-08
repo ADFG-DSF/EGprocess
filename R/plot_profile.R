@@ -170,7 +170,7 @@ plot_profile <- function(profile_list,
       linetype = "none") +
     ggplot2::labs(
                   title = title,
-                  x = "Escapement",
+                  x = x_label,
                   y = "Probability",
                   caption = cap) +
     theme_eg()

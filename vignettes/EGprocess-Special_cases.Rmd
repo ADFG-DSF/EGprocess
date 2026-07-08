@@ -28,7 +28,7 @@ library(flextable)
 
 # Overview
 
-This vignette is the third in a series describing use of the `EGprocess` package. Unfamilar users may want to refer to vignettes about [package structure ](EGprocess-Orientation.html) or [standard usage](EGprocess-Standard-process.html) before digesting the special use cases described here.
+This vignette is the third in a series describing use of the `EGprocess` package and covers special use cases which arise during the escapement goal review process. New users may want to refer to vignettes about [package structure ](EGprocess-Orientation.html) or [standard usage](EGprocess-Standard-process.html) before digesting the special use cases described here.
 
 # Figure Modifications {.tabset}
 

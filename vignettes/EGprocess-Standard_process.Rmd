@@ -26,107 +26,42 @@ library(tidyverse)
 library(flextable)
 ```
 
+This vignette is the second in a series describing use of the `EGprocess` package and covers common situations which arise when updating an escapement goal. New users may want to refer to the vignette about [package structure](EGprocess-Orientation.html). Advanced users may want to refer to the vignette about [special cases](EGprocess-Special_cases.html).
+
 # Overview
 
 In addition to standardizing common tables and figures between regions and divisions, `EGprocess` also attempts to standardize information and visual reference points between figures that are typically presented together. Some commonalities you will find in all figures produced by this package:
 
--   Use of a table and figure titles. Titles include the stock and species being displayed in the following format: Stock Name, Species Name.
--   Subtitles or labels specifying the brood years included in the analysis. Brood year information is conveyed through items names in `posterior_list` or `profile_list` and follow the format: Brood years: xxx-yyy
--   Consistent use of visual clues across plots.
-    -   Analysis: dashed lines represent the original analysis (i.e. the analysis used to establish the current escapement goal) while solid lines represent the updated analysis. 
-    -   Escapement goals: Grey fill represents the current escapement goal range and, when applicable, brown fill represents new escapement goal range.
-    -   Empirical data: Hollow circles represent data included in the original analysis and filled circles represent data added to the updated analysis.
-    -   Visual reference: Dotted lines.
--   Textual legends: Notes associated with each figure act so the key to each plot's visual cues. This approach maximizes the percentage of the figure dedicated to displaying the data, ensures the legend travels with the figure, and allows for brief figure captions.
--   Use of Arial font.
+-   Table and figure titles in the following format: Stock Name, Species Name
+-   Arial font
+-   Figure borders
+-   Current escapement goal ranges and/or new escapement goal findings shown in figures are also specified as numbers 
+-   Number scaling: When the maximum number being plotted is between 10,000 and 1,000,000, axis labels are scaled to display thousands (e.g. 2K). The scale changes to millions (e.g. 2M) when the maximum number being plotted is greater than 1,000,000.
 
-The following 2 sections will demonstrate these unifying design principles across 2 common scenarios following an escapement goal analysis update. 
+In addition, figures associated with spawner-recruit analyses are further standardized as follows:
+
+-   Indication of the brood years included in the analysis
+-   Consistent visual clues
+    -   Analysis: dashed lines represent the original analysis while solid lines represent the updated analysis
+    -   Escapement goals: Grey fill represents the current escapement goal range, brown fill represents the new escapement goal range
+    -   Empirical data: Hollow circles represent data included in the original analysis and filled circles represent data added to the updated analysis
+    -   Reference lines are dotted
+-   Self contained legends[^1] 
+
+[^1]: Traditionally, information not contained in the figure legend was included in the figure caption associated with the figure. In `EGprocess`, information not clarified by the figure legend is included as text within the figure border. This approach ensures all of the needed information 'travels' together with the figure.
+
+The following sections will demonstrate these unifying design principles across 2 common scenarios following an escapement goal analysis update. 
 
 # Finding: No Change
 
-Often escapement goal analyses are updated but the updated analysis continues to support the current escapement goal range. This section will demonstrate the production of tables and figures in that scenario. 
+During the 2026 escapement goal review process for Igushik River Sockeye salmon the escapement goal review committee elected not to change the escapement goal from the current escapement goal, which was established in 2015. The datasets included in `EGprocess` represent this situation. 
 
-## Historical Escapement Plot {.tabset}
-
-EGPIT decided historical escapements should be depicted as a bar plot overlain with the contemporary escapement goal range and color coded to indicate escapements below the lower bound of the contemporary escapement goal. *Note: The EGPIT representation is visually pleasing. An alternative is offered which is admittedly less aesthetic but has the advantage of matching the visual cues used in the other plots.*
-
-### EGPIT
-```{r historicS_nochange, fig.width = 6, fig.height= 4}
-brood_Igushik <- get_brood(run_data = data_Igushik)
-
-plot_escapement(brood_data = brood_Igushik, 
-                goal_data = goal_Igushik, 
-                title = "Igushik River Sockeye Salmon")
-```
-
-### Alternative
-```{r, echo = FALSE}
-plot_alt_escapement <- function(brood_data,
-                             goal_data,
-                             title,
-                             new_finding = FALSE,
-                             broods_updated = 0){
-  brood_data <- brood_data %>% dplyr::filter(!is.na(S))
-  
-  yr_max <- if(max(goal_data$yr) < max(brood_data$yr)){max(brood_data$yr + 2)}else{max(goal_data$yr) + 2}
-  goal <-
-    goal_data %>%
-    dplyr::mutate(yr = yr - 0.5,
-                  dplyr::across(c(lb, ub), function(x){ifelse(is.na(x), -99, x)}),
-                  finding = ifelse(yr == max(goal_data$yr) - 0.5 & isTRUE(new_finding), "new", "current")) %>%
-    tidyr::complete(yr = tidyr::full_seq(c(yr, yr_max), 0.1)) %>%
-    tidyr::fill(lb, ub, finding, .direction = "down") %>%
-    dplyr::mutate(across(c(lb, ub), function(x){ifelse(x == -99, NA, x)}))
-  
-  cap <- 
-  case_when(isTRUE(new_finding) & broods_updated >= min(goal_data$yr) ~ stringr::str_wrap("Note: Filled 
-    circles indicated observations added to the dataset since the escapement goal last changed. Escapement 
-    goal ranges are shaded, brown for the new escapement goal finding and grey for current and historical goals.", 
-    width = 85),
-    isTRUE(new_finding) & broods_updated < min(goal_data$yr)  ~ stringr::str_wrap("Note: Escapement 
-    goal ranges are shaded, brown for the new escapement goal finding and grey for current and historical goals.", 
-    width = 85),
-    !isTRUE(new_finding) & broods_updated >= min(goal_data$yr) ~ stringr::str_wrap("Note: Filled 
-    circles indicated observations added to the dataset since the escapement goal last changed. Escapement 
-    goal ranges are shaded grey", width = 85),
-    !isTRUE(new_finding) & broods_updated < min(goal_data$yr) ~ stringr::str_wrap("Note: Escapement goal ranges 
-    are shaded grey.", width = 85)
-  )
-                   
-  
-  brood_data %>%
-    dplyr::select(yr, S) %>%
-    dplyr::mutate(update = ifelse(yr >= broods_updated, "updated", "existing")) %>%
-    ggplot2::ggplot(aes(x = yr)) +
-    ggplot2::geom_point(aes(y = S, shape = update)) +
-    ggplot2::geom_line(aes(y = S), linewidth = 0.5) +
-    ggplot2::geom_ribbon(ggplot2::aes(x = yr, ymin = lb, ymax = ub, fill = finding),
-                         data = goal,
-                         alpha = 0.5,
-                         inherit.aes = FALSE) +
-    ggplot2::scale_fill_manual(values = c("new" = "#AB7E4C", "current" = "gray80")) +
-    ggplot2::scale_shape_manual(values = c("updated" = 16, "existing" = 1)) +
-    ggplot2::scale_y_continuous(labels = scales::comma) +
-    ggplot2::labs(title = title,
-                  x = "Year",
-                  y = "Escapement",
-                  caption = cap) +
-    theme_eg()
-  
-}
-```
-```{r alternateS_nochange, fig.width = 6, fig.height= 4}
-plot_alt_escapement(brood_Igushik,
-                    goal_Igushik,
-                    "Igushik River Sockeye Salmon",
-                    broods_updated = 2014)
-```
-
-## Spawner-Recruit Plot{-}
+## Spawner-Recruit Plot
 
 EGPIT decided spawner-recruit (SR) relationships should depicted the SR pairs used to estimate the relationship (with color coding to indicate SR pairs included in the original analysis and added to the updated analysis), the estimated SR relationship, $S_{MSY}$, and the current goal range.
 
 ```{r SRplot_nochange, fig.width = 6, fig.height= 6}
+brood_Igushik <- get_brood(run_data = data_Igushik)
 post_Igushik <- c(post_Igushik_byr63_05, post_Igushik_byr63_15)
 
 plot_SR(posterior_list = post_Igushik, 
@@ -149,7 +84,7 @@ plot_ey(posterior_list = post_Igushik,
 
 ## Optimal Yield Profile
 
-EGPIT decided escapement goals intended to target MSY should use a universal standard target yield of greater than 90% of MSY. When producing OYP plots this means a single line, overlain with the current escapement goal is needed to describe the probability of maximizing yield within the escapement goal range. By displaying the OYP generated from both the original and updated analyses ADF&G staff can easily compare how the empirical data added since the last escapement goal change has impacted the relationship between MSY and the goal. In this case, 10 additional brood years resulted in a slight rightward shift of the OYP and minimal changes to the probability of achieving at least 90% of MSY at both the upper and lower bound of the existing goal. Thus, this presentation supports the escapement goal committee's recommendation of no change to the escapement goal. 
+EGPIT decided escapement goals intended to maximize sustained yield should use a universal standard target yield of greater than 90% of maximum sustained yield (MSY). When producing OYP plots this means a single line, overlain with the current escapement goal is needed to describe the probability of achieving that target within the escapement goal range. By displaying the OYP generated from both the original and updated analyses ADF&G staff can easily compare how the empirical data added since the last escapement goal change has impacted the relationship between MSY and the goal. In this case, 10 additional brood years resulted in a slight rightward shift of the OYP and minimal changes to the probability of achieving at least 90% of MSY at both the upper and lower bound of the existing goal. 
 
 ```{r OYP_nochange, fig.width = 6, fig.height = 6}
 profile_Igushik <- get_profile(post_Igushik, multiplier = 1e-5)
@@ -161,7 +96,7 @@ plot_profile(profile_Igushik,
 
 ## Spawner-Recruit Parameter Table
 
-EGPIT determined the following parameters should be presented after each escapement goal update. *note to EGPIT: Notice that estimates of the management reference points show 3 significant figures. It occurred to Adam that any more than this implies much more certainty about the SR parameter estimates than we have any reason to expect. If folks are happy with this it also provides guidance about a standard for rounding escapement goals produced by spawner-recruit analysis. Likely not universal bc it implies a goal on the scale of thousands should be rounded to the nearest 10 fish. Maybe it can set an upper limit. In that case 100 fish might be a reasonable lower limit.*
+EGPIT determined the following parameters should be presented after each escapement goal update.
 
 ```{r SRtable_nochange}
 table_SR(post_Igushik[2], 
@@ -188,27 +123,17 @@ goal_imaginary <-
 goal_imaginary
 ```
 
-## Historical Escapement Plot {.tabset}
+## Historical Escapement Plot
 
-Following the EGPIT standard the new escapement goal finding is shown as a change to the escapement goal range which extends into the future. *Note: The alternative is similar but highlights the presence of a new finding using color coding.*
+Following the EGPIT standard the new escapement goal finding is shown as a change to the escapement goal range which extends into the future.
 
-### EGPIT
 ```{r historicS_change, fig.width = 6, fig.height= 4}
 plot_escapement(brood_data = brood_Igushik, 
                 goal_data = goal_imaginary, 
                 title = "Igushik River Sockeye Salmon")
 ```
 
-### Alternative
-```{r, alternateS_change, fig.width = 6, fig.height= 4}
-plot_alt_escapement(brood_Igushik,
-                    goal_imaginary,
-                    "Imaginary River Sockeye Salmon",
-                    broods_updated = 2014, 
-                    new_finding = TRUE)
-```
-
-## Spawner-Recruit and Expected Yield Plots {-}
+## Spawner-Recruit and Expected Yield Plots
 
 When a new escapement goal finding is made the spawner-recruit plot is identical except the new finding is displayed on the plot and highlighted using color coding. Color coding is extremely helpful here as the new finding can be difficult to detect unless the reader remembers the current and new escapement goal bounds very accurately. The expected yield plot (not shown) is similarly modified.
 
