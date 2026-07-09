@@ -4,7 +4,6 @@
 # EGprocess
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 The R package EGprocess facilitates simple and standard creation of
@@ -160,7 +159,7 @@ plot_escapement(brood_data = brood_Igushik, goal_data = goal_Igushik,
                 title = "Igushik River Sockeye Salmon")
 ```
 
-<img src="man/figures/README-plot_escapement_example-1.png" width="75%" />
+<img src="man/figures/README-plot_escapement_example-1.svg" alt="" width="75%" />
 
 ### plot_profile()
 
@@ -173,7 +172,7 @@ plot_profile(profile_list = Igushik_profile, goal_data = goal_Igushik,
 #> (`geom_segment()`).
 ```
 
-<img src="man/figures/README-plot_profile_example-1.png" width="75%" />
+<img src="man/figures/README-plot_profile_example-1.svg" alt="" width="75%" />
 
 ### plot_ey()
 
@@ -184,9 +183,13 @@ expected yield, both overlain with the goal range.
 plot_ey(posterior_list = Igushik_posterior, brood_data = brood_Igushik,
         goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", 
         multiplier = 1e-5)
+#> Warning: Removed 1 row containing missing values or values outside the scale range
+#> (`geom_point()`).
+#> Warning: Removed 1 row containing missing values or values outside the scale range
+#> (`geom_line()`).
 ```
 
-<img src="man/figures/README-plot_ey_example-1.png" width="75%" />
+<img src="man/figures/README-plot_ey_example-1.svg" alt="" width="75%" />
 
 ### plot_SR()
 
@@ -197,9 +200,13 @@ median spawner-recruit relationship, both overlain with the goal range.
 plot_SR(posterior_list = Igushik_posterior, brood_data = brood_Igushik,
         goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", 
         multiplier = 1e-5)
+#> Warning: Removed 1 row containing missing values or values outside the scale range
+#> (`geom_point()`).
+#> Warning: Removed 1 row containing missing values or values outside the scale range
+#> (`geom_line()`).
 ```
 
-<img src="man/figures/README-plot_SR_example-1.png" width="75%" />
+<img src="man/figures/README-plot_SR_example-1.svg" alt="" width="75%" />
 
 ### table_SR()
 
@@ -211,7 +218,7 @@ table_SR(posterior_list = Igushik_posterior[2], title = "Igushik River Sockeye S
          multiplier = 1e-5)
 ```
 
-<img src="man/figures/README-table_SR_example-1.png" width="75%" />
+<img src="man/figures/README-table_SR_example-1.png" alt="" width="75%" />
 
 ### theme_eg()
 
@@ -219,12 +226,13 @@ Function `theme_eg()` is the default escapement goal ggplot theme.
 
 ``` r
 library(ggplot2)
+#> Warning: package 'ggplot2' was built under R version 4.4.3
 ggplot(mtcars, aes(wt, mpg)) + 
   geom_point() + 
   theme_eg()
 ```
 
-<img src="man/figures/README-theme_eg_example-1.png" width="50%" />
+<img src="man/figures/README-theme_eg_example-1.svg" alt="" width="50%" />
 
 ### output_SR()
 
@@ -241,16 +249,13 @@ output_SR(posterior_list = Igushik_posterior, brood_data = brood_Igushik,
 ## Included Datasets
 
 To help users and produce useful examples, EGprocess includes 4 example
-datasets from the Igushik River sockeye salmon escapement goal
-analyses.  
+datasets from the Igushik River sockeye salmon escapement goal analyses.
 Dataset `goal_Igushik` provides the historical escapement goal bounds
 used across management periods, while dataset`data_Igushik` contains
 annual escapement, total run, and age‑composition information used to
-build brood tables.  
-Two posterior datasets, `post_Igushik_byr63_05` and
+build brood tables. Two posterior datasets, `post_Igushik_byr63_05` and
 `post_Igushik_byr63_15`, contain MCMC samples of model parameters for
-brood years 1963–2005 and 1963–2015, respectively.  
-More information about the included datasets are found in the
-[supporting data docs](../../R/data-docs.R) and in the included
-[vignette
+brood years 1963–2005 and 1963–2015, respectively. More information
+about the included datasets are found in the [supporting data
+docs](../../R/data-docs.R) and in the included [vignette
 Escapement-Goal-Figures](./vignettes/Escapement-Goal-Figures.Rmd).

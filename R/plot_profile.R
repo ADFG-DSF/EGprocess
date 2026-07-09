@@ -85,6 +85,13 @@ plot_profile <- function(profile_list,
            " - ",
            format(goal_plot$ub, big.mark = ",", scientific = FALSE)))
 
+  fill_name <-
+    case_when(
+      isFALSE(new_finding) ~ "Current EG",
+      isTRUE(new_finding) & n_goals == 1 ~ "New EG Finding",
+      isTRUE(new_finding) & n_goals == 2 ~ "Current EG/New EG Finding",
+    )
+
   cap_width = 85
   cap <-
     case_when(
@@ -161,7 +168,7 @@ plot_profile <- function(profile_list,
           "\u2265 90% of MSY")}else{
         "\u2265 90% of MSY"}) +
     ggplot2::scale_fill_manual(
-      name = if(isTRUE(new_finding)){"New EG finding"}else("Current EG"),
+      name = fill_name,
       values = c("TRUE" = "#AB7E4C", "FALSE" = "gray80"),
       labels = goal_plot$label) +
     ggplot2::guides(

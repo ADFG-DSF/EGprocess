@@ -52,10 +52,6 @@ plot_escapement <- function(brood_data,
     tidyr::complete(yr = tidyr::full_seq(c(yr, yr_max), 1)) %>%
     tidyr::fill(lb, .direction = "down")
 
-  cap <- stringr::str_wrap("Note: Escapement goal lower and upper bounds are shown as solid
-                  and dashed lines, respectively. Escapements below the lower bound
-                  of the concurrent escapement goal are indicated with black fill.",
-                           width = 85)
   cap_width = 85
   cap <- case_when(
     max(goal_data$yr) <= max(brood_data$yr) & is.na(goal_data[dim(goal_data)[1], "ub"]) ~
@@ -63,7 +59,7 @@ plot_escapement <- function(brood_data,
                                format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "."),
                         width = 85),
     max(goal_data$yr) <= max(brood_data$yr)  ~
-      stringr::str_wrap(paste0("The curent escapement goal lower bound is ",
+      stringr::str_wrap(paste0("The curent escapement goal is ",
                                format(goal_data[dim(goal_data)[1], "lb"], big.mark = ",", scientific = FALSE), "-",
                                format(goal_data[dim(goal_data)[1], "ub"], big.mark = ",", scientific = FALSE), "."),
                         width = 85),

@@ -1,7 +1,10 @@
 ---
 title: "EGprocess: Standard Process"
 output:
-  html_document:   # for HTML with figure numbering 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: FALSE
     number_sections: false
     fig_caption: true
     self_contained: true
@@ -58,7 +61,9 @@ During the 2026 escapement goal review process for Igushik River Sockeye salmon 
 
 ## Spawner-Recruit Plot
 
-EGPIT decided spawner-recruit (SR) relationships should depicted the SR pairs used to estimate the relationship (with color coding to indicate SR pairs included in the original analysis and added to the updated analysis), the estimated SR relationship, $S_{MSY}$, and the current goal range.
+EGPIT decided spawner-recruit (SR) relationships should depicted the SR pairs used to estimate the relationship (with color coding to indicate SR pairs included in the original analysis and added to the updated analysis), the estimated SR relationship, $S_{MSY}$, and the current goal range[^1]. 
+
+[^1]: Note on the multiplier argument. The multiplier argument is required for Shiny app posteriors retrieved prior to May 2026 in which a scaled version of $\beta$ is included in the posterior distribution provided by the app. After May 2026, $\beta$ is provided on the natural scale and setting the multiplier argument to 1, which is the default, is appropriate.
 
 ```{r SRplot_nochange, fig.width = 6, fig.height= 6}
 brood_Igushik <- get_brood(run_data = data_Igushik)
@@ -74,7 +79,7 @@ plot_SR(posterior_list = post_Igushik,
 ## Expected Yield Plot
 EGPIT decided expected yield plots should depicted the empirical data used to estimate the relationship (with color coding to indicate SR pairs added to the dataset since the last time the escapement goal was changed), the estimate of expected yield, and the current goal range. 
 
-```{r ey_nochange, fig.width = 6, fig.height= 5}
+```{r ey_nochange, fig.width = 6, fig.height = 5}
 plot_ey(posterior_list = post_Igushik, 
         brood_data = brood_Igushik, 
         goal_data = goal_Igushik, 
@@ -96,7 +101,9 @@ plot_profile(profile_Igushik,
 
 ## Spawner-Recruit Parameter Table
 
-EGPIT determined the following parameters should be presented after each escapement goal update.
+EGPIT determined the following parameters should be presented after each escapement goal update. The table shows medians for each statistic along with the coefficient of variation[^2] and the 95% credibility interval.  
+
+[^2]: The geometric coefficient of variation is $cv = \sqrt{e^{\left(\frac{log(q95)-log(q5)}{2*1.65}\right)^2} - 1}$ where q95 and q5 represent the 95th and 5th percentiles from the posterior distribution of the parameter, respectively.
 
 ```{r SRtable_nochange}
 table_SR(post_Igushik[2], 
@@ -110,32 +117,22 @@ During the escapement goal review process for Igushik River Sockeye salmon the e
 
 Imagine the committee had disregarded the stability of the relationship between the escapement goal bounds and the OYP probabilities displayed in Figure 5 and decided the goal was too aggressive relative to a target of 90% of MSY. This imaginary committee may have decided increases to both the lower and upper bounds of the existing escapement goal were appropriate. This decision could have been communicated using `EGprocess` outputs by adding an additional row to the `goal_data` file containing the new escapement goal finding and the year the new finding would go into effect.
 
-In addition to the modified `goal_data` argument, the argument `new_finding` is set equal to TRUE for the following plots.  In what follows we will also change the figure titles to make clear that this is an imaginary example. Table 1 is unchanged and will be omitted from this section. 
+In addition to the modified `goal_data` argument, the argument `new_finding` is set equal to TRUE for the following plots.  In what follows we will also change the figure titles to make clear that this is an imaginary example.
 
 ```{r}
 goal_imaginary <-
   goal_Igushik %>%
   bind_rows(
-    data.frame(yr = 2026,
+    data.frame(yr = 2024,
                lb = 175000,
                ub = 500000)
   )
 goal_imaginary
 ```
 
-## Historical Escapement Plot
-
-Following the EGPIT standard the new escapement goal finding is shown as a change to the escapement goal range which extends into the future.
-
-```{r historicS_change, fig.width = 6, fig.height= 4}
-plot_escapement(brood_data = brood_Igushik, 
-                goal_data = goal_imaginary, 
-                title = "Igushik River Sockeye Salmon")
-```
-
 ## Spawner-Recruit and Expected Yield Plots
 
-When a new escapement goal finding is made the spawner-recruit plot is identical except the new finding is displayed on the plot and highlighted using color coding. Color coding is extremely helpful here as the new finding can be difficult to detect unless the reader remembers the current and new escapement goal bounds very accurately. The expected yield plot (not shown) is similarly modified.
+When a new escapement goal finding is made the spawner-recruit plot is identical except the new finding is displayed on the plot and highlighted using color coding. Color coding is extremely helpful here as the new finding can be difficult to detect unless the reader remembers the current and new escapement goal bounds very accurately. The expected yield plot in this scenario (not shown) would have the same changes with the same modifications to the arguments of `plot_ey`.
 
 ```{r SRplot_change, fig.width = 6, fig.height= 6}
 plot_SR(posterior_list = post_Igushik, 
@@ -157,4 +154,19 @@ plot_profile(profile_Igushik,
              goal_imaginary,
              "Imaginary River Sockeye Salmon",
              new_finding = TRUE)
+```
+
+## Historical Escapement Plot
+
+Note that `plot_escapement` will reflect new escapement goal findings as well if provided with `goal_data` where the last escapement goal change is later than the last escapement provided in `brood_data`.
+
+```{r historicS_change, fig.width = 6, fig.height= 5}
+plot_escapement(brood_data = brood_Igushik, 
+                goal_data = goal_imaginary, 
+                title = "Imaginary River Sockeye Salmon")
+```
+
+```{r, include=FALSE}
+#Run this in the console when changes are made to update the html stored in docs.
+#rmarkdown::render("./vignettes/EGprocess-Standard_process.Rmd", output_dir = "docs")
 ```

@@ -41,7 +41,7 @@ plot_escapement(brood_Igushik,
 )
 
 plot_escapement(brood_Igushik,
-                goal_lbSEG,
+                goal_Igushik_lbSEG,
                 "Igushik River Sockeye Salmon"
 )
 
@@ -103,6 +103,11 @@ plot_SR(post_Igushik,
         multiplier = 1e-5)
 
 table_SR(post_Igushik[2], title = "Igushik River Sockeye Salmon", multiplier = 1e-6)
+#works wo phi
+post_test <- post_Igushik[2]
+post_test[[1]] <- post_Igushik[[2]][, names(post_Igushik[[2]]) != "phi"]
+table_SR(post_test, title = "Igushik River Sockeye Salmon", multiplier = 1e-6)
+
 
 #test plot_ey function
 # No goal change, single analysis
@@ -174,14 +179,11 @@ plot_profile(profile_list[2],
              "Igushik River Sockeye Salmon",
              new_finding = TRUE
 )
-
 plot_profile(profile_list80[2],
              goal_Igushik_new,
              "Igushik River Sockeye Salmon",
              new_finding = TRUE
 )
-
-#test plot_profile2
 # no goal change
 plot_profile(profile_list,
              goal_Igushik,

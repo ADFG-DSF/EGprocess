@@ -40,12 +40,11 @@ table_SR <- function(posterior_list,
   }
 
   posterior_list[[1]] %>%
+    dplyr::select(which(names(posterior_list[[1]]) %in% c("lnalpha", "beta", "phi", "sigma"))) %>%
     dplyr::mutate(beta = beta * multiplier,
-                  phi = if("phi" %in% names(posterior_list[[1]])){posterior_list[[1]][["phi"]]}else{0},
                   S.max = 1/ beta,
                   S.eq = lnalpha / beta,
                   S.msy = S.eq * (0.5 - 0.07 * lnalpha)) %>%
-    select(lnalpha, beta, phi, sigma, S.msy, S.max, S.eq) %>%
     tidyr::pivot_longer(tidyr::everything(), names_to = "param", values_to = "value") %>%
     dplyr::group_by(param) %>%
     dplyr::summarise(median = median(value),
@@ -102,7 +101,7 @@ table_SR <- function(posterior_list,
                                  description = "Description",
                                  median_print = "Median",
                                  cv_print = "CV",
-                                 ci = "95% CI")) %>%
+                                 ci = "90% CI")) %>%
     flextable::add_header_row(values = names(posterior_list),
                               colwidths = 5,
                               top = TRUE) %>%

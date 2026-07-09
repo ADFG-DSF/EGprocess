@@ -1,7 +1,10 @@
 ---
 title: "EGprocess: Orientation"
 output:
-  html_document:   # for HTML with figure numbering
+  html_document:   
+    toc: true
+    toc_depth: 3
+    toc_float: FALSE
     number_sections: false
     fig_caption: true
     self_contained: true
@@ -176,7 +179,7 @@ tail(brood_Igushik, n = 12)
 profile_Igushik_list <- get_profile(post_Igushik_list, multiplier = 1e-5)
 ```
 
-### get_escapement
+### plot_escapement
 
 Most of the functions included in `EGprocess` are applicable to escapement goal updates associated with spawner-recruit analyses. One exception is the function `plot_escapement` which shows historical escapements overlain with current and historical escapement goal ranges and is a suggested figure when any escapement goal is updated during the escapement goal review process. We will use `plot_escapement` herein to demonstrate the use of a `EGprocess` plotting function.
 
@@ -188,4 +191,9 @@ To create the output the user needs to present the function with 2 datasets: one
 plot_escapement(brood_data = brood_Igushik, 
                 goal_data = goal_Igushik, 
                 title = "Igushik River Sockeye Salmon")
+```
+
+```{r, include=FALSE}
+#Run this in the console when changes are made to update the html stored in docs.
+#rmarkdown::render("./vignettes/EGprocess-Orientation.Rmd", output_dir = "docs")
 ```
