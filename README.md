@@ -250,4 +250,5 @@ build brood tables. Two posterior datasets, `post_Igushik_byr63_05` and
 brood years 1963–2005 and 1963–2015, respectively. More information
 about the included datasets are found in the [supporting data
 docs](../../R/data-docs.R) and in the included [vignette EGprocess
-Orientation](./vignettes/EGprocess-Orientation.Rmd).
+Orientation](./vignettes/EGprocess-Orientation.Rmd). Test link
+`vignette("EGprocess-Orientation")`.
