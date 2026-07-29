@@ -1,0 +1,6 @@
+articles:
+  - title: EGprocess Documentation
+    contents:
+      - EGprocess-Orientation
+      - EGprocess-Special_cases
+      - EGprocess-Standard_process
