@@ -4,6 +4,7 @@
 # EGprocess
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 The R package EGprocess facilitates simple and standard creation of
@@ -16,7 +17,7 @@ You can install the development version of EGprocess from
 
 ``` r
 # install.packages("pak")
-pak::pak("adamreimer/EGprocess")
+pak::pak("ADFG-DSF/EGprocess")
 ```
 
 ## Overview
@@ -183,10 +184,6 @@ expected yield, both overlain with the goal range.
 plot_ey(posterior_list = Igushik_posterior, brood_data = brood_Igushik,
         goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", 
         multiplier = 1e-5)
-#> Warning: Removed 1 row containing missing values or values outside the scale range
-#> (`geom_point()`).
-#> Warning: Removed 1 row containing missing values or values outside the scale range
-#> (`geom_line()`).
 ```
 
 <img src="man/figures/README-plot_ey_example-1.svg" alt="" width="75%" />
@@ -200,10 +197,6 @@ median spawner-recruit relationship, both overlain with the goal range.
 plot_SR(posterior_list = Igushik_posterior, brood_data = brood_Igushik,
         goal_data = goal_Igushik, title = "Igushik River Sockeye Salmon", 
         multiplier = 1e-5)
-#> Warning: Removed 1 row containing missing values or values outside the scale range
-#> (`geom_point()`).
-#> Warning: Removed 1 row containing missing values or values outside the scale range
-#> (`geom_line()`).
 ```
 
 <img src="man/figures/README-plot_SR_example-1.svg" alt="" width="75%" />
@@ -226,7 +219,6 @@ Function `theme_eg()` is the default escapement goal ggplot theme.
 
 ``` r
 library(ggplot2)
-#> Warning: package 'ggplot2' was built under R version 4.4.3
 ggplot(mtcars, aes(wt, mpg)) + 
   geom_point() + 
   theme_eg()
@@ -257,5 +249,5 @@ build brood tables. Two posterior datasets, `post_Igushik_byr63_05` and
 `post_Igushik_byr63_15`, contain MCMC samples of model parameters for
 brood years 1963–2005 and 1963–2015, respectively. More information
 about the included datasets are found in the [supporting data
-docs](../../R/data-docs.R) and in the included [vignette
-Escapement-Goal-Figures](./vignettes/Escapement-Goal-Figures.Rmd).
+docs](../../R/data-docs.R) and in the included [vignette EGprocess
+Orientation](./vignettes/EGprocess-Orientation.Rmd).
